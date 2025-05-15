@@ -2,33 +2,57 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Search Matches - Preeti Shaadi</title>
+  <title>Search Profiles - Preeti Shaadi</title>
   <style>
-    body { font-family: Arial, sans-serif; max-width: 800px; margin: 40px auto; }
-    label { margin-right: 10px; }
-    input, select, button { padding: 6px; margin: 5px; }
-    .profile-card { border: 1px solid #ccc; padding: 12px; margin: 12px 0; border-radius: 6px; }
-    img { max-width: 100px; height: auto; border-radius: 50%; }
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 700px;
+      margin: 30px auto;
+      padding: 10px;
+    }
+    input, select, button {
+      padding: 8px;
+      margin: 6px 0;
+      font-size: 1rem;
+    }
+    .profile-card {
+      border: 1px solid #ccc;
+      padding: 12px;
+      margin: 12px 0;
+      border-radius: 6px;
+    }
+    .profile-card button {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .profile-card button:hover {
+      background-color: #45a049;
+    }
   </style>
 </head>
 <body>
-  <h1>Find Matches</h1>
+  <h1>Search Profiles</h1>
   <button id="logoutBtn">Logout</button>
+  <br /><br />
 
-  <form id="filter-form">
-    <label>Gender:
-      <select id="filter-gender">
-        <option value="">Any</option>
-        <option value="Male">Male</option>
-        <option value="Female">Female</option>
-        <option value="Other">Other</option>
-      </select>
-    </label>
-    <label>Min Age: <input type="number" id="filter-min-age" min="18" max="100" /></label>
-    <label>Max Age: <input type="number" id="filter-max-age" min="18" max="100" /></label>
-    <label>Location: <input type="text" id="filter-location" placeholder="City or State" /></label>
-    <button type="submit">Search</button>
-  </form>
+  <label for="gender">Gender:</label>
+  <select id="gender">
+    <option value="">Any</option>
+    <option value="male">Male</option>
+    <option value="female">Female</option>
+  </select>
+
+  <label for="minAge">Min Age:</label>
+  <input type="number" id="minAge" min="18" max="100" placeholder="18" />
+
+  <label for="maxAge">Max Age:</label>
+  <input type="number" id="maxAge" min="18" max="100" placeholder="100" />
+
+  <button id="searchBtn">Search</button>
 
   <div id="results"></div>
 
@@ -42,9 +66,12 @@
     import {
       getFirestore,
       collection,
-      getDocs,
       query,
-      where
+      where,
+      getDocs,
+      doc,
+      setDoc,
+      getDoc
     } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -61,93 +88,109 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    const resultsDiv = document.getElementById("results");
-    const filterForm = document.getElementById("filter-form");
     const logoutBtn = document.getElementById("logoutBtn");
+    const searchBtn = document.getElementById("searchBtn");
+    const resultsDiv = document.getElementById("results");
 
-    // Logout button
     logoutBtn.addEventListener("click", async () => {
       await signOut(auth);
       window.location.href = "index.html";
     });
 
-    // Check if user is logged in
-    onAuthStateChanged(auth, (user) => {
+    onAuthStateChanged(auth, user => {
       if (!user) {
-        alert("Please login to see matches.");
+        alert("Please login to search profiles.");
         window.location.href = "index.html";
       }
     });
 
-    // Render profiles list
-    function renderProfiles(profiles) {
-      resultsDiv.innerHTML = "";
-      if (profiles.length === 0) {
-        resultsDiv.textContent = "No matches found.";
+    searchBtn.addEventListener("click", async () => {
+      resultsDiv.innerHTML = "Searching...";
+      const gender = document.getElementById("gender").value;
+      const minAge = parseInt(document.getElementById("minAge").value) || 18;
+      const maxAge = parseInt(document.getElementById("maxAge").value) || 100;
+
+      let profilesRef = collection(db, "profiles");
+      let q;
+
+      if (gender) {
+        q = query(profilesRef, where("gender", "==", gender));
+      } else {
+        q = query(profilesRef);
+      }
+
+      try {
+        const querySnapshot = await getDocs(q);
+        let results = [];
+
+        querySnapshot.forEach(docSnap => {
+          const profile = docSnap.data();
+          profile.id = docSnap.id;
+
+          if (profile.age >= minAge && profile.age <= maxAge) {
+            results.push(profile);
+          }
+        });
+
+        if (results.length === 0) {
+          resultsDiv.innerHTML = "<p>No profiles found matching criteria.</p>";
+          return;
+        }
+
+        // Display profiles
+        resultsDiv.innerHTML = "";
+        results.forEach(profile => {
+          const card = document.createElement("div");
+          card.className = "profile-card";
+          card.innerHTML = `
+            <p><strong>Name:</strong> ${profile.name}</p>
+            <p><strong>Age:</strong> ${profile.age}</p>
+            <p><strong>Gender:</strong> ${profile.gender}</p>
+            <button onclick="sendRequest('${profile.id}', '${profile.name}')">Send Contact Request</button>
+          `;
+          resultsDiv.appendChild(card);
+        });
+      } catch (error) {
+        console.error("Error searching profiles:", error);
+        resultsDiv.innerHTML = "<p>Error searching profiles.</p>";
+      }
+    });
+
+    window.sendRequest = async function (receiverId, receiverName) {
+      const user = auth.currentUser;
+      if (!user) {
+        alert("Please login to send requests.");
         return;
       }
 
-      profiles.forEach(p => {
-        const div = document.createElement("div");
-        div.className = "profile-card";
+      if (receiverId === user.uid) {
+        alert("You cannot send a request to yourself!");
+        return;
+      }
 
-        div.innerHTML = `
-          <img src="${p.photoURL || 'https://via.placeholder.com/100'}" alt="${p.name}" />
-          <h3>${p.name}, ${p.age}</h3>
-          <p><strong>Gender:</strong> ${p.gender}</p>
-          <p><strong>Location:</strong> ${p.location || 'N/A'}</p>
-          <p><strong>Religion:</strong> ${p.religion || 'N/A'}</p>
-          <p><strong>Bio:</strong> ${p.bio || ''}</p>
-          <button onclick="sendRequest('${p.userId}', '${p.name}')">Send Contact Request</button>
-        `;
-        resultsDiv.appendChild(div);
-      });
-    }
-
-    // Send contact request - stub for now
-    window.sendRequest = function (userId, name) {
-      alert(`Contact request sent to ${name}! (Feature coming soon)`);
-      // Later you can add actual Firestore docs for requests
-    };
-
-    // Load all profiles initially
-    async function loadProfiles(filters = {}) {
-      const profilesRef = collection(db, "profiles");
-      const snapshot = await getDocs(profilesRef);
-      let profiles = [];
-      snapshot.forEach(doc => {
-        profiles.push(doc.data());
-      });
-
-      // Filter client side (you can improve with Firestore queries later)
-      profiles = profiles.filter(p => {
-        if (filters.gender && p.gender !== filters.gender) return false;
-        if (filters.minAge && p.age < filters.minAge) return false;
-        if (filters.maxAge && p.age > filters.maxAge) return false;
-        if (filters.location && p.location) {
-          if (!p.location.toLowerCase().includes(filters.location.toLowerCase())) return false;
+      try {
+        // Check if request already exists
+        const reqDocRef = doc(db, "contactRequests", `${user.uid}_${receiverId}`);
+        const reqDocSnap = await getDoc(reqDocRef);
+        if (reqDocSnap.exists()) {
+          alert("You have already sent a request to this user.");
+          return;
         }
-        return true;
-      });
 
-      renderProfiles(profiles);
-    }
+        // Save new request
+        await setDoc(reqDocRef, {
+          senderId: user.uid,
+          receiverId,
+          status: "pending",
+          timestamp: Date.now()
+        });
 
-    // On form submit, get filters and reload profiles
-    filterForm.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const filters = {
-        gender: document.getElementById("filter-gender").value,
-        minAge: parseInt(document.getElementById("filter-min-age").value) || null,
-        maxAge: parseInt(document.getElementById("filter-max-age").value) || null,
-        location: document.getElementById("filter-location").value.trim()
-      };
-      loadProfiles(filters);
-    });
-
-    // Load profiles on page load
-    loadProfiles();
-
+        alert(`Contact request sent to ${receiverName}!`);
+      } catch (error) {
+        console.error("Error sending request:", error);
+        alert("Failed to send contact request.");
+      }
+    };
   </script>
 </body>
 </html>
