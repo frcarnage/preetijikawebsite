@@ -3,23 +3,117 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Bandhan by Preeti - Login</title>
-  <link rel="stylesheet" href="style.css" />
+  <title>Login - Preeti Shaadi</title>
+  <style>
+    /* Reset and basic styles */
+    * {
+      margin: 0; padding: 0; box-sizing: border-box;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      color: #333;
+    }
+    .login-container {
+      background: white;
+      padding: 40px 50px;
+      border-radius: 15px;
+      box-shadow: 0 12px 30px rgba(253,160,133,0.3);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+    h2 {
+      margin-bottom: 25px;
+      color: #fda085;
+      font-weight: 700;
+    }
+    input[type="email"], input[type="password"] {
+      width: 100%;
+      padding: 14px 18px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      font-size: 1rem;
+      transition: border-color 0.3s ease;
+    }
+    input[type="email"]:focus, input[type="password"]:focus {
+      border-color: #fda085;
+      outline: none;
+    }
+    button {
+      width: 100%;
+      padding: 15px;
+      background: #fda085;
+      border: none;
+      border-radius: 30px;
+      color: white;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(253,160,133,0.4);
+      transition: background 0.3s ease;
+    }
+    button:hover {
+      background: #f6a672;
+    }
+    .link-group {
+      margin-top: 18px;
+      font-size: 0.9rem;
+    }
+    .link-group a {
+      color: #fda085;
+      text-decoration: none;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .link-group a:hover {
+      text-decoration: underline;
+    }
+    #error-message {
+      color: red;
+      margin-bottom: 15px;
+      min-height: 20px;
+      font-weight: 600;
+    }
+    #success-message {
+      color: green;
+      margin-bottom: 15px;
+      min-height: 20px;
+      font-weight: 600;
+    }
+  </style>
 </head>
 <body>
-  <div class="form-box">
-    <h2>Login</h2>
-    <input type="email" id="email" placeholder="Email" required />
+
+  <div class="login-container">
+    <h2>Login to Preeti Shaadi</h2>
+    <div id="error-message"></div>
+    <div id="success-message"></div>
+    <input type="email" id="email" placeholder="Email address" required />
     <input type="password" id="password" placeholder="Password" required />
-    <button onclick="login()">Login</button>
-    <div class="message" id="message"></div>
-    <p>Don't have an account? <a href="register.html">Register here</a></p>
+    <button id="login-btn">Login</button>
+    <div class="link-group">
+      <a href="signup.html">Don't have an account? Sign Up</a><br />
+      <a href="#" id="forgot-password">Forgot Password?</a>
+    </div>
   </div>
 
+  <!-- Firebase JS SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
+    import {
+      getAuth,
+      signInWithEmailAndPassword,
+      sendPasswordResetEmail,
+    } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
 
+    // Your Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyDPzGXGIzSbDysU2COetHSeHTl_ZEuZx1Q",
       authDomain: "nice-ae434.firebaseapp.com",
@@ -30,30 +124,64 @@
       measurementId: "G-P9FQRZP2BF"
     };
 
+    // Initialize Firebase
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
-    window.login = async function () {
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
-      const message = document.getElementById("message");
+    // Elements
+    const loginBtn = document.getElementById("login-btn");
+    const emailInput = document.getElementById("email");
+    const passwordInput = document.getElementById("password");
+    const errorMessage = document.getElementById("error-message");
+    const successMessage = document.getElementById("success-message");
+    const forgotPasswordLink = document.getElementById("forgot-password");
 
-      try {
-        const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        if (userCredential.user.emailVerified) {
-          message.style.color = "green";
-          message.textContent = "Login successful! Redirecting...";
-          // Redirect user to profile or dashboard page
-          window.location.href = "dashboard.html";
-        } else {
-          message.style.color = "red";
-          message.textContent = "Please verify your email before logging in.";
-        }
-      } catch (error) {
-        message.style.color = "red";
-        message.textContent = error.message;
+    // Login function
+    loginBtn.addEventListener("click", () => {
+      errorMessage.textContent = "";
+      successMessage.textContent = "";
+
+      const email = emailInput.value.trim();
+      const password = passwordInput.value;
+
+      if (!email || !password) {
+        errorMessage.textContent = "Please enter email and password.";
+        return;
       }
-    };
+
+      signInWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+          successMessage.textContent = "Login successful! Redirecting...";
+          // Redirect to profile creation or dashboard page
+          setTimeout(() => {
+            window.location.href = "profile.html";
+          }, 1500);
+        })
+        .catch((error) => {
+          errorMessage.textContent = error.message;
+        });
+    });
+
+    // Forgot password
+    forgotPasswordLink.addEventListener("click", (e) => {
+      e.preventDefault();
+      errorMessage.textContent = "";
+      successMessage.textContent = "";
+
+      const email = emailInput.value.trim();
+      if (!email) {
+        errorMessage.textContent = "Please enter your email to reset password.";
+        return;
+      }
+
+      sendPasswordResetEmail(auth, email)
+        .then(() => {
+          successMessage.textContent = "Password reset email sent! Check your inbox.";
+        })
+        .catch((error) => {
+          errorMessage.textContent = error.message;
+        });
+    });
   </script>
 </body>
 </html>
