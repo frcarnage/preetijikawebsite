@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sign Up - Preeti Shaadi</title>
+  <style>
+    * {
+      margin: 0; padding: 0; box-sizing: border-box;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      color: #333;
+    }
+    .signup-container {
+      background: white;
+      padding: 40px 50px;
+      border-radius: 15px;
+      box-shadow: 0 12px 30px rgba(253,160,133,0.3);
+      width: 100%;
+      max-width: 450px;
+      text-align: center;
+    }
+    h2 {
+      margin-bottom: 25px;
+      color: #fda085;
+      font-weight: 700;
+    }
+    input[type="text"], input[type="email"], input[type="password"] {
+      width: 100%;
+      padding: 14px 18px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      font-size: 1rem;
+      transition: border-color 0.3s ease;
+    }
+    input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus {
+      border-color: #fda085;
+      outline: none;
+    }
+    button {
+      width: 100%;
+      padding: 15px;
+      background: #fda085;
+      border: none;
+      border-radius: 30px;
+      color: white;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(253,160,133,0.4);
+      transition: background 0.3s ease;
+    }
+    button:hover {
+      background: #f6a672;
+    }
+    .link-group {
+      margin-top: 18px;
+      font-size: 0.9rem;
+    }
+    .link-group a {
+      color: #fda085;
+      text-decoration: none;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .link-group a:hover {
+      text-decoration: underline;
+    }
+    #error-message {
+      color: red;
+      margin-bottom: 15px;
+      min-height: 20px;
+      font-weight: 600;
+    }
+    #success-message {
+      color: green;
+      margin-bottom: 15px;
+      min-height: 20px;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="signup-container">
+    <h2>Create Your Account</h2>
+    <div id="error-message"></div>
+    <div id="success-message"></div>
+
+    <input type="text" id="fullName" placeholder="Full Name" required />
+    <input type="email" id="email" placeholder="Email address" required />
+    <input type="password" id="password" placeholder="Password" required />
+    <input type="password" id="confirmPassword" placeholder="Confirm Password" required />
+
+    <button id="signup-btn">Sign Up</button>
+
+    <div class="link-group">
+      <a href="login.html">Already have an account? Login</a>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-app.js";
+    import {
+      getAuth,
+      createUserWithEmailAndPassword,
+      updateProfile,
+    } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
+    import {
+      getFirestore,
+      doc,
+      setDoc,
+    } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDPzGXGIzSbDysU2COetHSeHTl_ZEuZx1Q",
+      authDomain: "nice-ae434.firebaseapp.com",
+      projectId: "nice-ae434",
+      storageBucket: "nice-ae434.appspot.com",
+      messagingSenderId: "880835929368",
+      appId: "1:880835929368:web:23baf239b8804f0c1a6a6d",
+      measurementId: "G-P9FQRZP2BF"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const signupBtn = document.getElementById("signup-btn");
+    const fullNameInput = document.getElementById("fullName");
+    const emailInput = document.getElementById("email");
+    const passwordInput = document.getElementById("password");
+    const confirmPasswordInput = document.getElementById("confirmPassword");
+    const errorMessage = document.getElementById("error-message");
+    const successMessage = document.getElementById("success-message");
+
+    signupBtn.addEventListener("click", async () => {
+      errorMessage.textContent = "";
+      successMessage.textContent = "";
+
+      const fullName = fullNameInput.value.trim();
+      const email = emailInput.value.trim();
+      const password = passwordInput.value;
+      const confirmPassword = confirmPasswordInput.value;
+
+      if (!fullName || !email || !password || !confirmPassword) {
+        errorMessage.textContent = "Please fill out all fields.";
+        return;
+      }
+      if (password !== confirmPassword) {
+        errorMessage.textContent = "Passwords do not match.";
+        return;
+      }
+      if (password.length < 6) {
+        errorMessage.textContent = "Password should be at least 6 characters.";
+        return;
+      }
+
+      try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        // Update display name
+        await updateProfile(user, { displayName: fullName });
+
+        // Save user profile data to Firestore
+        await setDoc(doc(db, "users", user.uid), {
+          fullName: fullName,
+          email: email,
+          createdAt: new Date().toISOString(),
+        });
+
+        successMessage.textContent = "Account created successfully! Redirecting to profile...";
+        setTimeout(() => {
+          window.location.href = "profile.html";
+        }, 1800);
+
+      } catch (error) {
+        errorMessage.textContent = error.message;
+      }
+    });
+  </script>
+</body>
+</html>
