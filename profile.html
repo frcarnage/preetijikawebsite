@@ -3,34 +3,131 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Bandhan by Preeti - Create Profile</title>
-  <link rel="stylesheet" href="style.css" />
+  <title>Complete Your Profile - Preeti Shaadi</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      color: #333;
+    }
+    .profile-container {
+      background: white;
+      padding: 40px 50px;
+      border-radius: 15px;
+      box-shadow: 0 12px 30px rgba(253,160,133,0.3);
+      width: 100%;
+      max-width: 500px;
+      text-align: center;
+    }
+    h2 {
+      margin-bottom: 25px;
+      color: #fda085;
+      font-weight: 700;
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      text-align: left;
+    }
+    input[type="text"],
+    input[type="number"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 12px 15px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      font-size: 1rem;
+      transition: border-color 0.3s ease;
+      resize: vertical;
+    }
+    input[type="text"]:focus,
+    input[type="number"]:focus,
+    select:focus,
+    textarea:focus {
+      border-color: #fda085;
+      outline: none;
+    }
+    button {
+      width: 100%;
+      padding: 15px;
+      background: #fda085;
+      border: none;
+      border-radius: 30px;
+      color: white;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(253,160,133,0.4);
+      transition: background 0.3s ease;
+    }
+    button:hover {
+      background: #f6a672;
+    }
+    #error-message {
+      color: red;
+      margin-bottom: 15px;
+      min-height: 20px;
+      font-weight: 600;
+      text-align: left;
+    }
+    #success-message {
+      color: green;
+      margin-bottom: 15px;
+      min-height: 20px;
+      font-weight: 600;
+      text-align: left;
+    }
+  </style>
 </head>
 <body>
-  <div class="form-box">
-    <h2>Create Your Profile</h2>
-    <input type="text" id="fullName" placeholder="Full Name" required />
-    <input type="number" id="age" placeholder="Age" min="18" max="100" required />
-    <select id="gender" required>
-      <option value="" disabled selected>Select Gender</option>
-      <option value="Male">Male</option>
-      <option value="Female">Female</option>
-      <option value="Other">Other</option>
-    </select>
-    <textarea id="bio" placeholder="Write a short bio about yourself" rows="4"></textarea>
 
-    <label for="photoUpload">Upload Profile Photo</label>
-    <input type="file" id="photoUpload" accept="image/*" />
+  <div class="profile-container">
+    <h2>Complete Your Profile</h2>
+    <div id="error-message"></div>
+    <div id="success-message"></div>
 
-    <button onclick="saveProfile()">Save Profile</button>
-    <div id="message"></div>
+    <form id="profile-form">
+      <label for="age">Age</label>
+      <input type="number" id="age" min="18" max="100" required />
+
+      <label for="gender">Gender</label>
+      <select id="gender" required>
+        <option value="" disabled selected>Select gender</option>
+        <option value="Female">Female</option>
+        <option value="Male">Male</option>
+        <option value="Other">Other</option>
+      </select>
+
+      <label for="city">City</label>
+      <input type="text" id="city" required />
+
+      <label for="about">About Me</label>
+      <textarea id="about" rows="4" placeholder="Tell us something about yourself..." required></textarea>
+
+      <button type="submit">Save Profile</button>
+    </form>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
-    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js";
-    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-storage.js";
+    import {
+      getAuth,
+      onAuthStateChanged,
+    } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
+    import {
+      getFirestore,
+      doc,
+      getDoc,
+      setDoc,
+    } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDPzGXGIzSbDysU2COetHSeHTl_ZEuZx1Q",
@@ -45,76 +142,80 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
-    const storage = getStorage(app);
 
-    let currentUser = null;
+    const profileForm = document.getElementById("profile-form");
+    const errorMessage = document.getElementById("error-message");
+    const successMessage = document.getElementById("success-message");
 
-    // Check if user is logged in, else redirect to login
+    // Redirect to login if not signed in
     onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        currentUser = user;
-        await loadProfile();
-      } else {
+      if (!user) {
         window.location.href = "login.html";
+        return;
+      }
+      // Pre-fill form if profile exists
+      const docRef = doc(db, "users", user.uid);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        if (data.age) document.getElementById("age").value = data.age;
+        if (data.gender) document.getElementById("gender").value = data.gender;
+        if (data.city) document.getElementById("city").value = data.city;
+        if (data.about) document.getElementById("about").value = data.about;
       }
     });
 
-    async function loadProfile() {
-      const docRef = doc(db, "users", currentUser.uid);
-      const docSnap = await getDoc(docRef);
+    profileForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      errorMessage.textContent = "";
+      successMessage.textContent = "";
 
-      if (docSnap.exists()) {
-        const data = docSnap.data();
-        document.getElementById("fullName").value = data.fullName || "";
-        document.getElementById("age").value = data.age || "";
-        document.getElementById("gender").value = data.gender || "";
-        document.getElementById("bio").value = data.bio || "";
-      }
-    }
-
-    async function saveProfile() {
-      const fullName = document.getElementById("fullName").value.trim();
       const age = parseInt(document.getElementById("age").value);
       const gender = document.getElementById("gender").value;
-      const bio = document.getElementById("bio").value.trim();
-      const photoFile = document.getElementById("photoUpload").files[0];
-      const message = document.getElementById("message");
+      const city = document.getElementById("city").value.trim();
+      const about = document.getElementById("about").value.trim();
 
-      if (!fullName || !age || !gender) {
-        message.style.color = "red";
-        message.textContent = "Please fill all required fields.";
+      if (!age || age < 18 || age > 100) {
+        errorMessage.textContent = "Please enter a valid age between 18 and 100.";
+        return;
+      }
+      if (!gender) {
+        errorMessage.textContent = "Please select your gender.";
+        return;
+      }
+      if (!city) {
+        errorMessage.textContent = "Please enter your city.";
+        return;
+      }
+      if (!about) {
+        errorMessage.textContent = "Please tell us something about yourself.";
         return;
       }
 
-      message.style.color = "black";
-      message.textContent = "Saving profile... please wait.";
-
-      let photoURL = null;
+      const user = auth.currentUser;
+      if (!user) {
+        window.location.href = "login.html";
+        return;
+      }
 
       try {
-        if (photoFile) {
-          const storageRef = ref(storage, `profilePhotos/${currentUser.uid}/${photoFile.name}`);
-          await uploadBytes(storageRef, photoFile);
-          photoURL = await getDownloadURL(storageRef);
-        }
-
-        await setDoc(doc(db, "users", currentUser.uid), {
-          fullName,
+        await setDoc(doc(db, "users", user.uid), {
           age,
           gender,
-          bio,
-          photoURL: photoURL || null,
-          email: currentUser.email,
-          updatedAt: new Date()
+          city,
+          about,
+          updatedAt: new Date().toISOString(),
         }, { merge: true });
 
-        message.style.color = "green";
-        message.textContent = "Profile saved successfully!";
-      } catch (err) {
-        message.style.color = "red";
-        message.textContent = "Error saving profile: " + err.message;
+        successMessage.textContent = "Profile saved successfully! Redirecting...";
+        setTimeout(() => {
+          window.location.href = "search.html"; // or your browse page
+        }, 1500);
+
+      } catch (error) {
+        errorMessage.textContent = "Error saving profile: " + error.message;
       }
-    }
+    });
   </script>
 </body>
 </html>
