@@ -36,16 +36,13 @@
       font-weight: 600;
       color: #5a3d32;
     }
-    input[type="number"],
-    select,
-    textarea {
+    input, select, textarea {
       width: 100%;
       padding: 10px 14px;
       margin-top: 5px;
       border: 1.5px solid #f1c7b4;
       border-radius: 8px;
       font-size: 1rem;
-      resize: vertical;
       font-family: inherit;
     }
     textarea {
@@ -111,23 +108,23 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-app.js";
     import {
       getAuth,
-      onAuthStateChanged,
+      onAuthStateChanged
     } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
     import {
       getFirestore,
       doc,
       setDoc,
-      getDoc,
+      getDoc
     } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js";
 
     const firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "YOUR_AUTH_DOMAIN",
-      projectId: "YOUR_PROJECT_ID",
-      storageBucket: "YOUR_STORAGE_BUCKET",
-      messagingSenderId: "YOUR_MSG_SENDER_ID",
-      appId: "YOUR_APP_ID",
-      measurementId: "YOUR_MEASUREMENT_ID"
+      apiKey: "AIzaSyDPzGXGIzSbDysU2COetHSeHTl_ZEuZx1Q",
+      authDomain: "nice-ae434.firebaseapp.com",
+      projectId: "nice-ae434",
+      storageBucket: "nice-ae434.appspot.com",
+      messagingSenderId: "880835929368",
+      appId: "1:880835929368:web:23baf239b8804f0c1a6a6d",
+      measurementId: "G-P9FQRZP2BF"
     };
 
     const app = initializeApp(firebaseConfig);
@@ -136,22 +133,22 @@
 
     const profileForm = document.getElementById("profile-form");
     const msgDiv = document.getElementById("msg");
-
     let currentUser = null;
 
-    // Redirect if not logged in
     onAuthStateChanged(auth, async (user) => {
       if (!user) {
-        window.location.href = "login.html"; // Adjust as per your login page
+        window.location.href = "login.html";
         return;
       }
+
       currentUser = user;
 
-      // Try loading existing profile data and populate form if found
-      const docRef = doc(db, "users", currentUser.uid);
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        const data = docSnap.data();
+      // Load existing data
+      const userRef = doc(db, "users", user.uid);
+      const snapshot = await getDoc(userRef);
+
+      if (snapshot.exists()) {
+        const data = snapshot.data();
         profileForm.age.value = data.age || "";
         profileForm.gender.value = data.gender || "";
         profileForm.city.value = data.city || "";
@@ -169,13 +166,8 @@
       const city = profileForm.city.value.trim();
       const about = profileForm.about.value.trim();
 
-      if (age < 18 || age > 100) {
-        msgDiv.textContent = "Please enter a valid age between 18 and 100.";
-        msgDiv.classList.add("error");
-        return;
-      }
-      if (!gender || !city || !about) {
-        msgDiv.textContent = "Please fill in all the fields.";
+      if (age < 18 || age > 100 || !gender || !city || !about) {
+        msgDiv.textContent = "Please fill out all fields correctly.";
         msgDiv.classList.add("error");
         return;
       }
@@ -186,23 +178,21 @@
           gender,
           city,
           about,
+          email: currentUser.email,
           displayName: currentUser.displayName || "",
-          email: currentUser.email || "",
           updatedAt: new Date().toISOString()
         }, { merge: true });
 
         msgDiv.textContent = "Profile saved successfully!";
         msgDiv.classList.add("success");
 
-        // Redirect to main page or chat page after a short delay
         setTimeout(() => {
-          window.location.href = "matches.html"; // your main app page
+          window.location.href = "chat.html"; // main page
         }, 1500);
-
-      } catch (error) {
+      } catch (err) {
         msgDiv.textContent = "Error saving profile. Try again.";
         msgDiv.classList.add("error");
-        console.error(error);
+        console.error(err);
       }
     });
   </script>
