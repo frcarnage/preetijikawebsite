@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Contact Requests - Preeti Shaadi</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; }
+    .request-card { border: 1px solid #ccc; padding: 12px; margin: 12px 0; border-radius: 6px; }
+    button { margin-right: 10px; }
+  </style>
+</head>
+<body>
+  <h1>Incoming Contact Requests</h1>
+  <button id="logoutBtn">Logout</button>
+  <div id="requestsList"></div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-app.js";
+    import {
+      getAuth,
+      onAuthStateChanged,
+      signOut
+    } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
+    import {
+      getFirestore,
+      collection,
+      query,
+      where,
+      getDocs,
+      doc,
+      updateDoc
+    } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDPzGXGIzSbDysU2COetHSeHTl_ZEuZx1Q",
+      authDomain: "nice-ae434.firebaseapp.com",
+      projectId: "nice-ae434",
+      storageBucket: "nice-ae434.appspot.com",
+      messagingSenderId: "880835929368",
+      appId: "1:880835929368:web:23baf239b8804f0c1a6a6d",
+      measurementId: "G-P9FQRZP2BF"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const requestsList = document.getElementById("requestsList");
+    const logoutBtn = document.getElementById("logoutBtn");
+
+    logoutBtn.addEventListener("click", async () => {
+      await signOut(auth);
+      window.location.href = "index.html";
+    });
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        alert("Please login to see your requests.");
+        window.location.href = "index.html";
+        return;
+      }
+      loadRequests(user.uid);
+    });
+
+    async function loadRequests(userId) {
+      const requestsRef = collection(db, "contactRequests");
+      const q = query(requestsRef, where("receiverId", "==", userId), where("status", "==", "pending"));
+      const snapshot = await getDocs(q);
+
+      if (snapshot.empty) {
+        requestsList.textContent = "No new requests.";
+        return;
+      }
+
+      requestsList.innerHTML = "";
+
+      for (const docSnap of snapshot.docs) {
+        const req = docSnap.data();
+
+        // Fetch sender profile for name
+        const senderProfileRef = doc(db, "profiles", req.senderId);
+        const senderProfileSnap = await getDocs(collection(db, "profiles"));
+        let senderName = "Unknown";
+        try {
+          const sp = await senderProfileRef.get();
+          if (sp.exists()) senderName = sp.data().name;
+        } catch {
+          // fallback to unknown
+        }
+
+        const div = document.createElement("div");
+        div.className = "request-card";
+        div.innerHTML = `
+          <p><strong>${senderName}</strong> sent you a contact request.</p>
+          <button onclick="handleRequest('${docSnap.id}', 'accepted')">Accept</button>
+          <button onclick="handleRequest('${docSnap.id}', 'rejected')">Reject</button>
+        `;
+        requestsList.appendChild(div);
+      }
+    }
+
+    window.handleRequest = async function(requestId, action) {
+      const reqDocRef = doc(db, "contactRequests", requestId);
+      await updateDoc(reqDocRef, { status: action });
+      alert(`Request ${action}.`);
+      // Refresh requests list
+      onAuthStateChanged(auth, (user) => {
+        if (user) loadRequests(user.uid);
+      });
+    };
+  </script>
+</body>
+</html>
