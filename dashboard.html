@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bandhan by Preeti - Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* Quick simple card layout */
+    .profile-card {
+      border: 1px solid #ccc;
+      padding: 1rem;
+      margin: 1rem;
+      border-radius: 8px;
+      max-width: 300px;
+      cursor: pointer;
+      transition: box-shadow 0.3s ease;
+    }
+    .profile-card:hover {
+      box-shadow: 0 0 12px #0077ffaa;
+    }
+    .profile-photo {
+      width: 100%;
+      max-height: 200px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+    #profiles-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .filters {
+      margin: 1rem;
+      text-align: center;
+    }
+    input, select {
+      margin: 0 0.5rem 1rem 0.5rem;
+      padding: 0.5rem;
+      font-size: 1rem;
+    }
+    button.logout-btn {
+      margin: 1rem;
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>Welcome to Bandhan by Preeti</h1>
+  <button class="logout-btn" onclick="logout()">Logout</button>
+
+  <div class="filters">
+    <input type="text" id="searchName" placeholder="Search by name" />
+    <input type="number" id="minAge" placeholder="Min Age" min="18" max="100" />
+    <input type="number" id="maxAge" placeholder="Max Age" min="18" max="100" />
+    <select id="filterGender">
+      <option value="">Any Gender</option>
+      <option value="Male">Male</option>
+      <option value="Female">Female</option>
+      <option value="Other">Other</option>
+    </select>
+    <button onclick="applyFilters()">Search</button>
+  </div>
+
+  <div id="profiles-container">
+    <!-- Profile cards will load here -->
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
+    import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDPzGXGIzSbDysU2COetHSeHTl_ZEuZx1Q",
+      authDomain: "nice-ae434.firebaseapp.com",
+      projectId: "nice-ae434",
+      storageBucket: "nice-ae434.appspot.com",
+      messagingSenderId: "880835929368",
+      appId: "1:880835929368:web:23baf239b8804f0c1a6a6d",
+      measurementId: "G-P9FQRZP2BF"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let currentUser = null;
+    let profiles = [];
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        currentUser = user;
+        loadProfiles();
+      } else {
+        window.location.href = "login.html";
+      }
+    });
+
+    async function loadProfiles() {
+      const profilesContainer = document.getElementById("profiles-container");
+      profilesContainer.innerHTML = "Loading profiles...";
+
+      const usersCol = collection(db, "users");
+      const snapshot = await getDocs(usersCol);
+      profiles = [];
+
+      snapshot.forEach(doc => {
+        if (doc.id !== currentUser.uid) {
+          profiles.push({ id: doc.id, ...doc.data() });
+        }
+      });
+
+      renderProfiles(profiles);
+    }
+
+    function renderProfiles(profilesToShow) {
+      const container = document.getElementById("profiles-container");
+      container.innerHTML = "";
+
+      if (profilesToShow.length === 0) {
+        container.textContent = "No profiles found.";
+        return;
+      }
+
+      profilesToShow.forEach(profile => {
+        const card = document.createElement("div");
+        card.className = "profile-card";
+        card.innerHTML = `
+          <img src="${profile.photoURL || 'https://via.placeholder.com/300x200?text=No+Photo'}" alt="Profile Photo" class="profile-photo" />
+          <h3>${profile.fullName || 'Unnamed'}</h3>
+          <p><strong>Age:</strong> ${profile.age || '-'}</p>
+          <p><strong>Gender:</strong> ${profile.gender || '-'}</p>
+          <p>${profile.bio ? profile.bio.substring(0, 80) + (profile.bio.length > 80 ? '...' : '') : ''}</p>
+        `;
+
+        // Future: Add click to view full profile or send request
+
+        container.appendChild(card);
+      });
+    }
+
+    function applyFilters() {
+      const nameFilter = document.getElementById("searchName").value.toLowerCase();
+      const minAge = parseInt(document.getElementById("minAge").value) || 0;
+      const maxAge = parseInt(document.getElementById("maxAge").value) || 150;
+      const genderFilter = document.getElementById("filterGender").value;
+
+      const filtered = profiles.filter(profile => {
+        const matchesName = profile.fullName?.toLowerCase().includes(nameFilter);
+        const matchesAge = (profile.age >= minAge) && (profile.age <= maxAge);
+        const matchesGender = genderFilter === "" || profile.gender === genderFilter;
+
+        return matchesName && matchesAge && matchesGender;
+      });
+
+      renderProfiles(filtered);
+    }
+
+    function logout() {
+      signOut(auth).then(() => {
+        window.location.href = "login.html";
+      });
+    }
+  </script>
+</body>
+</html>
