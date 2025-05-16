@@ -3,96 +3,94 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Preeti Shaadi - Welcome</title>
+  <title>BandhanByPreeti - Find Your Perfect Match</title>
   <style>
-    /* Basic Reset */
-    * {
-      margin: 0; padding: 0; box-sizing: border-box;
-    }
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
-      color: #333;
-      height: 100vh;
+      margin: 0; padding: 0;
+      background: #fff6f0;
+      color: #5a3d32;
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
+    }
+    header {
+      display: flex;
+      justify-content: flex-end;
+      padding: 20px 40px;
+      background-color: #fda085;
+      box-shadow: 0 4px 10px rgba(253,160,133,0.4);
+    }
+    header a {
+      margin-left: 20px;
+      text-decoration: none;
+      color: white;
+      font-weight: 700;
+      font-size: 1rem;
+      padding: 8px 15px;
+      border-radius: 20px;
+      background-color: #f47c60;
+      transition: background-color 0.3s ease;
+    }
+    header a:hover {
+      background-color: #f25c3c;
+    }
+    main {
+      flex-grow: 1;
+      display: flex;
       justify-content: center;
       align-items: center;
-      padding: 20px;
-    }
-    h1 {
-      font-size: 3rem;
-      margin-bottom: 0.3em;
-      color: #fff;
-      text-shadow: 1px 1px 4px rgba(0,0,0,0.3);
-    }
-    p {
-      font-size: 1.2rem;
-      margin-bottom: 2em;
-      color: #fff;
-      max-width: 450px;
+      padding: 40px 20px;
       text-align: center;
-      text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+      max-width: 800px;
+      margin: auto;
     }
-    .btn-group {
-      display: flex;
-      gap: 20px;
+    main h1 {
+      font-size: 3rem;
+      margin-bottom: 20px;
+      color: #f47c60;
     }
-    a.btn {
-      background: #fff;
-      color: #fda085;
-      padding: 15px 40px;
-      font-size: 1.1rem;
-      border-radius: 30px;
-      text-decoration: none;
-      font-weight: 600;
-      box-shadow: 0 8px 15px rgba(253,160,133,0.3);
-      transition: all 0.3s ease;
-      cursor: pointer;
-    }
-    a.btn:hover {
-      background: #fda085;
-      color: #fff;
-      box-shadow: 0 12px 20px rgba(253,160,133,0.6);
+    main p {
+      font-size: 1.2rem;
+      line-height: 1.6;
+      margin-bottom: 30px;
+      color: #7a5540;
     }
     footer {
-      position: absolute;
-      bottom: 15px;
-      color: #fff;
+      text-align: center;
+      padding: 15px;
       font-size: 0.9rem;
-      user-select: none;
-    }
-
-    @media (max-width: 480px) {
-      h1 {
-        font-size: 2.2rem;
-      }
-      .btn-group {
-        flex-direction: column;
-        width: 100%;
-      }
-      a.btn {
-        width: 100%;
-        padding: 14px 0;
-        text-align: center;
-      }
-      p {
-        max-width: 100%;
-      }
+      color: #aa7c5f;
+      background: #fbe9e1;
+      border-top: 1px solid #f47c60;
     }
   </style>
 </head>
 <body>
-
-  <h1>Welcome to Preeti Shaadi</h1>
-  <p>Find your perfect match with real profiles and secure connections. Join our community and start your journey to find love today!</p>
-
-  <div class="btn-group">
-    <a href="login.html" class="btn">Login</a>
-    <a href="signup.html" class="btn">Sign Up</a>
-  </div>
-
-  <footer>© 2025 Preeti Shaadi. All rights reserved.</footer>
-
+  <header>
+    <a href="login.html">Login</a>
+    <a href="register.html">Register</a>
+  </header>
+  <main>
+    <div>
+      <h1>Welcome to BandhanByPreeti</h1>
+      <p>Your trusted platform to find your perfect life partner with ease and trust.  
+         Create your profile, browse matches, chat securely, and start your journey today!</p>
+      <a href="register.html" style="
+          display: inline-block;
+          background-color: #f47c60;
+          color: white;
+          padding: 15px 30px;
+          border-radius: 30px;
+          font-weight: 700;
+          font-size: 1.2rem;
+          text-decoration: none;
+          transition: background-color 0.3s ease;
+        ">Get Started</a>
+    </div>
+  </main>
+  <footer>
+    &copy; 2025 BandhanByPreeti. All rights reserved.
+  </footer>
 </body>
 </html>
