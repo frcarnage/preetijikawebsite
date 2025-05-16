@@ -116,7 +116,7 @@
       <label for="country">Country *</label>
       <select id="country" name="country" required>
         <option value="" disabled selected>Select your country</option>
-        <!-- Countries will be populated by script -->
+        <!-- Countries populated by JS -->
       </select>
 
       <label for="hobby">Hobbies / Interests *</label>
@@ -164,22 +164,9 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.0/firebase-app.js";
-    import {
-      getAuth,
-      onAuthStateChanged,
-    } from "https://www.gstatic.com/firebasejs/11.7.0/firebase-auth.js";
-    import {
-      getFirestore,
-      doc,
-      setDoc,
-      getDoc,
-    } from "https://www.gstatic.com/firebasejs/11.7.0/firebase-firestore.js";
-    import {
-      getStorage,
-      ref,
-      uploadBytes,
-      getDownloadURL,
-    } from "https://www.gstatic.com/firebasejs/11.7.0/firebase-storage.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.7.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.7.0/firebase-firestore.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.7.0/firebase-storage.js";
 
     // Your Firebase config here
     const firebaseConfig = {
@@ -201,8 +188,10 @@
     const msgDiv = document.getElementById("msg");
     const loadingDiv = document.getElementById("loading");
 
-    // Populate country dropdown (basic list)
-    const countries = ["India", "United States", "United Kingdom", "Canada", "Australia", "Other"];
+    // Populate country dropdown (you can expand this list)
+    const countries = [
+      "India", "United States", "United Kingdom", "Canada", "Australia", "Other"
+    ];
     const countrySelect = document.getElementById("country");
     countries.forEach(country => {
       const option = document.createElement("option");
@@ -214,7 +203,7 @@
     let currentUser = null;
     let profilePicFile = null;
 
-    // Redirect if not logged in
+    // Redirect if not logged in and load profile data if exists
     onAuthStateChanged(auth, async (user) => {
       if (!user) {
         window.location.href = "login.html";
@@ -267,14 +256,64 @@
         reader.readAsDataURL(profilePicFile);
       }
     });
-
     profileForm.addEventListener("submit", async (e) => {
       e.preventDefault();
+
       msgDiv.textContent = "";
       msgDiv.className = "message";
       loadingDiv.style.display = "block";
 
-      // Validate age range
-      const age = parseInt(profileForm.age.value);
-      if (age < 18 || age > 100) {
-        msgDiv
+      try {
+        // Basic validation for required fields
+        const name = profileForm.name.value.trim();
+        const age = Number(profileForm.age.value);
+        const city = profileForm.city.value.trim();
+        const country = profileForm.country.value;
+        const hobby = profileForm.hobby.value.trim();
+
+        if (!name || !age || !city || !country || !hobby) {
+          throw new Error("Please fill all required fields.");
+        }
+        if (age < 18 || age > 100) {
+          throw new Error("Age must be between 18 and 100.");
+        }
+
+        // Prepare data object
+        const userData = {
+          name,
+          age,
+          city,
+          country,
+          hobby,
+          gender: profileForm.gender.value || "",
+          religion: profileForm.religion.value || "",
+          education: profileForm.education.value || "",
+          about: profileForm.about.value.trim() || "",
+          updatedAt: new Date()
+        };
+
+        // If user uploaded a new profile pic, upload it to Firebase Storage
+        if (profilePicFile) {
+          const storageRef = ref(storage, `profilePics/${currentUser.uid}/${profilePicFile.name}`);
+          const uploadResult = await uploadBytes(storageRef, profilePicFile);
+          const downloadURL = await getDownloadURL(uploadResult.ref);
+          userData.profilePicUrl = downloadURL;
+        }
+
+        // Save/update Firestore document
+        const userDocRef = doc(db, "users", currentUser.uid);
+        await setDoc(userDocRef, userData, { merge: true });
+
+        msgDiv.textContent = "Profile saved successfully!";
+        msgDiv.classList.add("success");
+        profilePicFile = null;
+      } catch (error) {
+        msgDiv.textContent = `Error: ${error.message}`;
+        msgDiv.classList.add("error");
+      } finally {
+        loadingDiv.style.display = "none";
+      }
+    });
+  </script>
+</body>
+</html>
