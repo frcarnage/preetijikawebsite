@@ -306,6 +306,8 @@
 
         msgDiv.textContent = "Profile saved successfully!";
         msgDiv.classList.add("success");
+        window.location.href = "your-profile.html";
+
         profilePicFile = null;
       } catch (error) {
         msgDiv.textContent = `Error: ${error.message}`;
