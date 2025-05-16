@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>BandhanByPreeti - Create Profile</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #fff6f0;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+    }
+    .container {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(253,160,133,0.3);
+      padding: 30px;
+      max-width: 450px;
+      width: 100%;
+    }
+    h2 {
+      color: #f47c60;
+      text-align: center;
+      margin-bottom: 25px;
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: 600;
+      color: #5a3d32;
+    }
+    input[type="text"],
+    input[type="number"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 10px 14px;
+      margin-top: 5px;
+      border: 1.5px solid #f1c7b4;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-family: inherit;
+      resize: vertical;
+    }
+    textarea {
+      min-height: 80px;
+    }
+    input[type="file"] {
+      margin-top: 10px;
+    }
+    button {
+      margin-top: 25px;
+      width: 100%;
+      background: #fda085;
+      color: white;
+      font-weight: 700;
+      font-size: 1.1rem;
+      padding: 12px 0;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(253,160,133,0.5);
+      transition: background 0.3s ease;
+    }
+    button:hover {
+      background: #f6a672;
+    }
+    .message {
+      margin-top: 20px;
+      text-align: center;
+      font-weight: 600;
+    }
+    .message.success {
+      color: green;
+    }
+    .message.error {
+      color: red;
+    }
+    .profile-pic-preview {
+      margin-top: 10px;
+      max-width: 120px;
+      max-height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #f47c60;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .loading {
+      text-align: center;
+      margin-top: 15px;
+      font-weight: 600;
+      color: #f47c60;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Create Your Profile</h2>
+    <form id="profile-form">
+      <label for="name">Name *</label>
+      <input type="text" id="name" name="name" required />
+
+      <label for="age">Age *</label>
+      <input type="number" id="age" name="age" min="18" max="100" required />
+
+      <label for="city">City *</label>
+      <input type="text" id="city" name="city" required />
+
+      <label for="country">Country *</label>
+      <select id="country" name="country" required>
+        <option value="" disabled selected>Select your country</option>
+        <!-- Countries will be populated by script -->
+      </select>
+
+      <label for="hobby">Hobbies / Interests *</label>
+      <input type="text" id="hobby" name="hobby" placeholder="e.g., reading, music" required />
+
+      <label for="gender">Gender</label>
+      <select id="gender" name="gender">
+        <option value="" selected>Prefer not to say</option>
+        <option value="Male">Male</option>
+        <option value="Female">Female</option>
+        <option value="Other">Other</option>
+      </select>
+
+      <label for="religion">Religion</label>
+      <select id="religion" name="religion">
+        <option value="" selected>Prefer not to say</option>
+        <option value="Hindu">Hindu</option>
+        <option value="Muslim">Muslim</option>
+        <option value="Christian">Christian</option>
+        <option value="Sikh">Sikh</option>
+        <option value="Other">Other</option>
+      </select>
+
+      <label for="education">About Education</label>
+      <select id="education" name="education">
+        <option value="" selected>Choose education level</option>
+        <option value="High School">High School</option>
+        <option value="Bachelor's">Bachelor's</option>
+        <option value="Master's">Master's</option>
+        <option value="PhD">PhD</option>
+        <option value="Other">Other</option>
+      </select>
+
+      <label for="about">About Me</label>
+      <textarea id="about" name="about" placeholder="Tell something about yourself..."></textarea>
+
+      <label for="profilePic">Profile Picture</label>
+      <input type="file" id="profilePic" name="profilePic" accept="image/*" />
+
+      <button type="submit">Save Profile</button>
+    </form>
+    <div id="msg" class="message"></div>
+    <div id="loading" class="loading" style="display:none;">Saving profile, please wait...</div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.0/firebase-app.js";
+    import {
+      getAuth,
+      onAuthStateChanged,
+    } from "https://www.gstatic.com/firebasejs/11.7.0/firebase-auth.js";
+    import {
+      getFirestore,
+      doc,
+      setDoc,
+      getDoc,
+    } from "https://www.gstatic.com/firebasejs/11.7.0/firebase-firestore.js";
+    import {
+      getStorage,
+      ref,
+      uploadBytes,
+      getDownloadURL,
+    } from "https://www.gstatic.com/firebasejs/11.7.0/firebase-storage.js";
+
+    // Your Firebase config here
+    const firebaseConfig = {
+      apiKey: "AIzaSyDPzGXGIzSbDysU2COetHSeHTl_ZEuZx1Q",
+      authDomain: "nice-ae434.firebaseapp.com",
+      projectId: "nice-ae434",
+      storageBucket: "nice-ae434.appspot.com",
+      messagingSenderId: "880835929368",
+      appId: "1:880835929368:web:23baf239b8804f0c1a6a6d",
+      measurementId: "G-P9FQRZP2BF"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const storage = getStorage(app);
+
+    const profileForm = document.getElementById("profile-form");
+    const msgDiv = document.getElementById("msg");
+    const loadingDiv = document.getElementById("loading");
+
+    // Populate country dropdown (basic list)
+    const countries = ["India", "United States", "United Kingdom", "Canada", "Australia", "Other"];
+    const countrySelect = document.getElementById("country");
+    countries.forEach(country => {
+      const option = document.createElement("option");
+      option.value = country;
+      option.textContent = country;
+      countrySelect.appendChild(option);
+    });
+
+    let currentUser = null;
+    let profilePicFile = null;
+
+    // Redirect if not logged in
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = "login.html";
+        return;
+      }
+      currentUser = user;
+
+      // Load existing profile data if any
+      const docRef = doc(db, "users", currentUser.uid);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        profileForm.name.value = data.name || user.displayName || "";
+        profileForm.age.value = data.age || "";
+        profileForm.city.value = data.city || "";
+        profileForm.country.value = data.country || "";
+        profileForm.hobby.value = data.hobby || "";
+        profileForm.gender.value = data.gender || "";
+        profileForm.religion.value = data.religion || "";
+        profileForm.education.value = data.education || "";
+        profileForm.about.value = data.about || "";
+
+        if(data.profilePicUrl) {
+          addProfilePicPreview(data.profilePicUrl);
+        }
+      } else {
+        profileForm.name.value = user.displayName || "";
+      }
+    });
+
+    // Show profile pic preview
+    function addProfilePicPreview(url) {
+      let existing = document.querySelector(".profile-pic-preview");
+      if(existing) existing.remove();
+
+      const img = document.createElement("img");
+      img.src = url;
+      img.alt = "Profile Picture";
+      img.className = "profile-pic-preview";
+      profileForm.profilePic.after(img);
+    }
+
+    profileForm.profilePic.addEventListener("change", (e) => {
+      profilePicFile = e.target.files[0];
+      if (profilePicFile) {
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          addProfilePicPreview(ev.target.result);
+        };
+        reader.readAsDataURL(profilePicFile);
+      }
+    });
+
+    profileForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      msgDiv.textContent = "";
+      msgDiv.className = "message";
+      loadingDiv.style.display = "block";
+
+      // Validate age range
+      const age = parseInt(profileForm.age.value);
+      if (age < 18 || age > 100) {
+        msgDiv
