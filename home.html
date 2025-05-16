@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>BandhanByPreeti - Home Dashboard</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #fff6f0;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+  }
+  header {
+    background: #f47c60;
+    color: white;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  header h1 {
+    margin: 0;
+    font-weight: 700;
+    font-size: 1.5rem;
+  }
+  nav button {
+    background: white;
+    border: none;
+    padding: 8px 16px;
+    margin-left: 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 600;
+    color: #f47c60;
+    transition: background 0.3s ease;
+  }
+  nav button:hover {
+    background: #fda085;
+    color: white;
+  }
+
+  main {
+    padding: 20px;
+  }
+
+  .search-panel {
+    background: #fff1e6;
+    padding: 15px 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+    box-shadow: 0 4px 10px rgba(253,160,133,0.3);
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .search-panel label {
+    font-weight: 600;
+    color: #5a3d32;
+  }
+  .search-panel input,
+  .search-panel select {
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 1.5px solid #f1c7b4;
+    font-size: 1rem;
+    min-width: 110px;
+  }
+  .search-panel button {
+    background: #f47c60;
+    color: white;
+    padding: 9px 22px;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 1rem;
+    box-shadow: 0 6px 15px rgba(253,160,133,0.5);
+    transition: background 0.3s ease;
+  }
+  .search-panel button:hover {
+    background: #fda085;
+  }
+
+  .profiles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill,minmax(200px,1fr));
+    gap: 20px;
+    max-width: 900px;
+    margin: 0 auto 60px;
+  }
+
+  .profile-card {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 6px 20px rgba(253,160,133,0.3);
+    padding: 15px;
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+  }
+  .profile-card:hover {
+    transform: scale(1.05);
+  }
+  .profile-pic {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 3px solid #f47c60;
+    margin-bottom: 10px;
+  }
+  .profile-name {
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: #7b463a;
+  }
+  .profile-age-city {
+    font-size: 0.9rem;
+    color: #a67968;
+    margin: 6px 0 10px;
+  }
+  .profile-hobby {
+    font-size: 0.9rem;
+    font-style: italic;
+    color: #c98772;
+  }
+
+  footer {
+    text-align: center;
+    padding: 12px;
+    background: #f47c60;
+    color: white;
+    font-weight: 600;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>BandhanByPreeti</h1>
+  <nav>
+    <button id="createProfileBtn">Create / Edit Profile</button>
+    <button id="yourProfileBtn">Your Profile</button>
+    <button id="searchBtn">Search Profiles</button>
+    <button id="chatBtn">Chat</button>
+    <button id="logoutBtn" style="background:#d94f4f; color:white;">Logout</button>
+  </nav>
+</header>
+
+<main>
+  <section class="search-panel" id="searchPanel">
+    <label for="minAge">Min Age:</label>
+    <input type="number" id="minAge" min="18" max="100" value="18" />
+    <label for="maxAge">Max Age:</label>
+    <input type="number" id="maxAge" min="18" max="100" value="100" />
+    <label for="cityFilter">City:</label>
+    <input type="text" id="cityFilter" placeholder="Any city" />
+    <button id="searchProfilesBtn">Search</button>
+  </section>
+
+  <section class="profiles-grid" id="profilesGrid">
+    <!-- Profiles load here -->
+  </section>
+</main>
+
+<footer>
+  &copy; 2025 BandhanByPreeti
+</footer>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.0/firebase-app.js";
+  import {
+    getAuth,
+    onAuthStateChanged,
+    signOut,
+  } from "https://www.gstatic.com/firebasejs/11.7.0/firebase-auth.js";
+  import {
+    getFirestore,
+    collection,
+    query,
+    where,
+    getDocs,
+  } from "https://www.gstatic.com/firebasejs/11.7.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDPzGXGIzSbDysU2COetHSeHTl_ZEuZx1Q",
+    authDomain: "nice-ae434.firebaseapp.com",
+    projectId: "nice-ae434",
+    storageBucket: "nice-ae434.appspot.com",
+    messagingSenderId: "880835929368",
+    appId: "1:880835929368:web:23baf239b8804f0c1a6a6d",
+    measurementId: "G-P9FQRZP2BF"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  const profilesGrid = document.getElementById("profilesGrid");
+  const minAgeInput = document.getElementById("minAge");
+  const maxAgeInput = document.getElementById("maxAge");
+  const cityFilterInput = document.getElementById("cityFilter");
+  const searchBtn = document.getElementById("searchProfilesBtn");
+
+  // Nav buttons event listeners
+  document.getElementById("createProfileBtn").addEventListener("click", () => {
+    window.location.href = "create-profile.html";
+  });
+  document.getElementById("yourProfileBtn").addEventListener("click", () => {
+    window.location.href = "your-profile.html";
+  });
+  document.getElementById("searchBtn").addEventListener("click", () => {
+    document.getElementById("searchPanel").scrollIntoView({ behavior: "smooth" });
+  });
+  document.getElementById("chatBtn").addEventListener("click", () => {
+    window.location.href = "chat.html";
+  });
+  document.getElementById("logoutBtn").addEventListener("click", () => {
+    signOut(auth).then(() => {
+      window.location.href = "login.html";
+    });
+  });
+
+  // Check auth and load profiles
+  onAuthStateChanged(auth, user => {
+    if (!user) {
+      window.location.href = "login.html";
+      return;
+    }
+    loadProfiles();  // Load all profiles initially
+  });
+
+  searchBtn.addEventListener("click", () => {
+    const minAge = parseInt(minAgeInput.value) || 18;
+    const maxAge = parseInt(maxAgeInput.value) || 100;
+    const city = cityFilterInput.value.trim().toLowerCase();
+    loadProfiles(minAge, maxAge, city);
+  });
+
+  async function loadProfiles(minAge = 18, maxAge = 100, city = "") {
+    profilesGrid.innerHTML = "<p>Loading profiles...</p>";
+
+    try {
+      const usersCol = collection(db, "users");
+      let q;
+
+      // Firestore doesn’t support complex OR queries easily; so:
+      // We'll query users whose age is between minAge and maxAge,
+      // then filter city client-side if provided.
+      q = query(usersCol, where("age", ">=", minAge), where("age", "<=", maxAge));
+
+      const querySnapshot = await getDocs(q);
+      const profiles = [];
+
+      querySnapshot.forEach(doc => {
+        const data = doc.data();
+        profiles.push({ id: doc.id, ...data });
+      });
+
+      // Filter by city client side (case-insensitive)
+      const filteredProfiles = city
+        ? profiles.filter(p => p.city && p.city.toLowerCase().includes(city))
+        : profiles;
+
+      displayProfiles(filteredProfiles);
+    } catch (error) {
+      profilesGrid.innerHTML = `<p style="color:red;">Error loading profiles: ${error.message}</p>`;
+    }
+  }
+
+  function displayProfiles(profiles) {
+    if (profiles.length === 0) {
+      profilesGrid.innerHTML = "<p>No profiles found matching criteria.</p>";
+      return;
+    }
+
+    profilesGrid.innerHTML = ""; // Clear
+
+    profiles.forEach(profile => {
+      const card = document.createElement("div");
+      card.className = "profile-card";
+
+      const profilePic = profile.photoURL
+        ? profile.photoURL
+        : "https://via.placeholder.com/120?text=No+Image";
+
+      card.innerHTML = `
+        <img class="profile-pic" src="${profilePic}" alt="${profile.name}'s picture" />
+        <div class="profile-name">${profile.name || "No Name"}</div>
+        <div class="profile-age-city">${profile.age || "?"} yrs | ${profile.city || "Unknown"}</div>
+        <div class="profile-hobby">${profile.hobby || ""}</div>
+      `;
+
+      // Clicking profile card opens that user's profile page (pass id)
+      card.addEventListener("click", () => {
+        window.location.href = `view-profile.html?uid=${profile.id}`;
+      });
+
+      profilesGrid.appendChild(card);
+    });
+  }
+</script>
+
+</body>
+</html>
