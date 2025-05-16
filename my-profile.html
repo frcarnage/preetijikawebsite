@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>BandhanByPreeti - My Profile</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #fff6f0;
+    margin: 0;
+    padding: 0 15px;
+    min-height: 100vh;
+  }
+  header {
+    background: #f47c60;
+    color: white;
+    padding: 12px 20px;
+    text-align: center;
+    font-weight: 700;
+    font-size: 1.5rem;
+  }
+  main {
+    max-width: 500px;
+    margin: 20px auto;
+    background: white;
+    border-radius: 15px;
+    padding: 25px 30px;
+    box-shadow: 0 6px 20px rgba(253,160,133,0.3);
+  }
+  h2 {
+    color: #7b463a;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  label {
+    display: block;
+    margin-top: 15px;
+    font-weight: 600;
+    color: #a05a45;
+  }
+  input[type="text"],
+  input[type="number"],
+  textarea {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1.5px solid #f1c7b4;
+    border-radius: 8px;
+    margin-top: 6px;
+    font-size: 1rem;
+    resize: vertical;
+  }
+  textarea {
+    min-height: 80px;
+  }
+  .profile-pic-container {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .profile-pic {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    border: 3px solid #f47c60;
+    object-fit: cover;
+  }
+  .btn-group {
+    margin-top: 25px;
+    display: flex;
+    justify-content: space-around;
+  }
+  button {
+    padding: 10px 20px;
+    border-radius: 25px;
+    border: none;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 1rem;
+    color: white;
+    background: #f47c60;
+    box-shadow: 0 6px 15px rgba(253,160,133,0.5);
+    transition: background 0.3s ease;
+  }
+  button:hover {
+    background: #fda085;
+  }
+  #message {
+    text-align: center;
+    margin-top: 20px;
+    color: green;
+    font-weight: 600;
+  }
+  #errorMsg {
+    text-align: center;
+    margin-top: 20px;
+    color: red;
+    font-weight: 600;
+  }
+</style>
+</head>
+<body>
+
+<header>My Profile</header>
+
+<main>
+  <div class="profile-pic-container">
+    <img id="profilePic" class="profile-pic" src="https://via.placeholder.com/140?text=No+Image" alt="Profile Picture" />
+    <br />
+    <input type="file" id="fileInput" accept="image/*" style="margin-top: 10px;" />
+  </div>
+
+  <label for="nameInput">Name</label>
+  <input type="text" id="nameInput" placeholder="Your full name" />
+
+  <label for="ageInput">Age</label>
+  <input type="number" id="ageInput" min="18" max="100" />
+
+  <label for="cityInput">City</label>
+  <input type="text" id="cityInput" placeholder="Your city" />
+
+  <label for="hobbyInput">Hobby / Interests</label>
+  <textarea id="hobbyInput" placeholder="Tell something about yourself..."></textarea>
+
+  <div class="btn-group">
+    <button id="saveBtn">Save Profile</button>
+    <button id="logoutBtn" style="background:#d94f4f;">Logout</button>
+  </div>
+
+  <p id="message"></p>
+  <p id="errorMsg"></p>
+</main>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.0/firebase-app.js";
+  import {
+    getAuth,
+    onAuthStateChanged,
+    signOut
+  } from "https://www.gstatic.com/firebasejs/11.7.0/firebase-auth.js";
+  import {
+    getFirestore,
+    doc,
+    getDoc,
+    setDoc,
+    updateDoc
+  } from "https://www.gstatic.com/firebasejs/11.7.0/firebase-firestore.js";
+  import {
+    getStorage,
+    ref,
+    uploadBytes,
+    getDownloadURL
+  } from "https://www.gstatic.com/firebasejs/11.7.0/firebase-storage.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDPzGXGIzSbDysU2COetHSeHTl_ZEuZx1Q",
+    authDomain: "nice-ae434.firebaseapp.com",
+    projectId: "nice-ae434",
+    storageBucket: "nice-ae434.appspot.com",
+    messagingSenderId: "880835929368",
+    appId: "1:880835929368:web:23baf239b8804f0c1a6a6d",
+    measurementId: "G-P9FQRZP2BF"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+  const storage = getStorage(app);
+
+  const profilePic = document.getElementById("profilePic");
+  const fileInput = document.getElementById("fileInput");
+  const nameInput = document.getElementById("nameInput");
+  const ageInput = document.getElementById("ageInput");
+  const cityInput = document.getElementById("cityInput");
+  const hobbyInput = document.getElementById("hobbyInput");
+  const saveBtn = document.getElementById("saveBtn");
+  const logoutBtn = document.getElementById("logoutBtn");
+  const message = document.getElementById("message");
+  const errorMsg = document.getElementById("errorMsg");
+
+  let currentUser = null;
+  let currentPhotoURL = null;
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      window.location.href = "login.html";
+      return;
+    }
+    currentUser = user;
+    await loadUserProfile();
+  });
+
+  async function loadUserProfile() {
+    const docRef = doc(db, "users", currentUser.uid);
+    try {
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        nameInput.value = data.name || "";
+        ageInput.value = data.age || "";
+        cityInput.value = data.city || "";
+        hobbyInput.value = data.hobby || "";
+        currentPhotoURL = data.photoURL || null;
+        profilePic.src = currentPhotoURL || "https://via.placeholder.com/140?text=No+Image";
+      } else {
+        profilePic.src = "https://via.placeholder.com/140?text=No+Image";
+      }
+    } catch (error) {
+      errorMsg.textContent = "Error loading profile: " + error.message;
+    }
+  }
+
+  fileInput.addEventListener("change", async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    message.textContent = "Uploading photo...";
+    errorMsg.textContent = "";
+
+    const storageRef = ref(storage, `profile_pictures/${currentUser.uid}/${file.name}`);
+
+    try {
+      await uploadBytes(storageRef, file);
+      const url = await getDownloadURL(storageRef);
+      profilePic.src = url;
+      currentPhotoURL = url;
+      message.textContent = "Photo uploaded successfully!";
+    } catch (error) {
+      errorMsg.textContent = "Upload failed: " + error.message;
+    }
+  });
+
+  saveBtn.addEventListener("click", async () => {
+    message.textContent = "";
+    errorMsg.textContent = "";
+
+    const name = nameInput.value.trim();
+    const age = parseInt(ageInput.value);
+    const city = cityInput.value.trim();
+    const hobby = hobbyInput.value.trim();
+
+    if (!name) {
+      errorMsg.textContent = "Name is required.";
+      return;
+    }
+    if (!age || age < 18 || age > 100) {
+      errorMsg.textContent = "Please enter a valid age (18-100).";
+      return;
+    }
+    if (!city) {
+      errorMsg.textContent = "City is required.";
+      return;
+    }
+
+    const userDocRef = doc(db, "users", currentUser.uid);
+
+    try {
+      await setDoc(userDocRef, {
+        name,
+        age,
+        city,
+        hobby,
+        photoURL: currentPhotoURL || "",
+        email: currentUser.email,
+      }, { merge: true });
+      message.textContent = "Profile updated successfully!";
+    } catch (error) {
+      errorMsg.textContent = "Failed to save profile: " + error.message;
+    }
+  });
+
+  logoutBtn.addEventListener("click", () => {
+    signOut(auth).then(() => {
+      window.location.href = "login.html";
+    });
+  });
+</script>
+
+</body>
+</html>
