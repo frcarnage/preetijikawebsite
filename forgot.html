@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Forgot Password - BandhanByPreeti</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #fff6f0;
+      color: #5a3d32;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .container {
+      background: white;
+      padding: 30px 40px;
+      border-radius: 12px;
+      box-shadow: 0 6px 15px rgba(253,160,133,0.3);
+      width: 350px;
+      text-align: center;
+    }
+    h2 {
+      color: #f47c60;
+      margin-bottom: 20px;
+    }
+    input[type="email"] {
+      width: 100%;
+      padding: 12px 10px;
+      margin: 10px 0 20px;
+      border: 1.8px solid #f47c60;
+      border-radius: 6px;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.3s ease;
+    }
+    input[type="email"]:focus {
+      border-color: #f25c3c;
+    }
+    button {
+      background-color: #f47c60;
+      color: white;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 1.1rem;
+      transition: background-color 0.3s ease;
+      width: 100%;
+    }
+    button:hover {
+      background-color: #f25c3c;
+    }
+    p.message {
+      margin-top: 15px;
+      font-size: 0.9rem;
+      color: red;
+    }
+    p.success {
+      color: green;
+    }
+    .footer-links {
+      margin-top: 20px;
+      font-size: 0.9rem;
+    }
+    .footer-links a {
+      color: #f47c60;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .footer-links a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Reset Your Password</h2>
+    <form id="forgotForm">
+      <input type="email" id="email" placeholder="Enter your registered Email" required />
+      <button type="submit">Send Reset Link</button>
+    </form>
+    <p class="message" id="message"></p>
+    <div class="footer-links">
+      <p>Remembered your password? <a href="login.html">Login here</a></p>
+    </div>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
+  <script>
+    // Your Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyDPzGXGIzSbDysU2COetHSeHTl_ZEuZx1Q",
+      authDomain: "nice-ae434.firebaseapp.com",
+      projectId: "nice-ae434",
+      storageBucket: "nice-ae434.appspot.com",
+      messagingSenderId: "880835929368",
+      appId: "1:880835929368:web:23baf239b8804f0c1a6a6d",
+      measurementId: "G-P9FQRZP2BF"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    const forgotForm = document.getElementById('forgotForm');
+    const messageEl = document.getElementById('message');
+
+    forgotForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      messageEl.textContent = '';
+      const email = document.getElementById('email').value.trim();
+
+      auth.sendPasswordResetEmail(email)
+        .then(() => {
+          messageEl.classList.remove('message');
+          messageEl.classList.add('success');
+          messageEl.textContent = 'Password reset email sent! Check your inbox.';
+          forgotForm.reset();
+        })
+        .catch(error => {
+          messageEl.classList.remove('success');
+          messageEl.classList.add('message');
+          messageEl.textContent = error.message;
+        });
+    });
+  </script>
+</body>
+</html>
