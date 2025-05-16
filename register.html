@@ -1,63 +1,104 @@
-<!-- register.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Bandhan by Preeti - Register</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Register - BandhanByPreeti</title>
   <style>
     body {
-      font-family: sans-serif;
-      background: #f8f0f5;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #fff6f0;
+      color: #5a3d32;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
+      margin: 0;
     }
-    .form-box {
+    .container {
       background: white;
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      padding: 30px 40px;
+      border-radius: 12px;
+      box-shadow: 0 6px 15px rgba(253,160,133,0.3);
+      width: 350px;
+      text-align: center;
     }
-    input {
-      display: block;
-      margin: 15px 0;
+    h2 {
+      color: #f47c60;
+      margin-bottom: 20px;
+    }
+    input[type="email"], input[type="password"] {
       width: 100%;
-      padding: 10px;
-      border: 1px solid #ccc;
+      padding: 12px 10px;
+      margin: 10px 0 20px;
+      border: 1.8px solid #f47c60;
       border-radius: 6px;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.3s ease;
+    }
+    input[type="email"]:focus, input[type="password"]:focus {
+      border-color: #f25c3c;
     }
     button {
-      background: #e91e63;
+      background-color: #f47c60;
       color: white;
-      padding: 10px;
+      padding: 12px 20px;
       border: none;
-      width: 100%;
-      border-radius: 6px;
+      border-radius: 30px;
       cursor: pointer;
-      font-weight: bold;
+      font-weight: 700;
+      font-size: 1.1rem;
+      transition: background-color 0.3s ease;
+      width: 100%;
     }
-    .message {
-      margin-top: 10px;
+    button:hover {
+      background-color: #f25c3c;
+    }
+    p.message {
+      margin-top: 15px;
+      font-size: 0.9rem;
+      color: red;
+    }
+    p.success {
       color: green;
+    }
+    .footer-links {
+      margin-top: 20px;
+      font-size: 0.9rem;
+    }
+    .footer-links a {
+      color: #f47c60;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .footer-links a:hover {
+      text-decoration: underline;
     }
   </style>
 </head>
 <body>
-  <div class="form-box">
-    <h2>Register</h2>
-    <input type="email" id="email" placeholder="Email" required />
-    <input type="password" id="password" placeholder="Password" required />
-    <button onclick="register()">Create Account</button>
-    <div class="message" id="message"></div>
+  <div class="container">
+    <h2>Create Account</h2>
+    <form id="registerForm">
+      <input type="email" id="email" placeholder="Email" required />
+      <input type="password" id="password" placeholder="Password" required minlength="6" />
+      <input type="password" id="confirmPassword" placeholder="Confirm Password" required minlength="6" />
+      <button type="submit">Register</button>
+    </form>
+    <p class="message" id="message"></p>
+    <div class="footer-links">
+      <p>Already have an account? <a href="login.html">Login here</a></p>
+      <p><a href="forgot.html">Forgot Password?</a></p>
+    </div>
   </div>
 
-  <!-- Firebase SDKs (v11) -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, sendEmailVerification } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 
+  <script>
+    // Your Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyDPzGXGIzSbDysU2COetHSeHTl_ZEuZx1Q",
       authDomain: "nice-ae434.firebaseapp.com",
@@ -68,23 +109,41 @@
       measurementId: "G-P9FQRZP2BF"
     };
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
 
-    window.register = async function () {
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
-      const message = document.getElementById("message");
+    const registerForm = document.getElementById('registerForm');
+    const messageEl = document.getElementById('message');
 
-      try {
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        await sendEmailVerification(userCredential.user);
-        message.textContent = "Account created! Check your email to verify.";
-      } catch (error) {
-        message.textContent = error.message;
-        message.style.color = "red";
+    registerForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      messageEl.textContent = '';
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const confirmPassword = document.getElementById('confirmPassword').value.trim();
+
+      if (password !== confirmPassword) {
+        messageEl.textContent = 'Passwords do not match.';
+        return;
       }
-    };
+
+      auth.createUserWithEmailAndPassword(email, password)
+        .then(userCredential => {
+          messageEl.classList.remove('message');
+          messageEl.classList.add('success');
+          messageEl.textContent = 'Registration successful! Redirecting...';
+          // Redirect after short delay
+          setTimeout(() => {
+            window.location.href = 'home.html';
+          }, 1500);
+        })
+        .catch(error => {
+          messageEl.classList.remove('success');
+          messageEl.classList.add('message');
+          messageEl.textContent = error.message;
+        });
+    });
   </script>
 </body>
 </html>
