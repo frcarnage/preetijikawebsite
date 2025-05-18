@@ -3,284 +3,225 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Realtime Chat</title>
+  <title>Chat | Bandhan by Preeti</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      margin: 0; padding: 0; height: 100vh; display: flex;
-      background: #f9f9f9;
-    }
-    #userList {
-      width: 250px;
-      border-right: 1px solid #ccc;
-      overflow-y: auto;
-      background: #fff;
-    }
-    #userList div {
-      padding: 10px;
-      cursor: pointer;
-      border-bottom: 1px solid #eee;
-      display: flex; justify-content: space-between; align-items: center;
-    }
-    #userList div.selected {
-      background-color: #e0e7ff;
-    }
-    #chatContainer {
-      flex-grow: 1;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #fdf0f6;
       display: flex;
       flex-direction: column;
-      background: #fff;
+      height: 100vh;
     }
-    #chatHeader {
-      padding: 10px;
-      border-bottom: 1px solid #ccc;
-      font-weight: bold;
-      background: #f0f0f0;
+    header {
+      background: #e91e63;
+      color: white;
+      padding: 15px 20px;
+      font-size: 1.3rem;
+      font-weight: 600;
+      text-align: center;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.15);
     }
-    #chatMessages {
-      flex-grow: 1;
-      padding: 10px;
+    #chatContainer {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      max-width: 700px;
+      margin: 20px auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 6px 18px rgba(233, 30, 99, 0.15);
+      overflow: hidden;
+    }
+    #messages {
+      flex: 1;
+      padding: 20px;
       overflow-y: auto;
-      background: #fafafa;
+      background: #fff0f6;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
     }
     .message {
-      max-width: 70%;
-      margin-bottom: 10px;
-      padding: 8px 12px;
+      max-width: 75%;
+      padding: 12px 15px;
       border-radius: 15px;
-      position: relative;
-      font-size: 14px;
+      font-size: 1rem;
       line-height: 1.3;
       word-wrap: break-word;
     }
     .sent {
-      background-color: #007bff;
+      align-self: flex-end;
+      background: #e91e63;
       color: white;
-      margin-left: auto;
-      border-bottom-right-radius: 0;
+      border-bottom-right-radius: 2px;
     }
     .received {
-      background-color: #e4e6eb;
-      color: #111;
-      margin-right: auto;
-      border-bottom-left-radius: 0;
+      align-self: flex-start;
+      background: #fce4ec;
+      color: #333;
+      border-bottom-left-radius: 2px;
     }
-    #messageForm {
+    #inputForm {
       display: flex;
-      border-top: 1px solid #ccc;
-      padding: 10px;
-      background: #f0f0f0;
+      padding: 15px 20px;
+      border-top: 1px solid #e91e63;
+      background: white;
     }
     #messageInput {
-      flex-grow: 1;
-      padding: 10px;
-      font-size: 16px;
-      border-radius: 20px;
-      border: 1px solid #ccc;
+      flex: 1;
+      padding: 12px 15px;
+      border-radius: 25px;
+      border: 1.5px solid #e91e63;
+      font-size: 1rem;
       outline: none;
+      margin-right: 15px;
     }
     #sendBtn {
-      padding: 10px 20px;
-      margin-left: 10px;
-      background: #007bff;
+      background: #e91e63;
       border: none;
-      border-radius: 20px;
       color: white;
+      padding: 12px 25px;
+      border-radius: 25px;
+      font-weight: 600;
       cursor: pointer;
-      font-weight: bold;
+      transition: background 0.3s ease;
     }
-    #sendBtn:disabled {
-      background: #7aa7f9;
-      cursor: not-allowed;
+    #sendBtn:hover {
+      background: #ad1457;
     }
-    .lastSeen {
-      font-size: 11px;
-      color: #777;
-    }
-    .username {
+    #backBtn {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      background: transparent;
+      border: none;
+      color: white;
+      font-size: 1.4rem;
+      cursor: pointer;
       font-weight: 600;
     }
   </style>
 </head>
 <body>
 
-  <div id="userList"></div>
+  <header>
+    <button id="backBtn" title="Back to Search">&#8592;</button>
+    Chat with <span id="chatUserName">Loading...</span>
+  </header>
 
   <div id="chatContainer">
-    <div id="chatHeader">Select a user to chat</div>
-    <div id="chatMessages"></div>
-    <form id="messageForm">
-      <input type="text" id="messageInput" autocomplete="off" placeholder="Type a message..." />
-      <button type="submit" id="sendBtn" disabled>Send</button>
+    <div id="messages"></div>
+    <form id="inputForm">
+      <input type="text" id="messageInput" placeholder="Type your message..." autocomplete="off" required />
+      <button type="submit" id="sendBtn">Send</button>
     </form>
   </div>
 
   <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"></script>
 
   <script>
-    // TODO: Replace with your Firebase project config
     const firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "YOUR_AUTH_DOMAIN",
-      projectId: "YOUR_PROJECT_ID",
-      storageBucket: "YOUR_STORAGE_BUCKET",
-      messagingSenderId: "YOUR_SENDER_ID",
-      appId: "YOUR_APP_ID"
+      apiKey: "AIzaSyDPzGXGIzSbDysU2COetHSeHTl_ZEuZx1Q",
+      authDomain: "nice-ae434.firebaseapp.com",
+      projectId: "nice-ae434",
+      storageBucket: "nice-ae434.appspot.com",
+      messagingSenderId: "880835929368",
+      appId: "1:880835929368:web:23baf239b8804f0c1a6a6d",
+      measurementId: "G-P9FQRZP2BF"
     };
-
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
 
-    // Basic Auth check (you must implement your own auth flow)
-    auth.onAuthStateChanged(user => {
+    const messagesDiv = document.getElementById('messages');
+    const inputForm = document.getElementById('inputForm');
+    const messageInput = document.getElementById('messageInput');
+    const chatUserNameSpan = document.getElementById('chatUserName');
+    const backBtn = document.getElementById('backBtn');
+
+    let currentUserId;
+    let chatUserId;
+    let chatUserData;
+
+    // Get the chat user ID from query string: chat.html?user=USERID
+    const params = new URLSearchParams(window.location.search);
+    chatUserId = params.get('user');
+
+    if(!chatUserId){
+      alert('No user specified for chat.');
+      window.location.href = 'search.html';
+    }
+
+    // Back button sends user to search page
+    backBtn.addEventListener('click', () => {
+      window.location.href = 'search.html';
+    });
+
+    // Authentication check
+    auth.onAuthStateChanged(async (user) => {
       if (!user) {
-        // Redirect to login if not signed in
-        window.location.href = "login.html";
-      } else {
-        currentUser = user;
-        loadUsers();
-      }
-    });
-
-    let currentUser = null;
-    let selectedChatUser = null;
-    const userListDiv = document.getElementById("userList");
-    const chatHeader = document.getElementById("chatHeader");
-    const chatMessages = document.getElementById("chatMessages");
-    const messageForm = document.getElementById("messageForm");
-    const messageInput = document.getElementById("messageInput");
-    const sendBtn = document.getElementById("sendBtn");
-
-    // Enable send button only if input not empty
-    messageInput.addEventListener("input", () => {
-      sendBtn.disabled = messageInput.value.trim() === "";
-    });
-
-    // Load all users except current user
-    async function loadUsers() {
-      userListDiv.innerHTML = "Loading users...";
-      const usersSnapshot = await db.collection("users").get();
-      userListDiv.innerHTML = "";
-      usersSnapshot.forEach(doc => {
-        const user = doc.data();
-        if (doc.id !== currentUser.uid) {
-          const userDiv = document.createElement("div");
-          userDiv.textContent = user.name || user.email || "Unknown";
-          userDiv.classList.add("userItem");
-          userDiv.dataset.userid = doc.id;
-
-          const lastSeenDiv = document.createElement("div");
-          lastSeenDiv.classList.add("lastSeen");
-          if (user.lastSeen) {
-            const lastSeenDate = user.lastSeen.toDate();
-            lastSeenDiv.textContent = `Last seen: ${lastSeenDate.toLocaleTimeString()}`;
-          } else {
-            lastSeenDiv.textContent = "Offline";
-          }
-          userDiv.appendChild(lastSeenDiv);
-
-          userDiv.addEventListener("click", () => {
-            selectChatUser(doc.id, user.name || user.email || "Unknown");
-          });
-
-          userListDiv.appendChild(userDiv);
-        }
-      });
-    }
-
-    // Select a user to chat with
-    function selectChatUser(userId, userName) {
-      selectedChatUser = userId;
-
-      // Highlight selected user
-      document.querySelectorAll("#userList div").forEach(div => {
-        div.classList.toggle("selected", div.dataset.userid === userId);
-      });
-
-      chatHeader.textContent = `Chat with ${userName}`;
-      chatMessages.innerHTML = "";
-
-      loadMessages(currentUser.uid, userId);
-    }
-
-    // Generate chat ID based on two UIDs (ordered)
-    function getChatId(uid1, uid2) {
-      return uid1 < uid2 ? uid1 + "_" + uid2 : uid2 + "_" + uid1;
-    }
-
-    // Load messages and listen for new messages in realtime
-    function loadMessages(uid1, uid2) {
-      const chatId = getChatId(uid1, uid2);
-      const messagesRef = db.collection("chats").doc(chatId).collection("messages").orderBy("timestamp");
-
-      // Unsubscribe previous listener if any
-      if (window.unsubscribeMessages) {
-        window.unsubscribeMessages();
-      }
-
-      window.unsubscribeMessages = messagesRef.onSnapshot(snapshot => {
-        chatMessages.innerHTML = "";
-        snapshot.forEach(doc => {
-          const msg = doc.data();
-          const messageDiv = document.createElement("div");
-          messageDiv.classList.add("message");
-          if (msg.sender === currentUser.uid) {
-            messageDiv.classList.add("sent");
-          } else {
-            messageDiv.classList.add("received");
-          }
-          messageDiv.textContent = msg.text;
-
-          // Timestamp
-          if (msg.timestamp) {
-            const timeDiv = document.createElement("div");
-            timeDiv.style.fontSize = "10px";
-            timeDiv.style.marginTop = "2px";
-            timeDiv.style.color = "#666";
-            const date = msg.timestamp.toDate();
-            timeDiv.textContent = date.toLocaleTimeString([], {hour: "2-digit", minute: "2-digit"});
-            messageDiv.appendChild(timeDiv);
-          }
-          chatMessages.appendChild(messageDiv);
-        });
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-      });
-    }
-
-    // Send message handler
-    messageForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      if (!selectedChatUser) {
-        alert("Please select a user to chat with.");
+        window.location.href = 'login.html';
         return;
       }
-      const text = messageInput.value.trim();
-      if (!text) return;
+      currentUserId = user.uid;
 
-      const chatId = getChatId(currentUser.uid, selectedChatUser);
-      const messagesRef = db.collection("chats").doc(chatId).collection("messages");
-
-      try {
-        await messagesRef.add({
-          text,
-          sender: currentUser.uid,
-          receiver: selectedChatUser,
-          timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        messageInput.value = "";
-        sendBtn.disabled = true;
-
-        // Update current user's lastSeen timestamp
-        await db.collection("users").doc(currentUser.uid).set({
-          lastSeen: firebase.firestore.FieldValue.serverTimestamp()
-        }, {merge: true});
-      } catch (error) {
-        alert("Error sending message: " + error.message);
+      // Get chat user details (name)
+      const chatUserDoc = await db.collection('profiles').doc(chatUserId).get();
+      if(!chatUserDoc.exists){
+        alert('Chat user not found.');
+        window.location.href = 'search.html';
+        return;
       }
+      chatUserData = chatUserDoc.data();
+      chatUserNameSpan.textContent = chatUserData.name || 'User';
+
+      loadMessages();
+    });
+
+    // Firestore path for messages between two users (sorted by uid to keep consistent)
+    function getChatDocId(uid1, uid2){
+      return uid1 < uid2 ? uid1 + '_' + uid2 : uid2 + '_' + uid1;
+    }
+
+    function loadMessages(){
+      const chatDocId = getChatDocId(currentUserId, chatUserId);
+      const messagesRef = db.collection('chats').doc(chatDocId).collection('messages').orderBy('timestamp');
+
+      messagesRef.onSnapshot(snapshot => {
+        messagesDiv.innerHTML = ''; // clear old messages
+        snapshot.forEach(doc => {
+          const msg = doc.data();
+          const msgDiv = document.createElement('div');
+          msgDiv.classList.add('message');
+          msgDiv.classList.add(msg.senderId === currentUserId ? 'sent' : 'received');
+          msgDiv.textContent = msg.text;
+          messagesDiv.appendChild(msgDiv);
+        });
+        messagesDiv.scrollTop = messagesDiv.scrollHeight; // auto scroll to bottom
+      });
+    }
+
+    // Handle sending a new message
+    inputForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const text = messageInput.value.trim();
+      if(!text) return;
+
+      const chatDocId = getChatDocId(currentUserId, chatUserId);
+      const messagesRef = db.collection('chats').doc(chatDocId).collection('messages');
+
+      await messagesRef.add({
+        text,
+        senderId: currentUserId,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      });
+
+      messageInput.value = '';
     });
   </script>
 </body>
