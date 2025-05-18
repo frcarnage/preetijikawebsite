@@ -4,120 +4,120 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Create Profile | Bandhan by Preeti</title>
-  <link rel="stylesheet" href="css/styles.css" />
   <style>
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #fff0f5;
-      padding: 20px;
-      max-width: 600px;
-      margin: auto;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #fff0f5;
+      margin: 0; padding: 0;
+      display: flex; justify-content: center; align-items: center;
+      min-height: 100vh; color: #333;
+    }
+    .container {
+      background: white;
+      padding: 40px 50px;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(233, 30, 99, 0.2);
+      width: 420px;
     }
     h2 {
-      color: #e91e63;
       text-align: center;
+      color: #e91e63;
+      margin-bottom: 25px;
     }
-    form {
-      background: white;
-      padding: 25px;
-      border-radius: 10px;
-      box-shadow: 0 0 12px rgba(0,0,0,0.1);
-    }
-    label {
-      display: block;
-      margin-top: 15px;
-      font-weight: 600;
-    }
-    input, select {
+    form input, form select {
       width: 100%;
-      padding: 8px 10px;
-      margin-top: 5px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      box-sizing: border-box;
-    }
-    button {
-      margin-top: 25px;
-      background-color: #e91e63;
-      color: white;
       padding: 12px;
-      border: none;
+      margin: 10px 0;
+      border: 1.5px solid #e91e63;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+    form button {
       width: 100%;
-      border-radius: 6px;
+      padding: 14px;
+      background: #e91e63;
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-size: 1.1rem;
+      font-weight: 600;
       cursor: pointer;
-      font-size: 16px;
+      transition: background 0.3s ease;
+      margin-top: 15px;
+    }
+    form button:hover {
+      background: #ad1457;
     }
     .error {
       color: red;
       margin-top: 10px;
-      font-weight: 600;
+      font-size: 0.9rem;
+      text-align: center;
     }
     .success {
       color: green;
       margin-top: 10px;
-      font-weight: 600;
+      font-size: 0.9rem;
+      text-align: center;
     }
   </style>
 </head>
 <body>
 
-  <h2>Create Your Profile</h2>
+  <div class="container">
+    <h2>Create Your Profile</h2>
+    <form id="profileForm">
+      <input type="text" id="name" placeholder="Full Name" required />
+      <input type="text" id="city" placeholder="City" required />
+      <input type="number" id="age" placeholder="Age" min="18" max="100" required />
+      <input type="text" id="religion" placeholder="Religion" required />
+      <input type="text" id="hobby" placeholder="Hobby" required />
+      <input type="text" id="country" placeholder="Country" required />
+      <label for="photo">Upload Your Photo (JPEG/PNG, max 2MB):</label>
+      <input type="file" id="photo" accept="image/png, image/jpeg" required />
+      <button type="submit">Save Profile</button>
+    </form>
+    <div class="error" id="errorMsg"></div>
+    <div class="success" id="successMsg"></div>
+  </div>
 
-  <form id="profileForm">
-    <label for="name">Name *</label>
-    <input type="text" id="name" required />
-
-    <label for="city">City *</label>
-    <input type="text" id="city" required />
-
-    <label for="age">Age *</label>
-    <input type="number" id="age" min="18" max="100" required />
-
-    <label for="religion">Religion *</label>
-    <input type="text" id="religion" required />
-
-    <label for="hobby">Hobby *</label>
-    <input type="text" id="hobby" required />
-
-    <label for="country">Country *</label>
-    <input type="text" id="country" required />
-
-    <label for="photo">Profile Photo (mandatory) *</label>
-    <input type="file" id="photo" accept="image/*" required />
-
-    <button type="submit">Save Profile</button>
-    <div id="message"></div>
-  </form>
-
+  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"></script>
-  <script src="js/firebase.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js"></script>
 
+  <!-- Firebase config & initialization -->
   <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDPzGXGIzSbDysU2COetHSeHTl_ZEuZx1Q",
+      authDomain: "nice-ae434.firebaseapp.com",
+      projectId: "nice-ae434",
+      storageBucket: "nice-ae434.appspot.com",
+      messagingSenderId: "880835929368",
+      appId: "1:880835929368:web:23baf239b8804f0c1a6a6d",
+      measurementId: "G-P9FQRZP2BF"
+    };
+    firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
-    const storage = firebase.storage();
     const db = firebase.firestore();
+    const storage = firebase.storage();
+  </script>
 
+  <!-- Profile save logic -->
+  <script>
     const profileForm = document.getElementById('profileForm');
-    const messageDiv = document.getElementById('message');
-
-    auth.onAuthStateChanged(user => {
-      if (!user) {
-        // Not logged in, redirect to login page
-        window.location.href = 'login.html';
-      }
-    });
+    const errorMsg = document.getElementById('errorMsg');
+    const successMsg = document.getElementById('successMsg');
 
     profileForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      messageDiv.textContent = '';
+      errorMsg.textContent = '';
+      successMsg.textContent = '';
 
       const user = auth.currentUser;
       if (!user) {
-        messageDiv.textContent = 'You must be logged in!';
-        messageDiv.className = 'error';
+        errorMsg.textContent = "You must be logged in to create a profile.";
         return;
       }
 
@@ -130,19 +130,22 @@
       const photoFile = document.getElementById('photo').files[0];
 
       if (!photoFile) {
-        messageDiv.textContent = 'Profile photo is mandatory!';
-        messageDiv.className = 'error';
+        errorMsg.textContent = "Photo is mandatory.";
+        return;
+      }
+      if (photoFile.size > 2 * 1024 * 1024) {
+        errorMsg.textContent = "Photo size must be under 2MB.";
         return;
       }
 
       try {
-        // Upload photo to Firebase Storage
-        const photoRef = storage.ref().child(`profilePhotos/${user.uid}/${photoFile.name}`);
-        const snapshot = await photoRef.put(photoFile);
-        const photoURL = await snapshot.ref.getDownloadURL();
+        // Upload photo to Storage
+        const photoRef = storage.ref(`profilePhotos/${user.uid}/${photoFile.name}`);
+        const uploadTaskSnapshot = await photoRef.put(photoFile);
+        const photoURL = await uploadTaskSnapshot.ref.getDownloadURL();
 
-        // Save profile data in Firestore under users collection
-        await db.collection('users').doc(user.uid).set({
+        // Save profile data to Firestore
+        await db.collection('profiles').doc(user.uid).set({
           name,
           city,
           age,
@@ -154,17 +157,13 @@
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
 
-        messageDiv.textContent = 'Profile saved successfully! Redirecting...';
-        messageDiv.className = 'success';
-
-        // Redirect to dashboard or profile page after a short delay
+        successMsg.textContent = "Profile saved successfully! Redirecting...";
         setTimeout(() => {
-          window.location.href = 'dashboard.html';
-        }, 2000);
+          window.location.href = "dashboard.html"; // Redirect to dashboard or wherever
+        }, 1500);
 
       } catch (error) {
-        messageDiv.textContent = error.message;
-        messageDiv.className = 'error';
+        errorMsg.textContent = error.message;
       }
     });
   </script>
