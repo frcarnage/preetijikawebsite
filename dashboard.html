@@ -1,1 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dashboard | Bandhan by Preeti</title>
+  <style>
+    body {
+      margin: 0; padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #fff0f5;
+      display: flex;
+      height: 100vh;
+      color: #333;
+    }
+    nav {
+      width: 220px;
+      background: #e91e63;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      padding-top: 30px;
+    }
+    nav a {
+      color: white;
+      text-decoration: none;
+      padding: 15px 20px;
+      font-weight: 600;
+      border-bottom: 1px solid #c2185b;
+      cursor: pointer;
+    }
+    nav a:hover {
+      background: #c2185b;
+    }
+    main {
+      flex: 1;
+      padding: 20px 30px;
+      overflow-y: auto;
+    }
+    .my-profile {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(233, 30, 99, 0.2);
+      margin-bottom: 30px;
+      display: flex;
+      align-items: center;
+    }
+    .my-profile img {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 50%;
+      margin-right: 20px;
+      border: 3px solid #e91e63;
+    }
+    .my-profile div {
+      font-size: 1.1rem;
+    }
+    .profiles-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill,minmax(180px,1fr));
+      gap: 20px;
+    }
+    .profile-card {
+      background: white;
+      border-radius: 12px;
+      padding: 15px;
+      box-shadow: 0 6px 18px rgba(233, 30, 99, 0.15);
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+    .profile-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 10px 25px rgba(233, 30, 99, 0.25);
+    }
+    .profile-card img {
+      width: 100%;
+      height: 140px;
+      object-fit: cover;
+      border-radius: 10px;
+      margin-bottom: 10px;
+    }
+    .profile-card h3 {
+      margin: 5px 0 0 0;
+      font-size: 1.05rem;
+      color: #e91e63;
+    }
+    .profile-card p {
+      margin: 4px 0 0 0;
+      font-size: 0.9rem;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
 
+  <nav>
+    <a href="profile.html">Profile</a>
+    <a href="search.html">Search</a>
+    <a href="chat.html">Chat</a>
+    <a href="settings.html">Settings</a>
+    <a href="#" id="logoutBtn">Logout</a>
+  </nav>
+
+  <main>
+    <section class="my-profile" id="myProfile">
+      <!-- User's own profile will load here -->
+      Loading your profile...
+    </section>
+
+    <section>
+      <h2>Browse Profiles</h2>
+      <div class="profiles-list" id="profilesList">
+        <!-- Other profiles will be displayed here -->
+      </div>
+    </section>
+  </main>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDPzGXGIzSbDysU2COetHSeHTl_ZEuZx1Q",
+      authDomain: "nice-ae434.firebaseapp.com",
+      projectId: "nice-ae434",
+      storageBucket: "nice-ae434.appspot.com",
+      messagingSenderId: "880835929368",
+      appId: "1:880835929368:web:23baf239b8804f0c1a6a6d",
+      measurementId: "G-P9FQRZP2BF"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    const myProfileSection = document.getElementById('myProfile');
+    const profilesList = document.getElementById('profilesList');
+    const logoutBtn = document.getElementById('logoutBtn');
+
+    // Logout function
+    logoutBtn.addEventListener('click', () => {
+      auth.signOut().then(() => {
+        window.location.href = 'login.html';
+      });
+    });
+
+    // Load current user profile
+    auth.onAuthStateChanged(user => {
+      if (!user) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      // Load own profile
+      db.collection('profiles').doc(user.uid).get()
+        .then(doc => {
+          if (doc.exists) {
+            const data = doc.data();
+            myProfileSection.innerHTML = `
+              <img src="${data.photoURL}" alt="${data.name}" />
+              <div>
+                <h3>${data.name}</h3>
+                <p>${data.city}, ${data.country}</p>
+                <p>Age: ${data.age}</p>
+                <p>Religion: ${data.religion}</p>
+                <p>Hobby: ${data.hobby}</p>
+              </div>
+            `;
+          } else {
+            myProfileSection.innerHTML = `<p>You have not created a profile yet. <a href="create-profile.html">Create Now</a></p>`;
+          }
+        });
+
+      // Load other profiles
+      db.collection('profiles').get()
+        .then(snapshot => {
+          profilesList.innerHTML = '';
+          snapshot.forEach(doc => {
+            const profile = doc.data();
+            // Skip own profile in list
+            if (doc.id === user.uid) return;
+            profilesList.innerHTML += `
+              <div class="profile-card" onclick="viewProfile('${doc.id}')">
+                <img src="${profile.photoURL}" alt="${profile.name}" />
+                <h3>${profile.name}</h3>
+                <p>${profile.city}, ${profile.country}</p>
+                <p>Age: ${profile.age}</p>
+              </div>
+            `;
+          });
+        });
+    });
+
+    // Placeholder for profile click
+    function viewProfile(uid) {
+      alert('You clicked profile ID: ' + uid + '\nNext: implement profile view or chat!');
+      // You can redirect to profile detail page like:
+      // window.location.href = `profile.html?uid=${uid}`;
+    }
+  </script>
+
+</body>
+</html>
