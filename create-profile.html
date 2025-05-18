@@ -3,319 +3,171 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>BandhanByPreeti - Create Profile</title>
+  <title>Create Profile | Bandhan by Preeti</title>
+  <link rel="stylesheet" href="css/styles.css" />
   <style>
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #fff6f0;
-      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #fff0f5;
       padding: 20px;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      min-height: 100vh;
-    }
-    .container {
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 8px 20px rgba(253,160,133,0.3);
-      padding: 30px;
-      max-width: 450px;
-      width: 100%;
+      max-width: 600px;
+      margin: auto;
     }
     h2 {
-      color: #f47c60;
+      color: #e91e63;
       text-align: center;
-      margin-bottom: 25px;
+    }
+    form {
+      background: white;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 0 12px rgba(0,0,0,0.1);
     }
     label {
       display: block;
       margin-top: 15px;
       font-weight: 600;
-      color: #5a3d32;
     }
-    input[type="text"],
-    input[type="number"],
-    select,
-    textarea {
+    input, select {
       width: 100%;
-      padding: 10px 14px;
+      padding: 8px 10px;
       margin-top: 5px;
-      border: 1.5px solid #f1c7b4;
-      border-radius: 8px;
-      font-size: 1rem;
-      font-family: inherit;
-      resize: vertical;
-    }
-    textarea {
-      min-height: 80px;
-    }
-    input[type="file"] {
-      margin-top: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
     }
     button {
       margin-top: 25px;
-      width: 100%;
-      background: #fda085;
+      background-color: #e91e63;
       color: white;
-      font-weight: 700;
-      font-size: 1.1rem;
-      padding: 12px 0;
+      padding: 12px;
       border: none;
-      border-radius: 20px;
+      width: 100%;
+      border-radius: 6px;
       cursor: pointer;
-      box-shadow: 0 8px 20px rgba(253,160,133,0.5);
-      transition: background 0.3s ease;
+      font-size: 16px;
     }
-    button:hover {
-      background: #f6a672;
-    }
-    .message {
-      margin-top: 20px;
-      text-align: center;
-      font-weight: 600;
-    }
-    .message.success {
-      color: green;
-    }
-    .message.error {
+    .error {
       color: red;
-    }
-    .profile-pic-preview {
       margin-top: 10px;
-      max-width: 120px;
-      max-height: 120px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 2px solid #f47c60;
-      display: block;
-      margin-left: auto;
-      margin-right: auto;
-    }
-    .loading {
-      text-align: center;
-      margin-top: 15px;
       font-weight: 600;
-      color: #f47c60;
+    }
+    .success {
+      color: green;
+      margin-top: 10px;
+      font-weight: 600;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h2>Create Your Profile</h2>
-    <form id="profile-form">
-      <label for="name">Name *</label>
-      <input type="text" id="name" name="name" required />
 
-      <label for="age">Age *</label>
-      <input type="number" id="age" name="age" min="18" max="100" required />
+  <h2>Create Your Profile</h2>
 
-      <label for="city">City *</label>
-      <input type="text" id="city" name="city" required />
+  <form id="profileForm">
+    <label for="name">Name *</label>
+    <input type="text" id="name" required />
 
-      <label for="country">Country *</label>
-      <select id="country" name="country" required>
-        <option value="" disabled selected>Select your country</option>
-        <!-- Countries populated by JS -->
-      </select>
+    <label for="city">City *</label>
+    <input type="text" id="city" required />
 
-      <label for="hobby">Hobbies / Interests *</label>
-      <input type="text" id="hobby" name="hobby" placeholder="e.g., reading, music" required />
+    <label for="age">Age *</label>
+    <input type="number" id="age" min="18" max="100" required />
 
-      <label for="gender">Gender</label>
-      <select id="gender" name="gender">
-        <option value="" selected>Prefer not to say</option>
-        <option value="Male">Male</option>
-        <option value="Female">Female</option>
-        <option value="Other">Other</option>
-      </select>
+    <label for="religion">Religion *</label>
+    <input type="text" id="religion" required />
 
-      <label for="religion">Religion</label>
-      <select id="religion" name="religion">
-        <option value="" selected>Prefer not to say</option>
-        <option value="Hindu">Hindu</option>
-        <option value="Muslim">Muslim</option>
-        <option value="Christian">Christian</option>
-        <option value="Sikh">Sikh</option>
-        <option value="Other">Other</option>
-      </select>
+    <label for="hobby">Hobby *</label>
+    <input type="text" id="hobby" required />
 
-      <label for="education">About Education</label>
-      <select id="education" name="education">
-        <option value="" selected>Choose education level</option>
-        <option value="High School">High School</option>
-        <option value="Bachelor's">Bachelor's</option>
-        <option value="Master's">Master's</option>
-        <option value="PhD">PhD</option>
-        <option value="Other">Other</option>
-      </select>
+    <label for="country">Country *</label>
+    <input type="text" id="country" required />
 
-      <label for="about">About Me</label>
-      <textarea id="about" name="about" placeholder="Tell something about yourself..."></textarea>
+    <label for="photo">Profile Photo (mandatory) *</label>
+    <input type="file" id="photo" accept="image/*" required />
 
-      <label for="profilePic">Profile Picture</label>
-      <input type="file" id="profilePic" name="profilePic" accept="image/*" />
+    <button type="submit">Save Profile</button>
+    <div id="message"></div>
+  </form>
 
-      <button type="submit">Save Profile</button>
-    </form>
-    <div id="msg" class="message"></div>
-    <div id="loading" class="loading" style="display:none;">Saving profile, please wait...</div>
-  </div>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"></script>
+  <script src="js/firebase.js"></script>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.7.0/firebase-auth.js";
-    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.7.0/firebase-firestore.js";
-    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.7.0/firebase-storage.js";
+  <script>
+    const auth = firebase.auth();
+    const storage = firebase.storage();
+    const db = firebase.firestore();
 
-    // Your Firebase config here
-    const firebaseConfig = {
-      apiKey: "AIzaSyDPzGXGIzSbDysU2COetHSeHTl_ZEuZx1Q",
-      authDomain: "nice-ae434.firebaseapp.com",
-      projectId: "nice-ae434",
-      storageBucket: "nice-ae434.appspot.com",
-      messagingSenderId: "880835929368",
-      appId: "1:880835929368:web:23baf239b8804f0c1a6a6d",
-      measurementId: "G-P9FQRZP2BF"
-    };
+    const profileForm = document.getElementById('profileForm');
+    const messageDiv = document.getElementById('message');
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-    const storage = getStorage(app);
-
-    const profileForm = document.getElementById("profile-form");
-    const msgDiv = document.getElementById("msg");
-    const loadingDiv = document.getElementById("loading");
-
-    // Populate country dropdown (you can expand this list)
-    const countries = [
-      "India", "United States", "United Kingdom", "Canada", "Australia", "Other"
-    ];
-    const countrySelect = document.getElementById("country");
-    countries.forEach(country => {
-      const option = document.createElement("option");
-      option.value = country;
-      option.textContent = country;
-      countrySelect.appendChild(option);
+    auth.onAuthStateChanged(user => {
+      if (!user) {
+        // Not logged in, redirect to login page
+        window.location.href = 'login.html';
+      }
     });
 
-    let currentUser = null;
-    let profilePicFile = null;
+    profileForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      messageDiv.textContent = '';
 
-    // Redirect if not logged in and load profile data if exists
-    onAuthStateChanged(auth, async (user) => {
+      const user = auth.currentUser;
       if (!user) {
-        window.location.href = "login.html";
+        messageDiv.textContent = 'You must be logged in!';
+        messageDiv.className = 'error';
         return;
       }
-      currentUser = user;
 
-      // Load existing profile data if any
-      const docRef = doc(db, "users", currentUser.uid);
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        const data = docSnap.data();
-        profileForm.name.value = data.name || user.displayName || "";
-        profileForm.age.value = data.age || "";
-        profileForm.city.value = data.city || "";
-        profileForm.country.value = data.country || "";
-        profileForm.hobby.value = data.hobby || "";
-        profileForm.gender.value = data.gender || "";
-        profileForm.religion.value = data.religion || "";
-        profileForm.education.value = data.education || "";
-        profileForm.about.value = data.about || "";
+      const name = document.getElementById('name').value.trim();
+      const city = document.getElementById('city').value.trim();
+      const age = parseInt(document.getElementById('age').value);
+      const religion = document.getElementById('religion').value.trim();
+      const hobby = document.getElementById('hobby').value.trim();
+      const country = document.getElementById('country').value.trim();
+      const photoFile = document.getElementById('photo').files[0];
 
-        if(data.profilePicUrl) {
-          addProfilePicPreview(data.profilePicUrl);
-        }
-      } else {
-        profileForm.name.value = user.displayName || "";
+      if (!photoFile) {
+        messageDiv.textContent = 'Profile photo is mandatory!';
+        messageDiv.className = 'error';
+        return;
       }
-    });
-
-    // Show profile pic preview
-    function addProfilePicPreview(url) {
-      let existing = document.querySelector(".profile-pic-preview");
-      if(existing) existing.remove();
-
-      const img = document.createElement("img");
-      img.src = url;
-      img.alt = "Profile Picture";
-      img.className = "profile-pic-preview";
-      profileForm.profilePic.after(img);
-    }
-
-    profileForm.profilePic.addEventListener("change", (e) => {
-      profilePicFile = e.target.files[0];
-      if (profilePicFile) {
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-          addProfilePicPreview(ev.target.result);
-        };
-        reader.readAsDataURL(profilePicFile);
-      }
-    });
-    profileForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-
-      msgDiv.textContent = "";
-      msgDiv.className = "message";
-      loadingDiv.style.display = "block";
 
       try {
-        // Basic validation for required fields
-        const name = profileForm.name.value.trim();
-        const age = Number(profileForm.age.value);
-        const city = profileForm.city.value.trim();
-        const country = profileForm.country.value;
-        const hobby = profileForm.hobby.value.trim();
+        // Upload photo to Firebase Storage
+        const photoRef = storage.ref().child(`profilePhotos/${user.uid}/${photoFile.name}`);
+        const snapshot = await photoRef.put(photoFile);
+        const photoURL = await snapshot.ref.getDownloadURL();
 
-        if (!name || !age || !city || !country || !hobby) {
-          throw new Error("Please fill all required fields.");
-        }
-        if (age < 18 || age > 100) {
-          throw new Error("Age must be between 18 and 100.");
-        }
-
-        // Prepare data object
-        const userData = {
+        // Save profile data in Firestore under users collection
+        await db.collection('users').doc(user.uid).set({
           name,
-          age,
           city,
-          country,
+          age,
+          religion,
           hobby,
-          gender: profileForm.gender.value || "",
-          religion: profileForm.religion.value || "",
-          education: profileForm.education.value || "",
-          about: profileForm.about.value.trim() || "",
-          updatedAt: new Date()
-        };
+          country,
+          photoURL,
+          email: user.email,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
 
-        // If user uploaded a new profile pic, upload it to Firebase Storage
-        if (profilePicFile) {
-          const storageRef = ref(storage, `profilePics/${currentUser.uid}/${profilePicFile.name}`);
-          const uploadResult = await uploadBytes(storageRef, profilePicFile);
-          const downloadURL = await getDownloadURL(uploadResult.ref);
-          userData.profilePicUrl = downloadURL;
-        }
+        messageDiv.textContent = 'Profile saved successfully! Redirecting...';
+        messageDiv.className = 'success';
 
-        // Save/update Firestore document
-        const userDocRef = doc(db, "users", currentUser.uid);
-        await setDoc(userDocRef, userData, { merge: true });
+        // Redirect to dashboard or profile page after a short delay
+        setTimeout(() => {
+          window.location.href = 'dashboard.html';
+        }, 2000);
 
-        msgDiv.textContent = "Profile saved successfully!";
-        msgDiv.classList.add("success");
-        window.location.href = "your-profile.html";
-
-        profilePicFile = null;
       } catch (error) {
-        msgDiv.textContent = `Error: ${error.message}`;
-        msgDiv.classList.add("error");
-      } finally {
-        loadingDiv.style.display = "none";
+        messageDiv.textContent = error.message;
+        messageDiv.className = 'error';
       }
     });
   </script>
+
 </body>
 </html>
