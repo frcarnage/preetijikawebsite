@@ -2,95 +2,102 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>BandhanByPreeti - Find Your Perfect Match</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Bandhan by Preeti</title>
+  <link rel="stylesheet" href="css/styles.css" />
   <style>
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      margin: 0; padding: 0;
-      background: #fff6f0;
-      color: #5a3d32;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #fefefe;
     }
+
     header {
       display: flex;
-      justify-content: flex-end;
-      padding: 20px 40px;
-      background-color: #fda085;
-      box-shadow: 0 4px 10px rgba(253,160,133,0.4);
-    }
-    header a {
-      margin-left: 20px;
-      text-decoration: none;
-      color: white;
-      font-weight: 700;
-      font-size: 1rem;
-      padding: 8px 15px;
-      border-radius: 20px;
-      background-color: #f47c60;
-      transition: background-color 0.3s ease;
-    }
-    header a:hover {
-      background-color: #f25c3c;
-    }
-    main {
-      flex-grow: 1;
-      display: flex;
-      justify-content: center;
+      justify-content: space-between;
       align-items: center;
-      padding: 40px 20px;
+      padding: 20px 40px;
+      background-color: #e91e63;
+      color: white;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      margin-left: 20px;
+      font-weight: bold;
+    }
+
+    .hero {
+      padding: 60px 40px;
       text-align: center;
-      max-width: 800px;
-      margin: auto;
+      background-color: #fff0f5;
     }
-    main h1 {
-      font-size: 3rem;
-      margin-bottom: 20px;
-      color: #f47c60;
+
+    .hero h2 {
+      font-size: 36px;
+      color: #e91e63;
     }
-    main p {
-      font-size: 1.2rem;
-      line-height: 1.6;
-      margin-bottom: 30px;
-      color: #7a5540;
+
+    .hero p {
+      font-size: 18px;
+      max-width: 700px;
+      margin: 20px auto;
     }
+
+    .cta-buttons {
+      margin-top: 30px;
+    }
+
+    .cta-buttons a {
+      display: inline-block;
+      padding: 10px 20px;
+      margin: 0 10px;
+      background-color: #e91e63;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+    }
+
     footer {
       text-align: center;
-      padding: 15px;
-      font-size: 0.9rem;
-      color: #aa7c5f;
-      background: #fbe9e1;
-      border-top: 1px solid #f47c60;
+      padding: 20px;
+      background-color: #f8f8f8;
+      font-size: 14px;
+      color: #777;
     }
   </style>
 </head>
 <body>
+
   <header>
-    <a href="login.html">Login</a>
-    <a href="register.html">Register</a>
+    <h1>Bandhan by Preeti</h1>
+    <nav>
+      <a href="login.html">Login</a>
+      <a href="register.html">Register</a>
+    </nav>
   </header>
-  <main>
-    <div>
-      <h1>Welcome to BandhanByPreeti</h1>
-      <p>Your trusted platform to find your perfect life partner with ease and trust.  
-         Create your profile, browse matches, chat securely, and start your journey today!</p>
-      <a href="register.html" style="
-          display: inline-block;
-          background-color: #f47c60;
-          color: white;
-          padding: 15px 30px;
-          border-radius: 30px;
-          font-weight: 700;
-          font-size: 1.2rem;
-          text-decoration: none;
-          transition: background-color 0.3s ease;
-        ">Get Started</a>
+
+  <section class="hero">
+    <h2>Your Journey to a Beautiful Bond Begins Here</h2>
+    <p>
+      Welcome to Bandhan by Preeti — a matrimonial platform designed with care, culture, and connection in mind. Find your perfect match based on your values, interests, and lifestyle.
+    </p>
+    <div class="cta-buttons">
+      <a href="register.html">Get Started</a>
+      <a href="login.html">Already Registered?</a>
     </div>
-  </main>
+  </section>
+
   <footer>
-    &copy; 2025 BandhanByPreeti. All rights reserved.
+    &copy; 2025 Bandhan by Preeti. All rights reserved.
   </footer>
+
 </body>
 </html>
