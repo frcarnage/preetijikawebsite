@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Settings | Bandhan by Preeti</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #fdf0f6;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      padding-top: 40px;
+      color: #e91e63;
+    }
+    .settings-container {
+      background: white;
+      border-radius: 15px;
+      padding: 30px 40px;
+      max-width: 500px;
+      width: 100%;
+      box-shadow: 0 8px 20px rgba(233, 30, 99, 0.15);
+    }
+    h2 {
+      margin-bottom: 25px;
+      text-align: center;
+    }
+    label {
+      font-weight: 600;
+      display: block;
+      margin: 15px 0 8px;
+    }
+    input[type="text"], select {
+      width: 100%;
+      padding: 10px 15px;
+      border: 2px solid #e91e63;
+      border-radius: 10px;
+      font-size: 1rem;
+      margin-bottom: 20px;
+      outline: none;
+    }
+    button {
+      background: #e91e63;
+      border: none;
+      color: white;
+      font-weight: 600;
+      font-size: 1.1rem;
+      padding: 12px 25px;
+      border-radius: 12px;
+      cursor: pointer;
+      margin: 8px 0;
+      width: 100%;
+      transition: background 0.3s ease;
+    }
+    button:hover {
+      background: #ad1457;
+    }
+    .danger {
+      background: #c2185b;
+    }
+    .danger:hover {
+      background: #880e4f;
+    }
+    #blockList {
+      margin: 15px 0;
+      max-height: 150px;
+      overflow-y: auto;
+      border: 1.5px solid #e91e63;
+      border-radius: 10px;
+      padding: 10px;
+      background: #fce4ec;
+    }
+    .blocked-user {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .blocked-user span {
+      font-weight: 600;
+    }
+    .unblock-btn {
+      background: #e91e63;
+      border: none;
+      color: white;
+      border-radius: 8px;
+      padding: 4px 10px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.3s ease;
+    }
+    .unblock-btn:hover {
+      background: #ad1457;
+    }
+    #logoutBtn {
+      margin-top: 30px;
+    }
+    #statusMsg {
+      color: #c2185b;
+      font-weight: 600;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="settings-container">
+    <h2>Settings</h2>
+    <div id="statusMsg"></div>
+
+    <!-- Example: Preference for showing hobby in profile -->
+    <label for="showHobby">Show Hobby in Profile:</label>
+    <select id="showHobby">
+      <option value="yes">Yes</option>
+      <option value="no">No</option>
+    </select>
+
+    <!-- Blocked Users List -->
+    <label>Blocked Users:</label>
+    <div id="blockList">
+      Loading blocked users...
+    </div>
+
+    <button id="saveSettingsBtn">Save Settings</button>
+    <button id="logoutBtn">Log Out</button>
+    <button id="deleteProfileBtn" class="danger">Delete Profile</button>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDPzGXGIzSbDysU2COetHSeHTl_ZEuZx1Q",
+      authDomain: "nice-ae434.firebaseapp.com",
+      projectId: "nice-ae434",
+      storageBucket: "nice-ae434.appspot.com",
+      messagingSenderId: "880835929368",
+      appId: "1:880835929368:web:23baf239b8804f0c1a6a6d",
+      measurementId: "G-P9FQRZP2BF"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    const statusMsg = document.getElementById('statusMsg');
+    const showHobbySelect = document.getElementById('showHobby');
+    const blockListDiv = document.getElementById('blockList');
+    const saveSettingsBtn = document.getElementById('saveSettingsBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const deleteProfileBtn = document.getElementById('deleteProfileBtn');
+
+    let currentUserId;
+
+    auth.onAuthStateChanged(async user => {
+      if(!user){
+        window.location.href = 'login.html';
+        return;
+      }
+      currentUserId = user.uid;
+      loadSettings();
+      loadBlockedUsers();
+    });
+
+    async function loadSettings(){
+      try {
+        const doc = await db.collection('settings').doc(currentUserId).get();
+        if(doc.exists){
+          const data = doc.data();
+          showHobbySelect.value = data.showHobby || 'yes';
+        } else {
+          showHobbySelect.value = 'yes';
+        }
+      } catch(e) {
+        statusMsg.textContent = 'Failed to load settings.';
+      }
+    }
+
+    async function loadBlockedUsers(){
+      blockListDiv.textContent = 'Loading blocked users...';
+      try {
+        const doc = await db.collection('blocks').doc(currentUserId).get();
+        if(doc.exists){
+          const blocked = doc.data().blockedUsers || [];
+          if(blocked.length === 0){
+            blockListDiv.textContent = 'No blocked users.';
+          } else {
+            blockListDiv.innerHTML = '';
+            blocked.forEach(async (blockedId) => {
+              // Get blocked user name
+              const userDoc = await db.collection('profiles').doc(blockedId).get();
+              const userName = userDoc.exists ? userDoc.data().name : 'Unknown';
+              const userDiv = document.createElement('div');
+              userDiv.classList.add('blocked-user');
+              userDiv.innerHTML = `
+                <span>${userName}</span>
+                <button class="unblock-btn" data-id="${blockedId}">Unblock</button>
+              `;
+              blockListDiv.appendChild(userDiv);
+            });
+
+            // Add event listeners to unblock buttons
+            blockListDiv.querySelectorAll('.unblock-btn').forEach(btn => {
+              btn.addEventListener('click', unblockUser);
+            });
+          }
+        } else {
+          blockListDiv.textContent = 'No blocked users.';
+        }
+      } catch(e) {
+        blockListDiv.textContent = 'Error loading blocked users.';
+      }
+    }
+
+    async function unblockUser(e){
+      const unblockId = e.target.dataset.id;
+      try {
+        const docRef = db.collection('blocks').doc(currentUserId);
+        const doc = await docRef.get();
+        if(doc.exists){
+          let blocked = doc.data().blockedUsers || [];
+          blocked = blocked.filter(id => id !== unblockId);
+          await docRef.set({ blockedUsers: blocked });
+          loadBlockedUsers();
+          statusMsg.textContent = 'User unblocked.';
+          setTimeout(() => { statusMsg.textContent = ''; }, 3000);
+        }
+      } catch(e){
+        statusMsg.textContent = 'Failed to unblock user.';
+      }
+    }
+
+    saveSettingsBtn.addEventListener('click', async () => {
+      const showHobby = showHobbySelect.value;
+      try {
+        await db.collection('settings').doc(currentUserId).set({ showHobby });
+        statusMsg.textContent = 'Settings saved successfully.';
+        setTimeout(() => { statusMsg.textContent = ''; }, 3000);
+      } catch(e) {
+        statusMsg.textContent = 'Failed to save settings.';
+      }
+    });
+
+    logoutBtn.addEventListener('click', () => {
+      auth.signOut();
+    });
+
+    deleteProfileBtn.addEventListener('click', async () => {
+      if(!confirm('Are you sure you want to delete your profile? This action cannot be undone.')) return;
+
+      try {
+        // Delete profile data
+        await db.collection('profiles').doc(currentUserId).delete();
+        await db.collection('settings').doc(currentUserId).delete();
+        await db.collection('blocks').doc(currentUserId).delete();
+
+        // Delete user auth account
+        const user = auth.currentUser;
+        await user.delete();
+
+        alert('Profile deleted successfully.');
+        window.location.href = 'register.html';
+      } catch(e){
+        alert('Error deleting profile: ' + e.message);
+      }
+    });
+
+  </script>
+</body>
+</html>
