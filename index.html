@@ -2,98 +2,166 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Bandhan by Preeti</title>
-  <link rel="stylesheet" href="css/styles.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bandhan by Preeti - Find Your Perfect Match</title>
   <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      margin: 0;
-      padding: 0;
-      background: #fefefe;
+    * {
+      box-sizing: border-box;
     }
-
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #fff0f5;
+      color: #333;
+      line-height: 1.6;
+    }
     header {
+      background: #e91e63;
+      color: white;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 20px 40px;
-      background-color: #e91e63;
-      color: white;
+      padding: 15px 40px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
     }
-
-    header h1 {
-      margin: 0;
-      font-size: 24px;
+    header .logo {
+      font-weight: 700;
+      font-size: 1.5rem;
+      letter-spacing: 2px;
+      cursor: default;
     }
-
-    nav a {
+    header nav a {
       color: white;
+      margin-left: 25px;
       text-decoration: none;
-      margin-left: 20px;
-      font-weight: bold;
+      font-weight: 600;
+      transition: color 0.3s ease;
     }
-
+    header nav a:hover {
+      color: #ff80ab;
+    }
+    main {
+      max-width: 1100px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
     .hero {
-      padding: 60px 40px;
       text-align: center;
-      background-color: #fff0f5;
+      padding: 60px 20px;
     }
-
-    .hero h2 {
-      font-size: 36px;
-      color: #e91e63;
+    .hero h1 {
+      font-size: 3.2rem;
+      margin-bottom: 15px;
+      color: #c2185b;
     }
-
     .hero p {
-      font-size: 18px;
-      max-width: 700px;
-      margin: 20px auto;
+      font-size: 1.3rem;
+      margin-bottom: 30px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+      color: #555;
     }
-
-    .cta-buttons {
-      margin-top: 30px;
-    }
-
-    .cta-buttons a {
+    .btn-group a {
       display: inline-block;
-      padding: 10px 20px;
-      margin: 0 10px;
-      background-color: #e91e63;
+      margin: 0 12px;
+      padding: 12px 28px;
+      background: #e91e63;
       color: white;
+      font-weight: 700;
+      border-radius: 30px;
       text-decoration: none;
-      border-radius: 8px;
+      font-size: 1.1rem;
+      box-shadow: 0 4px 10px rgba(233, 30, 99, 0.4);
+      transition: background 0.3s ease;
     }
-
+    .btn-group a:hover {
+      background: #ad1457;
+      box-shadow: 0 6px 15px rgba(173, 20, 87, 0.6);
+    }
+    section.info {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 60px;
+      flex-wrap: wrap;
+      gap: 30px;
+    }
+    section.info div {
+      flex: 1 1 280px;
+      background: white;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 6px 15px rgba(233, 30, 99, 0.15);
+      text-align: center;
+    }
+    section.info div h3 {
+      color: #e91e63;
+      margin-bottom: 15px;
+    }
+    section.info div p {
+      color: #666;
+      font-size: 1rem;
+    }
     footer {
       text-align: center;
       padding: 20px;
-      background-color: #f8f8f8;
-      font-size: 14px;
-      color: #777;
+      margin-top: 60px;
+      font-size: 0.9rem;
+      color: #999;
+    }
+    @media(max-width: 700px) {
+      .hero h1 {
+        font-size: 2.2rem;
+      }
+      .btn-group a {
+        margin: 10px 8px;
+        padding: 10px 20px;
+        font-size: 1rem;
+      }
+      section.info {
+        flex-direction: column;
+        gap: 20px;
+      }
     }
   </style>
 </head>
 <body>
 
   <header>
-    <h1>Bandhan by Preeti</h1>
+    <div class="logo">Bandhan by Preeti</div>
     <nav>
       <a href="login.html">Login</a>
       <a href="register.html">Register</a>
     </nav>
   </header>
 
-  <section class="hero">
-    <h2>Your Journey to a Beautiful Bond Begins Here</h2>
-    <p>
-      Welcome to Bandhan by Preeti — a matrimonial platform designed with care, culture, and connection in mind. Find your perfect match based on your values, interests, and lifestyle.
-    </p>
-    <div class="cta-buttons">
-      <a href="register.html">Get Started</a>
-      <a href="login.html">Already Registered?</a>
-    </div>
-  </section>
+  <main>
+    <section class="hero">
+      <h1>Find Your Perfect Match with Bandhan by Preeti</h1>
+      <p>Create your profile, connect with like-minded people, and build meaningful relationships — all for free.</p>
+      <div class="btn-group">
+        <a href="register.html">Get Started</a>
+        <a href="login.html">Login</a>
+      </div>
+    </section>
+
+    <section class="info">
+      <div>
+        <h3>Create Your Profile</h3>
+        <p>Share your interests, background, and a photo to attract the right matches.</p>
+      </div>
+      <div>
+        <h3>Search & Connect</h3>
+        <p>Use filters like age, hobby, and location to find profiles that suit you.</p>
+      </div>
+      <div>
+        <h3>Chat & Build Bonds</h3>
+        <p>Send messages, like profiles, and start conversations with your potential matches.</p>
+      </div>
+    </section>
+  </main>
 
   <footer>
     &copy; 2025 Bandhan by Preeti. All rights reserved.
