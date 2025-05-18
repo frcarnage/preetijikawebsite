@@ -96,12 +96,11 @@
     </div>
   </div>
 
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
+  <!-- Firebase v10 Modular SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-  <!-- Firebase config & initialization -->
-  <script>
     const firebaseConfig = {
       apiKey: "AIzaSyDPzGXGIzSbDysU2COetHSeHTl_ZEuZx1Q",
       authDomain: "nice-ae434.firebaseapp.com",
@@ -111,17 +110,15 @@
       appId: "1:880835929368:web:23baf239b8804f0c1a6a6d",
       measurementId: "G-P9FQRZP2BF"
     };
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-  </script>
 
-  <!-- Login logic -->
-  <script>
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
     const loginForm = document.getElementById('loginForm');
     const errorMsg = document.getElementById('errorMsg');
     const successMsg = document.getElementById('successMsg');
 
-    loginForm.addEventListener('submit', (e) => {
+    loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       errorMsg.textContent = '';
       successMsg.textContent = '';
@@ -129,16 +126,15 @@
       const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
 
-      auth.signInWithEmailAndPassword(email, password)
-        .then(() => {
-          successMsg.textContent = "Login successful! Redirecting...";
-          setTimeout(() => {
-            window.location.href = 'dashboard.html'; // redirect after login
-          }, 1500);
-        })
-        .catch(error => {
-          errorMsg.textContent = error.message;
-        });
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        successMsg.textContent = "Login successful! Redirecting...";
+        setTimeout(() => {
+          window.location.href = 'dashboard.html';
+        }, 1500);
+      } catch (error) {
+        errorMsg.textContent = error.message;
+      }
     });
   </script>
 
