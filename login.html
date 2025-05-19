@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Login | Bandhan by Preeti</title>
+  <title>Login | BandhanByPreeti</title>
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -22,13 +22,13 @@
       border-radius: 12px;
       box-shadow: 0 8px 20px rgba(233, 30, 99, 0.2);
       width: 360px;
+      text-align: center;
     }
     h2 {
-      text-align: center;
       color: #e91e63;
       margin-bottom: 25px;
     }
-    form input {
+    input {
       width: 100%;
       padding: 12px;
       margin: 12px 0;
@@ -36,7 +36,7 @@
       border-radius: 8px;
       font-size: 1rem;
     }
-    form button {
+    button {
       width: 100%;
       padding: 14px;
       background: #e91e63;
@@ -49,33 +49,34 @@
       transition: background 0.3s ease;
       margin-top: 10px;
     }
-    form button:hover {
+    button:hover {
       background: #ad1457;
     }
-    .register-link {
-      text-align: center;
-      margin-top: 18px;
+    .error, .success {
+      margin-top: 10px;
       font-size: 0.9rem;
-    }
-    .register-link a {
-      color: #e91e63;
-      text-decoration: none;
-      font-weight: 600;
-    }
-    .register-link a:hover {
-      text-decoration: underline;
+      text-align: center;
     }
     .error {
       color: red;
-      margin-top: 10px;
-      font-size: 0.9rem;
-      text-align: center;
     }
     .success {
       color: green;
-      margin-top: 10px;
+    }
+    .google-btn {
+      background: #4285F4;
+      margin-top: 15px;
+    }
+    .google-btn:hover {
+      background: #357ae8;
+    }
+    .forgot-link {
+      display: block;
+      margin-top: 15px;
       font-size: 0.9rem;
-      text-align: center;
+      color: #e91e63;
+      cursor: pointer;
+      text-decoration: underline;
     }
   </style>
 </head>
@@ -88,52 +89,81 @@
       <input type="password" id="password" placeholder="Password" required />
       <button type="submit">Login</button>
     </form>
+
+    <button id="googleLoginBtn" class="google-btn">Login with Google</button>
+
+    <div class="forgot-link" id="forgotPassword">Forgot Password?</div>
+
     <div class="error" id="errorMsg"></div>
     <div class="success" id="successMsg"></div>
-    <div class="register-link">
-      Don't have an account? <a href="register.html">Register here</a><br />
-      <a href="forgot-password.html" style="color:#e91e63; font-weight:600; text-decoration:none;">Forgot Password?</a>
-    </div>
   </div>
 
-  <!-- Firebase v10 Modular SDK -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
 
+  <script>
+    // Your Firebase configuration - replace with your actual config
     const firebaseConfig = {
-      apiKey: "AIzaSyDPzGXGIzSbDysU2COetHSeHTl_ZEuZx1Q",
-      authDomain: "nice-ae434.firebaseapp.com",
-      projectId: "nice-ae434",
-      storageBucket: "nice-ae434.appspot.com",
-      messagingSenderId: "880835929368",
-      appId: "1:880835929368:web:23baf239b8804f0c1a6a6d",
-      measurementId: "G-P9FQRZP2BF"
+      apiKey: "AIzaSyDxxxxxx", // Your actual API key here
+      authDomain: "bandhanbypreeti.firebaseapp.com",
+      projectId: "bandhanbypreeti",
+      storageBucket: "bandhanbypreeti.appspot.com",
+      messagingSenderId: "1234567890",
+      appId: "1:1234567890:web:abcdef123456"
     };
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
+    // Initialize Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
 
     const loginForm = document.getElementById('loginForm');
     const errorMsg = document.getElementById('errorMsg');
     const successMsg = document.getElementById('successMsg');
+    const googleLoginBtn = document.getElementById('googleLoginBtn');
+    const forgotPasswordLink = document.getElementById('forgotPassword');
 
     loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       errorMsg.textContent = '';
       successMsg.textContent = '';
-
-      const email = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value;
+      const email = loginForm.email.value.trim();
+      const password = loginForm.password.value;
 
       try {
-        await signInWithEmailAndPassword(auth, email, password);
-        successMsg.textContent = "Login successful! Redirecting...";
-        setTimeout(() => {
-          window.location.href = 'dashboard.html';
-        }, 1500);
+        await auth.signInWithEmailAndPassword(email, password);
+        successMsg.textContent = 'Login successful! Redirecting...';
+        setTimeout(() => window.location.href = 'dashboard.html', 1500);
       } catch (error) {
         errorMsg.textContent = error.message;
+      }
+    });
+
+    googleLoginBtn.addEventListener('click', async () => {
+      errorMsg.textContent = '';
+      successMsg.textContent = '';
+      const provider = new firebase.auth.GoogleAuthProvider();
+      try {
+        await auth.signInWithPopup(provider);
+        successMsg.textContent = 'Login successful! Redirecting...';
+        setTimeout(() => window.location.href = 'dashboard.html', 1500);
+      } catch (error) {
+        errorMsg.textContent = error.message;
+      }
+    });
+
+    forgotPasswordLink.addEventListener('click', async () => {
+      errorMsg.textContent = '';
+      successMsg.textContent = '';
+      const email = prompt("Please enter your registered email address:");
+
+      if (email) {
+        try {
+          await auth.sendPasswordResetEmail(email);
+          successMsg.textContent = 'Password reset email sent. Check your inbox.';
+        } catch (error) {
+          errorMsg.textContent = error.message;
+        }
       }
     });
   </script>
