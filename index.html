@@ -3,126 +3,99 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Bandhan by Preeti - Find Your Perfect Match</title>
+  <title>BandhanByPreeti | Find Your Perfect Match</title>
+  <meta name="description" content="BandhanByPreeti is a free Indian matrimonial website to find your perfect life partner. Register, create a profile, and start your journey to love.">
+  <link rel="stylesheet" href="css/styles.css" />
   <style>
-    * {
-      box-sizing: border-box;
-    }
     body {
       margin: 0;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #fff0f5;
+      background-color: #fff0f5;
       color: #333;
-      line-height: 1.6;
     }
     header {
-      background: #e91e63;
-      color: white;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 15px 40px;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-    header .logo {
-      font-weight: 700;
-      font-size: 1.5rem;
-      letter-spacing: 2px;
-      cursor: default;
-    }
-    header nav a {
+      padding: 20px 40px;
+      background-color: #e91e63;
       color: white;
-      margin-left: 25px;
+    }
+    header h1 {
+      margin: 0;
+    }
+    .nav-buttons a {
+      margin-left: 20px;
       text-decoration: none;
+      color: white;
       font-weight: 600;
-      transition: color 0.3s ease;
-    }
-    header nav a:hover {
-      color: #ff80ab;
-    }
-    main {
-      max-width: 1100px;
-      margin: 40px auto;
-      padding: 0 20px;
-    }
-    .hero {
-      text-align: center;
-      padding: 60px 20px;
-    }
-    .hero h1 {
-      font-size: 3.2rem;
-      margin-bottom: 15px;
-      color: #c2185b;
-    }
-    .hero p {
-      font-size: 1.3rem;
-      margin-bottom: 30px;
-      max-width: 600px;
-      margin-left: auto;
-      margin-right: auto;
-      color: #555;
-    }
-    .btn-group a {
-      display: inline-block;
-      margin: 0 12px;
-      padding: 12px 28px;
-      background: #e91e63;
-      color: white;
-      font-weight: 700;
-      border-radius: 30px;
-      text-decoration: none;
-      font-size: 1.1rem;
-      box-shadow: 0 4px 10px rgba(233, 30, 99, 0.4);
+      padding: 8px 16px;
+      border: 2px solid white;
+      border-radius: 8px;
       transition: background 0.3s ease;
     }
-    .btn-group a:hover {
-      background: #ad1457;
-      box-shadow: 0 6px 15px rgba(173, 20, 87, 0.6);
+    .nav-buttons a:hover {
+      background: white;
+      color: #e91e63;
     }
-    section.info {
+    .about-section {
+      max-width: 900px;
+      margin: 40px auto;
       display: flex;
-      justify-content: space-around;
-      margin-top: 60px;
       flex-wrap: wrap;
       gap: 30px;
-    }
-    section.info div {
-      flex: 1 1 280px;
+      padding: 0 20px;
+      align-items: center;
       background: white;
-      padding: 25px;
-      border-radius: 10px;
-      box-shadow: 0 6px 15px rgba(233, 30, 99, 0.15);
-      text-align: center;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(233, 30, 99, 0.2);
     }
-    section.info div h3 {
+    .about-text {
+      flex: 1 1 400px;
+      color: #444;
+    }
+    .about-text h2 {
       color: #e91e63;
-      margin-bottom: 15px;
+      font-size: 2rem;
+      margin-bottom: 12px;
     }
-    section.info div p {
-      color: #666;
-      font-size: 1rem;
+    .about-text h3 {
+      font-size: 1.3rem;
+      margin-bottom: 12px;
+    }
+    .about-text p {
+      font-size: 1.1rem;
+      line-height: 1.6;
+    }
+    .about-images {
+      flex: 1 1 400px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      justify-content: center;
+    }
+    .about-images img {
+      width: 48%;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      object-fit: cover;
+      max-height: 180px;
     }
     footer {
       text-align: center;
       padding: 20px;
-      margin-top: 60px;
+      background-color: #fce4ec;
       font-size: 0.9rem;
-      color: #999;
+      color: #777;
+      margin-top: 40px;
     }
-    @media(max-width: 700px) {
-      .hero h1 {
-        font-size: 2.2rem;
-      }
-      .btn-group a {
-        margin: 10px 8px;
-        padding: 10px 20px;
-        font-size: 1rem;
-      }
-      section.info {
+    @media (max-width: 700px) {
+      .about-section {
         flex-direction: column;
-        gap: 20px;
+      }
+      .about-images img {
+        width: 100%;
+        max-height: 220px;
       }
     }
   </style>
@@ -130,42 +103,46 @@
 <body>
 
   <header>
-    <div class="logo">Bandhan by Preeti</div>
-    <nav>
+    <h1>BandhanByPreeti</h1>
+    <div class="nav-buttons">
       <a href="login.html">Login</a>
       <a href="register.html">Register</a>
-    </nav>
+    </div>
   </header>
 
-  <main>
-    <section class="hero">
-      <h1>Find Your Perfect Match with Bandhan by Preeti</h1>
-      <p>Create your profile, connect with like-minded people, and build meaningful relationships — all for free.</p>
-      <div class="btn-group">
-        <a href="register.html">Get Started</a>
-        <a href="login.html">Login</a>
-      </div>
-    </section>
-
-    <section class="info">
-      <div>
-        <h3>Create Your Profile</h3>
-        <p>Share your interests, background, and a photo to attract the right matches.</p>
-      </div>
-      <div>
-        <h3>Search & Connect</h3>
-        <p>Use filters like age, hobby, and location to find profiles that suit you.</p>
-      </div>
-      <div>
-        <h3>Chat & Build Bonds</h3>
-        <p>Send messages, like profiles, and start conversations with your potential matches.</p>
-      </div>
-    </section>
-  </main>
+  <section class="about-section">
+    <div class="about-text">
+      <h2>About BandhanByPreeti</h2>
+      <h3>Our Mission</h3>
+      <p>
+        At BandhanByPreeti, we aim to create a seamless matchmaking experience for individuals seeking love and companionship. Our mission is to facilitate meaningful connections that lead to lasting marriages, ensuring every user feels valued and understood.
+      </p>
+    </div>
+    <div class="about-images">
+      <img src="images/couple1.jpg" alt="Happy couple" />
+      <img src="images/wedding2.jpg" alt="Wedding celebration" />
+      <img src="images/couple3.jpg" alt="Smiling couple" />
+      <img src="images/family.jpg" alt="Family celebration" />
+    </div>
+  </section>
 
   <footer>
-    &copy; 2025 Bandhan by Preeti. All rights reserved.
+    © 2025 BandhanByPreeti. All rights reserved.
   </footer>
 
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDPzGXGIzSbDysU2COetHSeHTl_ZEuZx1Q",
+      authDomain: "nice-ae434.firebaseapp.com",
+      projectId: "nice-ae434",
+      storageBucket: "nice-ae434.appspot.com",
+      messagingSenderId: "880835929368",
+      appId: "1:880835929368:web:23baf239b8804f0c1a6a6d",
+      measurementId: "G-P9FQRZP2BF"
+    };
+    firebase.initializeApp(firebaseConfig);
+  </script>
 </body>
 </html>
