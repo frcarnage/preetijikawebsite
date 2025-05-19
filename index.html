@@ -4,21 +4,17 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>BandhanByPreeti | Find Your Perfect Match</title>
-
-  <!-- SEO Meta Tags -->
-  <meta name="description" content="BandhanByPreeti is a free Indian matrimonial website to find your perfect life partner. Register, create a profile, and start your journey to love.">
-  <meta name="keywords" content="matchmaking, marriage, shaadi, find partner, Indian matrimony, love, BandhanByPreeti">
+  
+  <!-- SEO Essentials -->
+  <meta name="description" content="BandhanByPreeti is a trusted Indian matchmaking platform helping you find meaningful relationships and lifelong companionship." />
+  <meta name="keywords" content="Matrimony, Marriage, Indian Matchmaking, BandhanByPreeti, Wedding, Life Partner, Shaadi, Bandhan" />
   <meta name="author" content="BandhanByPreeti Team" />
 
-  <!-- Open Graph Tags for Social Sharing -->
-  <meta property="og:title" content="BandhanByPreeti | Find Your Perfect Match" />
-  <meta property="og:description" content="Join BandhanByPreeti to connect with your ideal life partner and start a meaningful journey toward marriage." />
-  <meta property="og:image" content="https://yourdomain.com/images/couple1.jpg" />
-  <meta property="og:url" content="https://bandhanbypreeti.netlify.app/" />
-  <meta property="og:type" content="website" />
+  <!-- Google Site Verification -->
   <meta name="google-site-verification" content="Dp-vsmJtBl_7IOuZ8kv0sbkYAIWnYIqPg0BqTFBNzI8" />
 
-  <link rel="stylesheet" href="css/styles.css" />
+  <!-- Favicon (optional) -->
+  <link rel="icon" href="images/favicon.ico" type="image/x-icon" />
 
   <style>
     body {
@@ -27,89 +23,86 @@
       background-color: #fff0f5;
       color: #333;
     }
+
     header {
+      background-color: #e91e63;
+      color: white;
+      padding: 20px 40px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 20px 40px;
-      background-color: #e91e63;
-      color: white;
+      flex-wrap: wrap;
     }
+
     header h1 {
       margin: 0;
+      font-size: 1.8rem;
     }
+
     .nav-buttons a {
-      margin-left: 20px;
       text-decoration: none;
       color: white;
       font-weight: 600;
+      margin-left: 20px;
       padding: 8px 16px;
       border: 2px solid white;
       border-radius: 8px;
       transition: background 0.3s ease;
     }
+
     .nav-buttons a:hover {
       background: white;
       color: #e91e63;
     }
-    .about-section {
-      max-width: 900px;
-      margin: 40px auto;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 30px;
-      padding: 0 20px;
-      align-items: center;
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(233, 30, 99, 0.2);
+
+    .hero {
+      text-align: center;
+      padding: 60px 20px;
+      background: linear-gradient(to bottom right, #fff0f5, #fce4ec);
     }
-    .about-text {
-      flex: 1 1 400px;
-      color: #444;
-    }
-    .about-text h2 {
+
+    .hero h2 {
+      font-size: 2.5rem;
       color: #e91e63;
-      font-size: 2rem;
-      margin-bottom: 12px;
+      margin-bottom: 20px;
     }
-    .about-text h3 {
-      font-size: 1.3rem;
-      margin-bottom: 12px;
-    }
-    .about-text p {
-      font-size: 1.1rem;
+
+    .hero p {
+      font-size: 1.2rem;
+      max-width: 700px;
+      margin: auto;
       line-height: 1.6;
     }
-    .about-images {
-      flex: 1 1 400px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 15px;
-      justify-content: center;
+
+    .hero img {
+      max-width: 90%;
+      margin-top: 30px;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     }
-    .about-images img {
-      width: 48%;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-      object-fit: cover;
-      max-height: 180px;
-    }
+
     footer {
       text-align: center;
       padding: 20px;
       background-color: #fce4ec;
-      font-size: 0.9rem;
       color: #777;
       margin-top: 40px;
+      font-size: 0.9rem;
     }
+
     @media (max-width: 700px) {
-      .about-section {
+      header {
         flex-direction: column;
+        text-align: center;
       }
-      .about-images img {
-        width: 100%;
-        max-height: 220px;
+      .nav-buttons {
+        margin-top: 10px;
+      }
+      .hero h2 {
+        font-size: 2rem;
+      }
+      .hero p {
+        font-size: 1rem;
       }
     }
   </style>
@@ -124,40 +117,15 @@
     </div>
   </header>
 
-  <section class="about-section">
-    <div class="about-text">
-      <h2>About BandhanByPreeti</h2>
-      <h3>Our Mission</h3>
-      <p>
-        At BandhanByPreeti, we aim to create a seamless matchmaking experience for individuals seeking love and companionship. Our mission is to facilitate meaningful connections that lead to lasting marriages, ensuring every user feels valued and understood.
-      </p>
-    </div>
-    <div class="about-images">
-      <img src="images/couple1.jpg" alt="Happy Indian couple spending time together" />
-      <img src="images/wedding2.jpg" alt="Traditional wedding celebration with joy and love" />
-      <img src="images/couple3.jpg" alt="Smiling couple enjoying their new life" />
-      <img src="images/family.jpg" alt="Family celebrating togetherness after a successful match" />
-    </div>
+  <section class="hero">
+    <h2>Find Your Perfect Match</h2>
+    <p>Welcome to BandhanByPreeti – where tradition meets technology. Create your profile and start your journey toward a meaningful relationship today.</p>
+    <img src="images/hero-couple.jpg" alt="Couple holding hands" />
   </section>
 
   <footer>
     © 2025 BandhanByPreeti. All rights reserved.
   </footer>
-
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyDPzGXGIzSbDysU2COetHSeHTl_ZEuZx1Q",
-      authDomain: "nice-ae434.firebaseapp.com",
-      projectId: "nice-ae434",
-      storageBucket: "nice-ae434.appspot.com",
-      messagingSenderId: "880835929368",
-      appId: "1:880835929368:web:23baf239b8804f0c1a6a6d",
-      measurementId: "G-P9FQRZP2BF"
-    };
-    firebase.initializeApp(firebaseConfig);
-  </script>
 
 </body>
 </html>
