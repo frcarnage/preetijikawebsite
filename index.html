@@ -13,14 +13,14 @@
   <!-- Google Site Verification -->
   <meta name="google-site-verification" content="Dp-vsmJtBl_7IOuZ8kv0sbkYAIWnYIqPg0BqTFBNzI8" />
 
-  <!-- Favicon (optional) -->
+  <!-- Favicon -->
   <link rel="icon" href="images/favicon.ico" type="image/x-icon" />
 
   <style>
     body {
       margin: 0;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #fff0f5;
+      background: linear-gradient(to bottom right, #fff0f5, #fce4ec);
       color: #333;
     }
 
@@ -37,6 +37,7 @@
     header h1 {
       margin: 0;
       font-size: 1.8rem;
+      font-weight: 700;
     }
 
     .nav-buttons a {
@@ -44,7 +45,7 @@
       color: white;
       font-weight: 600;
       margin-left: 20px;
-      padding: 8px 16px;
+      padding: 10px 20px;
       border: 2px solid white;
       border-radius: 8px;
       transition: background 0.3s ease;
@@ -56,29 +57,59 @@
     }
 
     .hero {
-      text-align: center;
-      padding: 60px 20px;
-      background: linear-gradient(to bottom right, #fff0f5, #fce4ec);
+      max-width: 1200px;
+      margin: 60px auto;
+      display: flex;
+      align-items: center;
+      gap: 40px;
+      padding: 0 20px;
+      flex-wrap: wrap;
     }
 
-    .hero h2 {
-      font-size: 2.5rem;
+    .hero-text {
+      flex: 1 1 450px;
+    }
+
+    .hero-text h2 {
+      font-size: 3rem;
       color: #e91e63;
       margin-bottom: 20px;
+      font-weight: 700;
+      line-height: 1.1;
     }
 
-    .hero p {
-      font-size: 1.2rem;
-      max-width: 700px;
-      margin: auto;
+    .hero-text p {
+      font-size: 1.3rem;
       line-height: 1.6;
+      margin-bottom: 30px;
+      color: #444;
     }
 
-    .hero img {
-      max-width: 90%;
-      margin-top: 30px;
+    .hero-text .btn-group a {
+      display: inline-block;
+      margin-right: 20px;
+      background: #e91e63;
+      color: white;
+      padding: 14px 28px;
+      font-weight: 700;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: background 0.3s ease;
+    }
+
+    .hero-text .btn-group a:hover {
+      background: #ad1457;
+    }
+
+    .hero-image {
+      flex: 1 1 450px;
+      text-align: center;
+    }
+
+    .hero-image img {
+      max-width: 100%;
       border-radius: 16px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
     }
 
     footer {
@@ -88,21 +119,24 @@
       color: #777;
       margin-top: 40px;
       font-size: 0.9rem;
+      user-select: none;
     }
 
-    @media (max-width: 700px) {
-      header {
+    @media (max-width: 800px) {
+      .hero {
         flex-direction: column;
         text-align: center;
       }
-      .nav-buttons {
-        margin-top: 10px;
+      .hero-text, .hero-image {
+        flex: unset;
+        width: 100%;
       }
-      .hero h2 {
-        font-size: 2rem;
+      .hero-text h2 {
+        font-size: 2.4rem;
       }
-      .hero p {
-        font-size: 1rem;
+      .hero-text .btn-group a {
+        margin-bottom: 10px;
+        margin-right: 0;
       }
     }
   </style>
@@ -118,9 +152,17 @@
   </header>
 
   <section class="hero">
-    <h2>Find Your Perfect Match</h2>
-    <p>Welcome to BandhanByPreeti – where tradition meets technology. Create your profile and start your journey toward a meaningful relationship today.</p>
-    <img src="images/couple1.jpg" alt="Couple holding hands" />
+    <div class="hero-text">
+      <h2>Find Your Perfect Match</h2>
+      <p>Welcome to BandhanByPreeti – where tradition meets technology. Create your profile and start your journey toward a meaningful relationship today.</p>
+      <div class="btn-group">
+        <a href="register.html">Get Started</a>
+        <a href="login.html">Login</a>
+      </div>
+    </div>
+    <div class="hero-image">
+      <img src="images/couple1.jpg" alt="Couple holding hands" />
+    </div>
   </section>
 
   <footer>
