@@ -3,148 +3,78 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Register | Bandhan by Preeti</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #fff0f5;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      color: #333;
-    }
-    .container {
-      background: white;
-      padding: 40px 50px;
-      border-radius: 12px;
-      box-shadow: 0 8px 20px rgba(233, 30, 99, 0.2);
-      width: 360px;
-    }
-    h2 {
-      text-align: center;
-      color: #e91e63;
-      margin-bottom: 25px;
-    }
-    form input {
-      width: 100%;
-      padding: 12px;
-      margin: 12px 0;
-      border: 1.5px solid #e91e63;
-      border-radius: 8px;
-      font-size: 1rem;
-    }
-    form button {
-      width: 100%;
-      padding: 14px;
-      background: #e91e63;
-      border: none;
-      border-radius: 8px;
-      color: white;
-      font-size: 1.1rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.3s ease;
-      margin-top: 10px;
-    }
-    form button:hover {
-      background: #ad1457;
-    }
-    .login-link {
-      text-align: center;
-      margin-top: 18px;
-      font-size: 0.9rem;
-    }
-    .login-link a {
-      color: #e91e63;
-      text-decoration: none;
-      font-weight: 600;
-    }
-    .login-link a:hover {
-      text-decoration: underline;
-    }
-    .error {
-      color: red;
-      margin-top: 10px;
-      font-size: 0.9rem;
-      text-align: center;
-    }
-    .success {
-      color: green;
-      margin-top: 10px;
-      font-size: 0.9rem;
-      text-align: center;
-    }
-  </style>
+  <title>Register - BandhanByPreeti</title>
+  <meta name="description" content="Create your free BandhanByPreeti account and find your perfect life partner.">
+  <meta name="keywords" content="register, matrimony, BandhanByPreeti, marriage, matchmaking">
+  <meta name="author" content="BandhanByPreeti">
+  <link rel="icon" href="favicon.ico" type="image/x-icon" />
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body>
+<body class="bg-gray-100 text-gray-800 flex items-center justify-center min-h-screen px-4">
 
-  <div class="container">
-    <h2>Create Your Account</h2>
-    <form id="registerForm">
-      <input type="email" id="email" placeholder="Email" required />
-      <input type="password" id="password" placeholder="Password (min 6 chars)" minlength="6" required />
-      <input type="password" id="confirmPassword" placeholder="Confirm Password" required />
-      <button type="submit">Register</button>
+  <div class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+    <h2 class="text-2xl font-bold text-center mb-6">Create Account</h2>
+
+    <form id="registerForm" class="space-y-4">
+      <input type="email" id="email" placeholder="Email" class="w-full p-2 border rounded" required>
+      <input type="password" id="password" placeholder="Password (min 6 characters)" class="w-full p-2 border rounded" required>
+      <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">Register</button>
     </form>
-    <div class="error" id="errorMsg"></div>
-    <div class="success" id="successMsg"></div>
-    <div class="login-link">
-      Already have an account? <a href="login.html">Login here</a>
-    </div>
+
+    <p class="text-sm text-center mt-4">
+      Already have an account? 
+      <a href="login.html" class="text-blue-600 hover:underline">Login here</a>
+    </p>
+
+    <div class="my-4 text-center text-gray-500">or</div>
+
+    <button id="googleSignUp" class="w-full bg-red-500 text-white py-2 rounded hover:bg-red-600">
+      Sign up with Google
+    </button>
   </div>
 
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
+  <!-- Firebase Setup -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
 
-  <!-- Firebase config & initialization -->
-  <script>
     const firebaseConfig = {
-      apiKey: "AIzaSyDPzGXGIzSbDysU2COetHSeHTl_ZEuZx1Q",
-      authDomain: "nice-ae434.firebaseapp.com",
-      projectId: "nice-ae434",
-      storageBucket: "nice-ae434.appspot.com",
-      messagingSenderId: "880835929368",
-      appId: "1:880835929368:web:23baf239b8804f0c1a6a6d",
-      measurementId: "G-P9FQRZP2BF"
+      apiKey: "AIzaSyD2Dgr5K8IC3TzBP_x9Fsc3X0gMEd4xLww",
+      authDomain: "bandhanbypreeti.firebaseapp.com",
+      projectId: "bandhanbypreeti",
+      storageBucket: "bandhanbypreeti.firebasestorage.app",
+      messagingSenderId: "880058352718",
+      appId: "1:880058352718:web:3c5444ce629265467eef1f",
+      measurementId: "G-L5M89KWX38"
     };
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-  </script>
 
-  <!-- Register logic -->
-  <script>
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
+
     const registerForm = document.getElementById('registerForm');
-    const errorMsg = document.getElementById('errorMsg');
-    const successMsg = document.getElementById('successMsg');
-
-    registerForm.addEventListener('submit', (e) => {
+    registerForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      errorMsg.textContent = '';
-      successMsg.textContent = '';
-
-      const email = document.getElementById('email').value.trim();
+      const email = document.getElementById('email').value;
       const password = document.getElementById('password').value;
-      const confirmPassword = document.getElementById('confirmPassword').value;
 
-      if (password !== confirmPassword) {
-        errorMsg.textContent = "Passwords don't match.";
-        return;
+      try {
+        await createUserWithEmailAndPassword(auth, email, password);
+        alert("Account created! Redirecting to dashboard...");
+        window.location.href = "dashboard.html"; // or profile-setup.html
+      } catch (error) {
+        alert(error.message);
       }
+    });
 
-      auth.createUserWithEmailAndPassword(email, password)
-        .then(() => {
-          successMsg.textContent = "Registration successful! Redirecting...";
-          setTimeout(() => {
-            window.location.href = 'create-profile.html'; // after signup go to profile creation
-          }, 1500);
-        })
-        .catch(error => {
-          errorMsg.textContent = error.message;
-        });
+    document.getElementById('googleSignUp').addEventListener('click', async () => {
+      try {
+        await signInWithPopup(auth, provider);
+        alert("Signed in with Google! Redirecting...");
+        window.location.href = "dashboard.html"; // or profile-setup.html
+      } catch (error) {
+        alert(error.message);
+      }
     });
   </script>
 
