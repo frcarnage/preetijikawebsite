@@ -4,109 +4,304 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Support Chat - BandhanByPreeti</title>
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-app.js";
-    import {
-      getAuth,
-      onAuthStateChanged,
-      signOut
-    } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
-    import {
-      getDatabase,
-      ref,
-      push,
-      onChildAdded,
-      serverTimestamp,
-      query,
-      orderByChild
-    } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-database.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyD2Dgr5K8IC3TzBP_x9Fsc3X0gMEd4xLww",
-      authDomain: "bandhanbypreeti.firebaseapp.com",
-      databaseURL: "https://bandhanbypreeti-default-rtdb.firebaseio.com/",
-      projectId: "bandhanbypreeti",
-      storageBucket: "bandhanbypreeti.firebasestorage.app",
-      messagingSenderId: "880058352718",
-      appId: "1:880058352718:web:3c5444ce629265467eef1f"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getDatabase(app);
-
-    let currentUser = null;
-
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        currentUser = user;
-        loadMessages();
-      } else {
-        window.location.href = "login.html";
-      }
-    });
-
-    const messagesList = document.getElementById("messages");
-    const messageForm = document.getElementById("messageForm");
-    const messageInput = document.getElementById("messageInput");
-    const logoutBtn = document.getElementById("logoutBtn");
-
-    logoutBtn.addEventListener("click", () => {
-      signOut(auth).then(() => window.location.href = "login.html");
-    });
-
-    messageForm.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const text = messageInput.value.trim();
-      if (!text) return;
-
-      const messageRef = ref(db, `supportChats/${currentUser.uid}/messages`);
-      push(messageRef, {
-        sender: currentUser.uid,
-        text,
-        timestamp: serverTimestamp()
-      });
-      messageInput.value = "";
-    });
-
-    function loadMessages() {
-      const userMessagesRef = query(ref(db, `supportChats/${currentUser.uid}/messages`), orderByChild("timestamp"));
-      onChildAdded(userMessagesRef, (snapshot) => {
-        const msg = snapshot.val();
-        const isAdmin = msg.sender === "aZpKX3OhBVg9mtC2Ybhed2UfLHq1";
-        const messageItem = document.createElement("li");
-        messageItem.textContent = (isAdmin ? "Support: " : "You: ") + msg.text;
-        messageItem.className = isAdmin ? "admin-msg" : "user-msg";
-        messagesList.appendChild(messageItem);
-        messagesList.scrollTop = messagesList.scrollHeight;
-      });
-    }
-  </script>
-
   <style>
-    body { font-family: Arial, sans-serif; background: #f0f0f0; padding: 20px; max-width: 600px; margin: auto;}
-    #messages { list-style: none; padding: 0; max-height: 400px; overflow-y: auto; background: white; border: 1px solid #ddd; margin-bottom: 10px; }
-    #messages li { padding: 8px 12px; margin-bottom: 5px; border-radius: 4px; }
-    .user-msg { background: #daf1da; text-align: right; }
-    .admin-msg { background: #f1dada; text-align: left; }
-    #messageForm { display: flex; }
-    #messageInput { flex-grow: 1; padding: 10px; border: 1px solid #ccc; border-radius: 4px 0 0 4px; }
-    button { padding: 10px 15px; border: none; background: #007bff; color: white; cursor: pointer; border-radius: 0 4px 4px 0; }
-    button:hover { background: #0056b3; }
-    #logoutBtn { margin-bottom: 20px; background: #dc3545; }
+    /* Basic styling - clean, Instagram DM style */
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #fafafa;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+    header {
+      background: #ff4081;
+      color: white;
+      padding: 1rem;
+      font-size: 1.2rem;
+      font-weight: bold;
+      text-align: center;
+    }
+    #chat-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 1rem;
+      overflow-y: auto;
+      background: white;
+      border-top: 1px solid #ddd;
+      border-bottom: 1px solid #ddd;
+    }
+    .message {
+      max-width: 70%;
+      margin-bottom: 10px;
+      padding: 10px 15px;
+      border-radius: 20px;
+      position: relative;
+      font-size: 14px;
+      line-height: 1.4;
+      word-wrap: break-word;
+    }
+    .message.user {
+      background: #dcf8c6;
+      align-self: flex-end;
+      border-bottom-right-radius: 2px;
+    }
+    .message.bot {
+      background: #e3e3e3;
+      color: #555;
+      align-self: flex-start;
+      font-style: italic;
+      border-bottom-left-radius: 2px;
+    }
+    .message.admin {
+      background: #fff;
+      border: 1px solid #ddd;
+      align-self: flex-start;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 15px;
+      padding-right: 10px;
+    }
+    .admin-label {
+      font-weight: 600;
+      color: #1976d2;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .verified-tick {
+      width: 16px;
+      height: 16px;
+      fill: #1976d2;
+    }
+    #input-area {
+      display: flex;
+      padding: 10px 15px;
+      background: white;
+      border-top: 1px solid #ddd;
+    }
+    #input-area textarea {
+      flex: 1;
+      resize: none;
+      padding: 10px;
+      font-size: 14px;
+      border-radius: 20px;
+      border: 1px solid #ccc;
+      outline: none;
+      height: 40px;
+      transition: height 0.2s;
+    }
+    #input-area button {
+      margin-left: 10px;
+      background: #ff4081;
+      border: none;
+      color: white;
+      padding: 0 15px;
+      font-weight: bold;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    #input-area button:disabled {
+      background: #ffb3cc;
+      cursor: not-allowed;
+    }
   </style>
 </head>
 <body>
 
-  <button id="logoutBtn">Logout</button>
+<header>BandhanByPreeti Support Chat</header>
 
-  <ul id="messages" aria-live="polite" aria-label="Chat messages"></ul>
+<div id="chat-container"></div>
 
-  <form id="messageForm" aria-label="Send message form">
-    <input type="text" id="messageInput" placeholder="Type your message..." aria-required="true" autocomplete="off" />
-    <button type="submit">Send</button>
-  </form>
+<div id="input-area">
+  <textarea id="message-input" placeholder="Type your message..." rows="1"></textarea>
+  <button id="send-btn" disabled>Send</button>
+</div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/11.7.3/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js"></script>
+
+<script>
+  // Your Firebase config (replace with your own)
+  const firebaseConfig = {
+    const firebaseConfig = {
+      apiKey: "AIzaSyD2Dgr5K8IC3TzBP_x9Fsc3X0gMEd4xLww",
+      authDomain: "bandhanbypreeti.firebaseapp.com",
+      projectId: "bandhanbypreeti",
+      storageBucket: "bandhanbypreeti.appspot.com",
+      messagingSenderId: "880058352718",
+      appId: "1:880058352718:web:3c5444ce629265467eef1f", 
+  };
+
+  // Initialize Firebase
+  const app = firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+
+  const chatContainer = document.getElementById("chat-container");
+  const messageInput = document.getElementById("message-input");
+  const sendBtn = document.getElementById("send-btn");
+
+  let user = null;
+  let userId = null;
+  let caseNumber = null;
+  let messagesListener = null;
+
+  // Enable send button only if input not empty
+  messageInput.addEventListener('input', () => {
+    sendBtn.disabled = messageInput.value.trim() === '';
+  });
+
+  // Listen for auth state changes
+  auth.onAuthStateChanged(async (usr) => {
+    if (!usr) {
+      // Not logged in - redirect to login
+      window.location.href = "login.html";
+      return;
+    }
+    user = usr;
+    userId = user.uid;
+
+    await initializeChat();
+  });
+
+  async function initializeChat() {
+    // Check if chat doc exists, else create and send initial bot message
+    const chatDocRef = db.collection("supportChats").doc(userId);
+    const chatDoc = await chatDocRef.get();
+
+    if (!chatDoc.exists) {
+      // Create new chat doc with case number
+      caseNumber = generateCaseNumber();
+      await chatDocRef.set({
+        caseNumber: caseNumber,
+        userId: userId,
+        userName: user.displayName || user.email || "User",
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+
+      // Send initial bot message with case number
+      await addMessage("bot", `Your case number #${caseNumber} has been created. Please tell your issue.`, true);
+    } else {
+      caseNumber = chatDoc.data().caseNumber || generateCaseNumber();
+    }
+
+    // Load messages real-time
+    loadMessages();
+  }
+
+  function generateCaseNumber() {
+    return Math.floor(100000 + Math.random() * 900000); // 6-digit number
+  }
+
+  // Add message helper function
+  async function addMessage(sender, text, isBot = false, isAdmin = false) {
+    const messagesRef = db.collection("supportChats").doc(userId).collection("messages");
+    await messagesRef.add({
+      sender: sender,
+      text: text,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+      isBot: isBot,
+      isAdmin: isAdmin
+    });
+  }
+
+  // Render message in UI
+  function renderMessage(data) {
+    const div = document.createElement("div");
+    const { sender, text, isBot, isAdmin } = data;
+
+    if (isAdmin) {
+      div.className = "message admin";
+      div.innerHTML = `
+        <span class="admin-label">
+          BandhanByPreeti Support
+          <svg class="verified-tick" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M9 16.2l-3.5-3.5 1.4-1.4L9 13.4l7.1-7.1 1.4 1.4z" />
+          </svg>
+        </span>
+        <span>${escapeHtml(text)}</span>
+      `;
+    } else if (isBot) {
+      div.className = "message bot";
+      div.textContent = text;
+    } else if (sender === userId) {
+      div.className = "message user";
+      div.textContent = text;
+    } else {
+      div.className = "message bot"; // For safety, unknown sender - show as bot style
+      div.textContent = text;
+    }
+
+    chatContainer.appendChild(div);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+  }
+
+  // Escape HTML for security
+  function escapeHtml(text) {
+    return text.replace(/[&<>"']/g, (match) => {
+      const escapeMap = {
+        '&': "&amp;",
+        '<': "&lt;",
+        '>': "&gt;",
+        '"': "&quot;",
+        "'": "&#039;"
+      };
+      return escapeMap[match];
+    });
+  }
+
+  // Load messages real-time
+  function loadMessages() {
+    const messagesRef = db.collection("supportChats").doc(userId).collection("messages").orderBy("timestamp");
+
+    if (messagesListener) {
+      messagesListener(); // unsubscribe previous listener if any
+    }
+
+    chatContainer.innerHTML = ''; // Clear chat
+
+    messagesListener = messagesRef.onSnapshot(snapshot => {
+      chatContainer.innerHTML = ''; // Clear on each update to re-render all (simpler)
+
+      snapshot.forEach(doc => {
+        renderMessage(doc.data());
+      });
+
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    });
+  }
+
+  // Send message handler
+  sendBtn.addEventListener("click", async () => {
+    const messageText = messageInput.value.trim();
+    if (!messageText) return;
+
+    // Add user message
+    await addMessage(userId, messageText, false, false);
+
+    messageInput.value = "";
+    sendBtn.disabled = true;
+
+    // Add bot reply after user message
+    await addMessage("bot", "Your issue has been forwarded to the support team. You’ll get a reply as soon as possible.", true);
+
+    // Optionally: update a flag in Firestore to notify admin of new message (not handled here)
+  });
+
+  // Allow enter key to send
+  messageInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      if (!sendBtn.disabled) sendBtn.click();
+    }
+  });
+</script>
 
 </body>
 </html>
-
