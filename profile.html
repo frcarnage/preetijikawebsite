@@ -2,222 +2,124 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Your Profile | Bandhan by Preeti</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #fff0f5;
-      margin: 0; padding: 0;
-      display: flex; justify-content: center; align-items: flex-start;
-      min-height: 100vh;
-      color: #333;
-    }
-    .container {
-      background: white;
-      padding: 40px 50px;
-      margin: 30px 0;
-      border-radius: 12px;
-      box-shadow: 0 8px 20px rgba(233, 30, 99, 0.2);
-      width: 450px;
-    }
-    h2 {
-      text-align: center;
-      color: #e91e63;
-      margin-bottom: 25px;
-    }
-    form input, form select {
-      width: 100%;
-      padding: 12px;
-      margin: 10px 0;
-      border: 1.5px solid #e91e63;
-      border-radius: 8px;
-      font-size: 1rem;
-    }
-    form button {
-      width: 100%;
-      padding: 14px;
-      background: #e91e63;
-      border: none;
-      border-radius: 8px;
-      color: white;
-      font-size: 1.1rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.3s ease;
-      margin-top: 15px;
-    }
-    form button:hover {
-      background: #ad1457;
-    }
-    img#profilePhoto {
-      display: block;
-      margin: 0 auto 15px auto;
-      width: 150px;
-      height: 150px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 3px solid #e91e63;
-      cursor: pointer;
-    }
-    .error {
-      color: red;
-      margin-top: 10px;
-      font-size: 0.9rem;
-      text-align: center;
-    }
-    .success {
-      color: green;
-      margin-top: 10px;
-      font-size: 0.9rem;
-      text-align: center;
-    }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Your Profile | BandhanByPreeti</title>
+  <link rel="icon" href="favicon.ico" />
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body>
+<body class="bg-gray-50 text-gray-800">
 
-  <div class="container">
-    <h2>Your Profile</h2>
-    <form id="profileForm">
-      <img id="profilePhoto" src="" alt="Profile Photo" title="Click to change photo" />
-      <input type="file" id="photoInput" accept="image/png, image/jpeg" style="display:none" />
-      <input type="text" id="name" placeholder="Full Name" required />
-      <input type="text" id="city" placeholder="City" required />
-      <input type="number" id="age" placeholder="Age" min="18" max="100" required />
-      <input type="text" id="religion" placeholder="Religion" required />
-      <input type="text" id="hobby" placeholder="Hobby" required />
-      <input type="text" id="country" placeholder="Country" required />
-      <button type="submit">Save Changes</button>
+  <div class="max-w-3xl mx-auto mt-10 p-6 bg-white rounded shadow">
+    <h1 class="text-2xl font-bold text-center mb-6">Your Profile</h1>
+    <form id="profileForm" class="space-y-4">
+      <div class="text-center">
+        <img id="profilePhoto" src="" alt="Profile Photo" class="mx-auto h-40 w-40 object-cover rounded-full mb-2">
+        <input type="file" id="photoInput" accept="image/*" class="block mx-auto">
+      </div>
+
+      <input type="text" id="name" placeholder="Full Name" class="w-full p-2 border rounded" required>
+      <input type="text" id="age" class="w-full p-2 border rounded bg-gray-100" readonly>
+      <input type="text" id="city" placeholder="City" class="w-full p-2 border rounded" required>
+      <select id="religion" class="w-full p-2 border rounded" required>
+        <option value="">Select Religion</option>
+        <option value="Hindu">Hindu</option>
+        <option value="Muslim">Muslim</option>
+        <option value="Christian">Christian</option>
+        <option value="Sikh">Sikh</option>
+      </select>
+      <input type="text" id="hobby" placeholder="Hobby" class="w-full p-2 border rounded" required>
+
+      <input type="text" id="parents" placeholder="Parents' Names (Optional)" class="w-full p-2 border rounded">
+      <textarea id="address" placeholder="Address (Optional)" class="w-full p-2 border rounded"></textarea>
+
+      <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded w-full hover:bg-blue-700">Update Profile</button>
     </form>
-    <div class="error" id="errorMsg"></div>
-    <div class="success" id="successMsg"></div>
   </div>
 
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
+    import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-storage.js";
 
-  <script>
     const firebaseConfig = {
-      apiKey: "AIzaSyDPzGXGIzSbDysU2COetHSeHTl_ZEuZx1Q",
-      authDomain: "nice-ae434.firebaseapp.com",
-      projectId: "nice-ae434",
-      storageBucket: "nice-ae434.appspot.com",
-      messagingSenderId: "880835929368",
-      appId: "1:880835929368:web:23baf239b8804f0c1a6a6d",
-      measurementId: "G-P9FQRZP2BF"
+      apiKey: "AIzaSyD2Dgr5K8IC3TzBP_x9Fsc3X0gMEd4xLww",
+      authDomain: "bandhanbypreeti.firebaseapp.com",
+      projectId: "bandhanbypreeti",
+      storageBucket: "bandhanbypreeti.appspot.com",
+      messagingSenderId: "880058352718",
+      appId: "1:880058352718:web:3c5444ce629265467eef1f"
     };
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
-    const storage = firebase.storage();
 
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth();
+    const db = getFirestore(app);
+    const storage = getStorage(app);
+
+    let selectedFile = null;
     const profileForm = document.getElementById('profileForm');
-    const errorMsg = document.getElementById('errorMsg');
-    const successMsg = document.getElementById('successMsg');
-
-    const profilePhoto = document.getElementById('profilePhoto');
     const photoInput = document.getElementById('photoInput');
+    const profilePhoto = document.getElementById('profilePhoto');
 
-    let currentPhotoFile = null; // For tracking new photo upload
-
-    // Click on photo to trigger file input
-    profilePhoto.addEventListener('click', () => {
-      photoInput.click();
+    photoInput.addEventListener('change', () => {
+      selectedFile = photoInput.files[0];
+      profilePhoto.src = URL.createObjectURL(selectedFile);
     });
 
-    // When user selects new photo
-    photoInput.addEventListener('change', (e) => {
-      if (e.target.files && e.target.files[0]) {
-        const file = e.target.files[0];
-        if(file.size > 2 * 1024 * 1024) {
-          errorMsg.textContent = "Photo size must be under 2MB.";
-          return;
-        }
-        currentPhotoFile = file;
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          profilePhoto.src = e.target.result;
-        }
-        reader.readAsDataURL(file);
-      }
-    });
-
-    // Load profile data on auth state change
-    auth.onAuthStateChanged(user => {
+    onAuthStateChanged(auth, async (user) => {
       if (!user) {
-        window.location.href = 'login.html';
-        return;
-      }
-      db.collection('profiles').doc(user.uid).get()
-        .then(doc => {
-          if (doc.exists) {
-            const data = doc.data();
-            profilePhoto.src = data.photoURL;
-            document.getElementById('name').value = data.name;
-            document.getElementById('city').value = data.city;
-            document.getElementById('age').value = data.age;
-            document.getElementById('religion').value = data.religion;
-            document.getElementById('hobby').value = data.hobby;
-            document.getElementById('country').value = data.country;
-          } else {
-            errorMsg.textContent = "No profile found, please create one.";
-          }
-        })
-        .catch(error => {
-          errorMsg.textContent = error.message;
-        });
-    });
-
-    profileForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      errorMsg.textContent = '';
-      successMsg.textContent = '';
-
-      const user = auth.currentUser;
-      if (!user) {
-        errorMsg.textContent = "You must be logged in.";
+        window.location.href = "login.html";
         return;
       }
 
-      const name = document.getElementById('name').value.trim();
-      const city = document.getElementById('city').value.trim();
-      const age = parseInt(document.getElementById('age').value);
-      const religion = document.getElementById('religion').value.trim();
-      const hobby = document.getElementById('hobby').value.trim();
-      const country = document.getElementById('country').value.trim();
+      const docRef = doc(db, "profiles", user.uid);
+      const docSnap = await getDoc(docRef);
 
-      try {
-        let photoURL = profilePhoto.src;
+      if (!docSnap.exists()) {
+        window.location.href = "create-profile.html";
+        return;
+      }
 
-        // If user selected new photo, upload it
-        if (currentPhotoFile) {
-          const photoRef = storage.ref(`profilePhotos/${user.uid}/${currentPhotoFile.name}`);
-          const uploadSnapshot = await photoRef.put(currentPhotoFile);
-          photoURL = await uploadSnapshot.ref.getDownloadURL();
-        }
+      const data = docSnap.data();
+      document.getElementById('name').value = data.name || '';
+      document.getElementById('age').value = data.age || '';
+      document.getElementById('city').value = data.city || '';
+      document.getElementById('religion').value = data.religion || '';
+      document.getElementById('hobby').value = data.hobby || '';
+      document.getElementById('parents').value = data.parents || '';
+      document.getElementById('address').value = data.address || '';
+      profilePhoto.src = data.photoURL || '';
 
-        // Update profile data
-        await db.collection('profiles').doc(user.uid).set({
+      profileForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const name = document.getElementById('name').value.trim();
+        const city = document.getElementById('city').value.trim();
+        const religion = document.getElementById('religion').value;
+        const hobby = document.getElementById('hobby').value.trim();
+        const parents = document.getElementById('parents').value.trim();
+        const address = document.getElementById('address').value.trim();
+
+        const updatedData = {
           name,
           city,
-          age,
           religion,
           hobby,
-          country,
-          photoURL,
-          email: user.email,
-          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
+          parents,
+          address,
+        };
 
-        successMsg.textContent = "Profile updated successfully!";
-        currentPhotoFile = null;
+        if (selectedFile) {
+          const photoRef = ref(storage, `profiles/${user.uid}/photo.jpg`);
+          await uploadBytes(photoRef, selectedFile);
+          const newPhotoURL = await getDownloadURL(photoRef);
+          updatedData.photoURL = newPhotoURL;
+        }
 
-      } catch (error) {
-        errorMsg.textContent = error.message;
-      }
+        await updateDoc(docRef, updatedData);
+        alert("Profile updated successfully!");
+        location.reload();
+      });
     });
   </script>
 
