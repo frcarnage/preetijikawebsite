@@ -65,11 +65,6 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth();
     const db = getFirestore(app);
-    
-  onAuthStateChanged(auth, user => {
-    if (user) {
-      console.log("Your UID:", user.uid);
-      alert("Admin UID: " + user.uid);
 
     const userNameSpan = document.getElementById('userName');
     const profilesContainer = document.getElementById('profilesContainer');
