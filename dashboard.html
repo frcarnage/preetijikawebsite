@@ -9,44 +9,53 @@
 </head>
 <body class="bg-gray-50 text-gray-800">
 
-  <!-- Header -->
-  <header class="bg-black text-white p-4 flex flex-col md:flex-row md:justify-between md:items-center gap-y-2">
-    <h1 class="text-xl font-bold text-center md:text-left">BandhanByPreeti</h1>
-    <div class="flex flex-col md:flex-row justify-center items-center gap-y-2 gap-x-4">
-      <a href="profile.html" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded w-full md:w-auto text-center">Your Profile</a>
-      <a href="chat.html" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded w-full md:w-auto text-center">Chats</a>
-      <a href="settings.html" class="bg-gray-700 hover:bg-gray-800 text-white px-4 py-2 rounded w-full md:w-auto text-center">Settings</a>
-    </div>
-  </header>
+  <!-- Sidebar -->
+  <aside class="fixed left-0 top-0 w-48 h-full bg-white shadow-md p-4 flex flex-col gap-4 z-10">
+    <h1 class="text-xl font-bold text-center">BandhanByPreeti</h1>
+    <a href="profile.html" class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded text-center">Your Profile</a>
+    <a href="chat.html" class="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded text-center">Chats</a>
+    <a href="settings.html" class="bg-gray-700 hover:bg-gray-800 text-white py-2 px-4 rounded text-center">Settings</a>
+  </aside>
 
-  <!-- Greeting -->
-  <section class="text-center py-6">
-    <h2 class="text-2xl font-semibold">Welcome, <span id="userName"></span> 👋</h2>
-    <p class="text-gray-500 mt-1">Browse through all profiles below</p>
-  </section>
+  <!-- Main content wrapper -->
+  <div class="ml-48 min-h-screen">
 
-  <!-- Search -->
-  <section class="max-w-4xl mx-auto px-4 mb-6">
-    <form id="searchForm" class="grid grid-cols-1 md:grid-cols-4 gap-3">
-      <input type="text" id="nameSearch" placeholder="Search by name" class="p-2 border rounded" />
-      <input type="text" id="citySearch" placeholder="Search by city" class="p-2 border rounded" />
-      <select id="religionSearch" class="p-2 border rounded">
-        <option value="">All Religions</option>
-        <option value="Hindu">Hindu</option>
-        <option value="Muslim">Muslim</option>
-        <option value="Christian">Christian</option>
-        <option value="Sikh">Sikh</option>
-      </select>
-      <button type="submit" class="bg-blue-600 text-white rounded px-4 py-2 hover:bg-blue-700">Search</button>
-    </form>
-  </section>
+    <!-- Greeting -->
+    <section class="text-center py-6">
+      <h2 class="text-2xl font-semibold">Welcome, <span id="userName"></span> 👋</h2>
+      <p class="text-gray-500 mt-1">Browse through all matching profiles below</p>
+    </section>
 
-  <!-- Profiles Section -->
-  <section class="max-w-6xl mx-auto px-4 pb-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3" id="profilesContainer">
-    <!-- Profiles will be injected here -->
-  </section>
+    <!-- Search -->
+    <section class="max-w-5xl mx-auto px-4 mb-6">
+      <form id="searchForm" class="grid grid-cols-1 md:grid-cols-5 gap-3">
+        <input type="text" id="citySearch" placeholder="City" class="p-2 border rounded" />
+        <input type="number" id="minAge" placeholder="Min Age" class="p-2 border rounded" />
+        <input type="number" id="maxAge" placeholder="Max Age" class="p-2 border rounded" />
+        <select id="religionSearch" class="p-2 border rounded">
+          <option value="">All Religions</option>
+          <option value="Hindu">Hindu</option>
+          <option value="Muslim">Muslim</option>
+          <option value="Christian">Christian</option>
+          <option value="Sikh">Sikh</option>
+        </select>
+        <button type="submit" class="bg-blue-600 text-white rounded px-4 py-2 hover:bg-blue-700">Search</button>
+      </form>
+    </section>
 
-  <!-- Firebase & Profile Loader -->
+    <!-- Profiles Section -->
+    <section class="max-w-6xl mx-auto px-4 pb-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3" id="profilesContainer">
+      <!-- Profiles will be injected here -->
+    </section>
+  </div>
+
+  <!-- Contact Support Button -->
+  <button onclick="window.location.href='support-chat.html'"
+    class="fixed bottom-6 right-6 bg-pink-600 hover:bg-pink-700 text-white rounded-full w-16 h-16 shadow-lg text-2xl flex items-center justify-center z-20">
+    💬
+  </button>
+
+  <!-- Firebase Script -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
@@ -59,7 +68,6 @@
       storageBucket: "bandhanbypreeti.appspot.com",
       messagingSenderId: "880058352718",
       appId: "1:880058352718:web:3c5444ce629265467eef1f",
-      measurementId: "G-L5M89KWX38"
     };
 
     const app = initializeApp(firebaseConfig);
@@ -68,27 +76,25 @@
 
     const userNameSpan = document.getElementById('userName');
     const profilesContainer = document.getElementById('profilesContainer');
-    let currentUserUid = null;
     let allProfiles = [];
+    let currentUserGender = null;
 
     onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        window.location.href = "login.html";
-        return;
-      }
+      if (!user) return window.location.href = "login.html";
 
-      currentUserUid = user.uid;
       userNameSpan.textContent = user.displayName || user.email;
 
       const userDoc = await getDoc(doc(db, "profiles", user.uid));
-      if (!userDoc.exists()) {
-        window.location.href = "create-profile.html";
-        return;
-      }
+      if (!userDoc.exists()) return window.location.href = "create-profile.html";
+
+      currentUserGender = userDoc.data().gender || null;
 
       const snapshot = await getDocs(collection(db, "profiles"));
-      allProfiles = snapshot.docs.map(doc => doc.data()).filter(p => p.uid !== user.uid);
-      renderProfiles(allProfiles);
+      allProfiles = snapshot.docs.map(doc => doc.data());
+
+      // Filter by opposite gender
+      const filteredProfiles = allProfiles.filter(p => p.uid !== user.uid && p.gender && currentUserGender && p.gender.toLowerCase() !== currentUserGender.toLowerCase());
+      renderProfiles(filteredProfiles);
     });
 
     function renderProfiles(profiles) {
@@ -100,44 +106,47 @@
 
       profiles.forEach(profile => {
         const card = document.createElement("div");
-        card.className = "bg-white p-4 rounded shadow flex flex-col justify-between";
+        card.className = "bg-white p-4 rounded shadow";
         card.innerHTML = `
           <img src="${profile.photoURL || 'https://via.placeholder.com/150'}" alt="${profile.name}" class="w-full h-48 object-cover rounded mb-4">
           <h3 class="text-lg font-semibold mb-1">${profile.name}</h3>
           <p class="text-sm text-gray-600">Age: ${profile.age} | City: ${profile.city}</p>
           <p class="text-sm text-gray-600">Religion: ${profile.religion} | Hobby: ${profile.hobby}</p>
-          <div class="mt-3 flex gap-2">
-            <button onclick="viewProfile('${profile.uid}')" class="flex-1 bg-blue-100 hover:bg-blue-200 text-blue-700 py-1 rounded text-sm">View More</button>
-            <button onclick="messageUser('${profile.uid}', '${profile.name}')" class="flex-1 bg-green-100 hover:bg-green-200 text-green-700 py-1 rounded text-sm">Message</button>
+          <div class="flex justify-between mt-2">
+            <button onclick="viewProfile('${profile.uid}')" class="text-blue-600 hover:underline text-sm">View More</button>
+            <button onclick="messageUser('${profile.uid}', '${profile.name}')" class="text-green-600 hover:underline text-sm">Message</button>
           </div>
         `;
         profilesContainer.appendChild(card);
       });
     }
 
+    function viewProfile(uid) {
+      window.location.href = `profile.html?uid=${uid}`;
+    }
+
+    function messageUser(uid, name) {
+      window.location.href = `chat.html?uid=${uid}&name=${encodeURIComponent(name)}`;
+    }
+
     document.getElementById('searchForm').addEventListener('submit', (e) => {
       e.preventDefault();
-      const name = document.getElementById('nameSearch').value.toLowerCase();
       const city = document.getElementById('citySearch').value.toLowerCase();
+      const minAge = parseInt(document.getElementById('minAge').value) || 0;
+      const maxAge = parseInt(document.getElementById('maxAge').value) || 100;
       const religion = document.getElementById('religionSearch').value;
 
       const filtered = allProfiles.filter(p => {
         return (
-          (name === "" || p.name.toLowerCase().includes(name)) &&
+          p.uid !== auth.currentUser.uid &&
+          p.gender && currentUserGender && p.gender.toLowerCase() !== currentUserGender.toLowerCase() &&
           (city === "" || p.city.toLowerCase().includes(city)) &&
+          (!p.age || (p.age >= minAge && p.age <= maxAge)) &&
           (religion === "" || p.religion === religion)
         );
       });
       renderProfiles(filtered);
     });
-
-    function viewProfile(uid) {
-      window.location.href = `profile.html?uid=${uid}`;
-    }
-
-    function messageUser(receiverUid, receiverName) {
-      window.location.href = `chat.html?uid=${receiverUid}&name=${encodeURIComponent(receiverName)}`;
-    }
   </script>
 </body>
 </html>
