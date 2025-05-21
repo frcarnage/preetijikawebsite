@@ -6,59 +6,92 @@
   <title>Create Profile | BandhanByPreeti</title>
   <link rel="icon" href="favicon.ico" />
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    .drag-area {
+      border: 2px dashed #ccc;
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+    }
+  </style>
 </head>
-<body class="bg-gray-100 text-gray-800">
+<body class="bg-gray-50 text-gray-800">
 
-  <div class="max-w-xl mx-auto p-6 bg-white mt-10 rounded shadow">
-    <h2 class="text-2xl font-bold mb-4 text-center">Create Your Profile</h2>
-    <form id="profileForm" class="grid grid-cols-1 gap-4">
-
-      <input type="text" id="name" placeholder="Full Name" class="p-2 border rounded" required />
-      <input type="number" id="age" placeholder="Age" class="p-2 border rounded" required />
-      <input type="text" id="city" placeholder="City" class="p-2 border rounded" required />
-      <input type="text" id="country" placeholder="Country" class="p-2 border rounded" required />
-
-      <select id="religion" class="p-2 border rounded" required>
+  <div class="max-w-2xl mx-auto mt-10 p-6 bg-white rounded shadow">
+    <h1 class="text-2xl font-bold text-center mb-6">Create Your Profile</h1>
+    <form id="profileForm" class="space-y-4">
+      <!-- Required Fields -->
+      <input type="text" id="name" placeholder="Full Name" class="w-full p-2 border rounded" required>
+      <input type="date" id="dob" class="w-full p-2 border rounded" required>
+      <input type="text" id="city" placeholder="City" class="w-full p-2 border rounded" required>
+      <select id="religion" class="w-full p-2 border rounded" required>
         <option value="">Select Religion</option>
         <option value="Hindu">Hindu</option>
         <option value="Muslim">Muslim</option>
         <option value="Christian">Christian</option>
         <option value="Sikh">Sikh</option>
       </select>
+      <input type="text" id="hobby" placeholder="Hobby" class="w-full p-2 border rounded" required>
 
-      <input type="text" id="hobby" placeholder="Hobby / Interest" class="p-2 border rounded" required />
-      <input type="url" id="photoURL" placeholder="Photo URL (required)" class="p-2 border rounded" required />
+      <!-- Drag and Drop Photo Upload -->
+      <div id="dropArea" class="drag-area">
+        <p>Drag & Drop your photo here or click to select</p>
+        <input type="file" id="photo" accept="image/*" class="hidden" required>
+      </div>
+      <img id="preview" class="hidden mt-2 max-h-40 mx-auto" />
 
-      <button type="submit" class="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">
-        Create Profile
-      </button>
+      <!-- Optional Fields -->
+      <input type="text" id="parents" placeholder="Parents' Names (Optional)" class="w-full p-2 border rounded">
+      <textarea id="address" placeholder="Address (Optional)" class="w-full p-2 border rounded"></textarea>
+
+      <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded w-full hover:bg-blue-700">Submit Profile</button>
     </form>
-
-    <p id="errorMsg" class="text-red-600 mt-4 text-center hidden"></p>
   </div>
 
-  <!-- Firebase -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
-    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-storage.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyD2Dgr5K8IC3TzBP_x9Fsc3X0gMEd4xLww",
       authDomain: "bandhanbypreeti.firebaseapp.com",
       projectId: "bandhanbypreeti",
-      storageBucket: "bandhanbypreeti.firebasestorage.app",
+      storageBucket: "bandhanbypreeti.appspot.com",
       messagingSenderId: "880058352718",
-      appId: "1:880058352718:web:3c5444ce629265467eef1f",
-      measurementId: "G-L5M89KWX38"
+      appId: "1:880058352718:web:3c5444ce629265467eef1f"
     };
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth();
     const db = getFirestore(app);
+    const storage = getStorage(app);
 
-    const profileForm = document.getElementById("profileForm");
-    const errorMsg = document.getElementById("errorMsg");
+    const dropArea = document.getElementById('dropArea');
+    const fileInput = document.getElementById('photo');
+    const preview = document.getElementById('preview');
+    let selectedFile = null;
+
+    // Drag & drop events
+    dropArea.addEventListener('click', () => fileInput.click());
+    dropArea.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropArea.classList.add('bg-gray-100');
+    });
+    dropArea.addEventListener('dragleave', () => dropArea.classList.remove('bg-gray-100'));
+    dropArea.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropArea.classList.remove('bg-gray-100');
+      selectedFile = e.dataTransfer.files[0];
+      preview.src = URL.createObjectURL(selectedFile);
+      preview.classList.remove('hidden');
+    });
+    fileInput.addEventListener('change', () => {
+      selectedFile = fileInput.files[0];
+      preview.src = URL.createObjectURL(selectedFile);
+      preview.classList.remove('hidden');
+    });
 
     onAuthStateChanged(auth, async (user) => {
       if (!user) {
@@ -66,36 +99,47 @@
         return;
       }
 
-      // Check if profile already exists
       const profileDoc = await getDoc(doc(db, "profiles", user.uid));
       if (profileDoc.exists()) {
-        window.location.href = "dashboard.html";
-        return;
+        window.location.href = "profile.html";
       }
 
-      profileForm.addEventListener("submit", async (e) => {
+      document.getElementById('profileForm').addEventListener('submit', async (e) => {
         e.preventDefault();
+        if (!selectedFile) return alert("Please upload a photo.");
+
+        const name = document.getElementById('name').value.trim();
+        const dob = new Date(document.getElementById('dob').value);
+        const city = document.getElementById('city').value.trim();
+        const religion = document.getElementById('religion').value;
+        const hobby = document.getElementById('hobby').value.trim();
+        const parents = document.getElementById('parents').value.trim();
+        const address = document.getElementById('address').value.trim();
+
+        const age = new Date().getFullYear() - dob.getFullYear();
+
+        const photoRef = ref(storage, `profiles/${user.uid}/photo.jpg`);
+        await uploadBytes(photoRef, selectedFile);
+        const photoURL = await getDownloadURL(photoRef);
 
         const profileData = {
           uid: user.uid,
-          name: document.getElementById("name").value.trim(),
-          age: parseInt(document.getElementById("age").value.trim()),
-          city: document.getElementById("city").value.trim(),
-          country: document.getElementById("country").value.trim(),
-          religion: document.getElementById("religion").value,
-          hobby: document.getElementById("hobby").value.trim(),
-          photoURL: document.getElementById("photoURL").value.trim()
+          name,
+          age,
+          dob: dob.toISOString().split("T")[0],
+          city,
+          religion,
+          hobby,
+          parents,
+          address,
+          photoURL
         };
 
-        try {
-          await setDoc(doc(db, "profiles", user.uid), profileData);
-          window.location.href = "dashboard.html";
-        } catch (error) {
-          errorMsg.textContent = "Failed to save profile. Please try again.";
-          errorMsg.classList.remove("hidden");
-        }
+        await setDoc(doc(db, "profiles", user.uid), profileData);
+        window.location.href = "profile.html";
       });
     });
   </script>
+
 </body>
 </html>
