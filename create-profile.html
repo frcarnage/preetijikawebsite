@@ -2,171 +2,100 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Create Profile | Bandhan by Preeti</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #fff0f5;
-      margin: 0; padding: 0;
-      display: flex; justify-content: center; align-items: center;
-      min-height: 100vh; color: #333;
-    }
-    .container {
-      background: white;
-      padding: 40px 50px;
-      border-radius: 12px;
-      box-shadow: 0 8px 20px rgba(233, 30, 99, 0.2);
-      width: 420px;
-    }
-    h2 {
-      text-align: center;
-      color: #e91e63;
-      margin-bottom: 25px;
-    }
-    form input, form select {
-      width: 100%;
-      padding: 12px;
-      margin: 10px 0;
-      border: 1.5px solid #e91e63;
-      border-radius: 8px;
-      font-size: 1rem;
-    }
-    form button {
-      width: 100%;
-      padding: 14px;
-      background: #e91e63;
-      border: none;
-      border-radius: 8px;
-      color: white;
-      font-size: 1.1rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.3s ease;
-      margin-top: 15px;
-    }
-    form button:hover {
-      background: #ad1457;
-    }
-    .error {
-      color: red;
-      margin-top: 10px;
-      font-size: 0.9rem;
-      text-align: center;
-    }
-    .success {
-      color: green;
-      margin-top: 10px;
-      font-size: 0.9rem;
-      text-align: center;
-    }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Create Profile | BandhanByPreeti</title>
+  <link rel="icon" href="favicon.ico" />
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body>
+<body class="bg-gray-100 text-gray-800">
 
-  <div class="container">
-    <h2>Create Your Profile</h2>
-    <form id="profileForm">
-      <input type="text" id="name" placeholder="Full Name" required />
-      <input type="text" id="city" placeholder="City" required />
-      <input type="number" id="age" placeholder="Age" min="18" max="100" required />
-      <input type="text" id="religion" placeholder="Religion" required />
-      <input type="text" id="hobby" placeholder="Hobby" required />
-      <input type="text" id="country" placeholder="Country" required />
-      <label for="photo">Upload Your Photo (JPEG/PNG, max 2MB):</label>
-      <input type="file" id="photo" accept="image/png, image/jpeg" required />
-      <button type="submit">Save Profile</button>
+  <div class="max-w-xl mx-auto p-6 bg-white mt-10 rounded shadow">
+    <h2 class="text-2xl font-bold mb-4 text-center">Create Your Profile</h2>
+    <form id="profileForm" class="grid grid-cols-1 gap-4">
+
+      <input type="text" id="name" placeholder="Full Name" class="p-2 border rounded" required />
+      <input type="number" id="age" placeholder="Age" class="p-2 border rounded" required />
+      <input type="text" id="city" placeholder="City" class="p-2 border rounded" required />
+      <input type="text" id="country" placeholder="Country" class="p-2 border rounded" required />
+
+      <select id="religion" class="p-2 border rounded" required>
+        <option value="">Select Religion</option>
+        <option value="Hindu">Hindu</option>
+        <option value="Muslim">Muslim</option>
+        <option value="Christian">Christian</option>
+        <option value="Sikh">Sikh</option>
+      </select>
+
+      <input type="text" id="hobby" placeholder="Hobby / Interest" class="p-2 border rounded" required />
+      <input type="url" id="photoURL" placeholder="Photo URL (required)" class="p-2 border rounded" required />
+
+      <button type="submit" class="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">
+        Create Profile
+      </button>
     </form>
-    <div class="error" id="errorMsg"></div>
-    <div class="success" id="successMsg"></div>
+
+    <p id="errorMsg" class="text-red-600 mt-4 text-center hidden"></p>
   </div>
 
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js"></script>
+  <!-- Firebase -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js";
 
-  <!-- Firebase config & initialization -->
-  <script>
     const firebaseConfig = {
-      apiKey: "AIzaSyDPzGXGIzSbDysU2COetHSeHTl_ZEuZx1Q",
-      authDomain: "nice-ae434.firebaseapp.com",
-      projectId: "nice-ae434",
-      storageBucket: "nice-ae434.appspot.com",
-      messagingSenderId: "880835929368",
-      appId: "1:880835929368:web:23baf239b8804f0c1a6a6d",
-      measurementId: "G-P9FQRZP2BF"
+      apiKey: "AIzaSyD2Dgr5K8IC3TzBP_x9Fsc3X0gMEd4xLww",
+      authDomain: "bandhanbypreeti.firebaseapp.com",
+      projectId: "bandhanbypreeti",
+      storageBucket: "bandhanbypreeti.firebasestorage.app",
+      messagingSenderId: "880058352718",
+      appId: "1:880058352718:web:3c5444ce629265467eef1f",
+      measurementId: "G-L5M89KWX38"
     };
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
-    const storage = firebase.storage();
-  </script>
 
-  <!-- Profile save logic -->
-  <script>
-    const profileForm = document.getElementById('profileForm');
-    const errorMsg = document.getElementById('errorMsg');
-    const successMsg = document.getElementById('successMsg');
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth();
+    const db = getFirestore(app);
 
-    profileForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      errorMsg.textContent = '';
-      successMsg.textContent = '';
+    const profileForm = document.getElementById("profileForm");
+    const errorMsg = document.getElementById("errorMsg");
 
-      const user = auth.currentUser;
+    onAuthStateChanged(auth, async (user) => {
       if (!user) {
-        errorMsg.textContent = "You must be logged in to create a profile.";
+        window.location.href = "login.html";
         return;
       }
 
-      const name = document.getElementById('name').value.trim();
-      const city = document.getElementById('city').value.trim();
-      const age = parseInt(document.getElementById('age').value);
-      const religion = document.getElementById('religion').value.trim();
-      const hobby = document.getElementById('hobby').value.trim();
-      const country = document.getElementById('country').value.trim();
-      const photoFile = document.getElementById('photo').files[0];
-
-      if (!photoFile) {
-        errorMsg.textContent = "Photo is mandatory.";
-        return;
-      }
-      if (photoFile.size > 2 * 1024 * 1024) {
-        errorMsg.textContent = "Photo size must be under 2MB.";
+      // Check if profile already exists
+      const profileDoc = await getDoc(doc(db, "profiles", user.uid));
+      if (profileDoc.exists()) {
+        window.location.href = "dashboard.html";
         return;
       }
 
-      try {
-        // Upload photo to Storage
-        const photoRef = storage.ref(`profilePhotos/${user.uid}/${photoFile.name}`);
-        const uploadTaskSnapshot = await photoRef.put(photoFile);
-        const photoURL = await uploadTaskSnapshot.ref.getDownloadURL();
+      profileForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
 
-        // Save profile data to Firestore
-        await db.collection('profiles').doc(user.uid).set({
-          name,
-          city,
-          age,
-          religion,
-          hobby,
-          country,
-          photoURL,
-          email: user.email,
-          createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
+        const profileData = {
+          uid: user.uid,
+          name: document.getElementById("name").value.trim(),
+          age: parseInt(document.getElementById("age").value.trim()),
+          city: document.getElementById("city").value.trim(),
+          country: document.getElementById("country").value.trim(),
+          religion: document.getElementById("religion").value,
+          hobby: document.getElementById("hobby").value.trim(),
+          photoURL: document.getElementById("photoURL").value.trim()
+        };
 
-        successMsg.textContent = "Profile saved successfully! Redirecting...";
-        setTimeout(() => {
-          window.location.href = "dashboard.html"; // Redirect to dashboard or wherever
-        }, 1500);
-
-      } catch (error) {
-        errorMsg.textContent = error.message;
-      }
+        try {
+          await setDoc(doc(db, "profiles", user.uid), profileData);
+          window.location.href = "dashboard.html";
+        } catch (error) {
+          errorMsg.textContent = "Failed to save profile. Please try again.";
+          errorMsg.classList.remove("hidden");
+        }
+      });
     });
   </script>
-
 </body>
 </html>
