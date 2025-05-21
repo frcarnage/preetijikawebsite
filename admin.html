@@ -3,545 +3,539 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Admin Support Chat - BandhanByPreeti</title>
+<title>Admin Support Panel - BandhanByPreeti</title>
 <style>
-  /* Reset and base */
-  * {
-    box-sizing: border-box;
-  }
   body, html {
-    margin: 0; padding: 0;
-    height: 100vh;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    display: flex;
-    background: #f9fafb;
-    color: #333;
+    margin: 0; padding: 0; height: 100%;
+    font-family: Arial, sans-serif;
+    display: flex; flex-direction: column;
+    background: #f4f4f4;
   }
-
-  /* Sidebar with user list */
-  #usersPanel {
-    width: 320px;
+  header {
+    background: #9c27b0;
+    color: white;
+    padding: 1rem;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.2rem;
+  }
+  #container {
+    display: flex;
+    flex-grow: 1;
+    height: calc(100vh - 60px);
+  }
+  #sidebar {
+    width: 280px;
     background: white;
-    border-right: 1px solid #ddd;
+    border-right: 1px solid #ccc;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
   }
-  #usersPanel h2 {
-    margin: 0;
-    padding: 18px 16px;
-    background: #0052cc;
-    color: white;
-    font-size: 20px;
-    text-align: center;
-    font-weight: 700;
-    user-select: none;
-  }
-  #usersList {
-    flex-grow: 1;
-    overflow-y: auto;
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-  #usersList li {
+  #tabs {
     display: flex;
-    align-items: center;
-    padding: 12px 16px;
+  }
+  .tab {
+    flex-grow: 1;
+    padding: 1rem;
+    text-align: center;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    font-weight: bold;
+  }
+  .tab.active {
+    border-color: #9c27b0;
+    color: #9c27b0;
+  }
+  #case-list, #user-list {
+    overflow-y: auto;
+    flex-grow: 1;
+    padding: 0.5rem;
+  }
+  .list-item {
+    padding: 0.5rem;
     border-bottom: 1px solid #eee;
     cursor: pointer;
-    gap: 12px;
-    transition: background-color 0.2s ease;
-  }
-  #usersList li:hover, #usersList li.selected {
-    background: #e5ecff;
-  }
-  #usersList li img.avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    object-fit: cover;
-    flex-shrink: 0;
-    border: 2px solid #0052cc;
-  }
-  #usersList li .user-info {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-  }
-  #usersList li .user-name {
-    font-weight: 600;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    color: #0052cc;
-  }
-  #usersList li .case-number {
-    font-size: 12px;
-    color: #777;
-    margin-top: 2px;
-  }
-  #usersList li .badge-unread {
-    background: #d32f2f;
-    color: white;
-    font-size: 12px;
-    padding: 2px 6px;
-    border-radius: 12px;
-    min-width: 20px;
-    text-align: center;
-    user-select: none;
-  }
-
-  /* Chat panel */
-  #chatPanel {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    background: white;
-    height: 100vh;
-  }
-  #chatHeader {
-    padding: 16px 20px;
-    background: #0052cc;
-    color: white;
-    font-size: 20px;
-    font-weight: 700;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    user-select: none;
   }
-  #chatWithName {
+  .list-item:hover {
+    background: #f0e6f9;
+  }
+  .list-item.selected {
+    background: #d9c7f7;
+  }
+  .badge {
+    background: red;
+    color: white;
+    border-radius: 50%;
+    min-width: 20px;
+    height: 20px;
+    font-size: 0.8rem;
     display: flex;
     align-items: center;
-    gap: 12px;
-    overflow: hidden;
-    min-width: 0;
+    justify-content: center;
+    padding: 0 6px;
   }
-  #chatWithName img.avatar {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    border: 2px solid white;
-    object-fit: cover;
-    flex-shrink: 0;
-  }
-  #chatWithName .name-text {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  #logoutBtn {
-    background: #d32f2f;
-    border: none;
-    padding: 8px 14px;
-    border-radius: 4px;
-    color: white;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-  }
-  #logoutBtn:hover {
-    background: #a22727;
-  }
-
-  #messages {
+  #chat-panel {
     flex-grow: 1;
-    overflow-y: auto;
-    padding: 20px;
+    background: white;
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    background: #f0f3ff;
   }
-  .msg-item {
+  #chat-header {
+    padding: 1rem;
+    border-bottom: 1px solid #ccc;
+    font-weight: bold;
+    font-size: 1.1rem;
+  }
+  #chat-messages {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 1rem;
+  }
+  #chat-messages .msg {
     max-width: 70%;
-    padding: 12px 16px;
-    border-radius: 20px;
-    font-size: 15px;
-    line-height: 1.4;
+    margin-bottom: 1rem;
+    padding: 0.5rem 1rem;
+    border-radius: 15px;
     word-wrap: break-word;
     position: relative;
-    display: inline-block;
   }
-  .msg-admin {
-    background: #c8d9ff;
-    align-self: flex-start;
-    border-bottom-left-radius: 4px;
-  }
-  .msg-user {
-    background: #a1de8e;
-    align-self: flex-end;
-    border-bottom-right-radius: 4px;
-  }
-  .msg-timestamp {
-    font-size: 11px;
-    color: #555;
-    margin-top: 4px;
-    opacity: 0.7;
+  .msg.admin {
+    background-color: #e1ffc7;
+    margin-left: auto;
     text-align: right;
   }
-  .msg-sender-label {
-    font-size: 13px;
-    font-weight: 600;
-    margin-bottom: 4px;
+  .msg.user {
+    background-color: #eee;
+    margin-right: auto;
+  }
+  .msg .sender-label {
+    font-weight: bold;
+    margin-bottom: 0.2rem;
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 5px;
   }
   .verified-tick {
     width: 16px;
     height: 16px;
-    fill: #1976d2;
+    fill: #2196f3;
   }
-
-  #messageForm {
+  .msg .timestamp {
+    font-size: 0.7rem;
+    color: #666;
+    margin-top: 0.3rem;
+  }
+  #chat-form {
+    border-top: 1px solid #ccc;
+    padding: 0.5rem;
     display: flex;
-    border-top: 1px solid #ddd;
-    padding: 12px 20px;
-    background: #f9fafb;
-    gap: 12px;
+    background: #fafafa;
   }
-  #messageInput {
+  #chat-input {
     flex-grow: 1;
-    font-size: 16px;
-    padding: 10px 14px;
-    border-radius: 24px;
-    border: 1px solid #bbb;
-    outline-offset: 2px;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    border-radius: 25px;
+    border: 1px solid #ccc;
+    outline: none;
   }
-  #sendBtn {
-    background: #0052cc;
+  #send-btn {
+    margin-left: 0.5rem;
+    background: #9c27b0;
     color: white;
     border: none;
-    padding: 10px 20px;
-    font-weight: 700;
-    border-radius: 24px;
+    padding: 0 1.5rem;
+    border-radius: 25px;
     cursor: pointer;
-    transition: background-color 0.2s ease;
+    font-weight: bold;
   }
-  #sendBtn:hover:not(:disabled) {
-    background: #003d99;
-  }
-  #sendBtn:disabled {
-    background: #7a9cd7;
+  #send-btn:disabled {
+    background: #ccc;
     cursor: default;
   }
-
-  /* Responsive */
-  @media (max-width: 768px) {
-    #usersPanel {
-      width: 100%;
-      height: 250px;
-      border-right: none;
-      border-bottom: 1px solid #ddd;
-    }
-    #chatPanel {
-      height: calc(100vh - 250px);
-    }
+  .no-selection {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #888;
+    font-size: 1.2rem;
   }
 </style>
 </head>
 <body>
-<nav id="usersPanel" aria-label="User list for support chats">
-  <h2>Support Users</h2>
-  <ul id="usersList" tabindex="0" role="list"></ul>
-</nav>
-
-<main id="chatPanel" aria-label="Admin support chat panel">
-  <header id="chatHeader">
-    <div id="chatWithName" aria-live="polite" aria-atomic="true">Select a user to chat</div>
-    <button id="logoutBtn" aria-label="Logout from admin">Logout</button>
-  </header>
-
-  <ul id="messages" aria-live="polite" aria-relevant="additions" role="list" aria-label="Chat messages"></ul>
-
-  <form id="messageForm" aria-label="Send a message" hidden>
-    <input
-      type="text"
-      id="messageInput"
-      placeholder="Type your message..."
-      aria-required="true"
-      autocomplete="off"
-    />
-    <button type="submit" id="sendBtn" disabled>Send</button>
-  </form>
-</main>
+<header>BandhanByPreeti Admin Support Panel</header>
+<div id="container">
+  <div id="sidebar">
+    <div id="tabs">
+      <div id="tab-cases" class="tab active" role="tab" aria-selected="true" tabindex="0">Support Cases</div>
+      <div id="tab-users" class="tab" role="tab" aria-selected="false" tabindex="0">All Users</div>
+    </div>
+    <div id="case-list" role="list" aria-label="Support Cases"></div>
+    <div id="user-list" role="list" aria-label="All Users" style="display:none;"></div>
+  </div>
+  <div id="chat-panel" aria-live="polite" aria-atomic="false">
+    <div id="chat-header">Select a user to chat</div>
+    <div id="chat-messages" role="log" aria-live="polite" aria-relevant="additions"></div>
+    <form id="chat-form" aria-label="Send message to user" style="display:none;">
+      <input type="text" id="chat-input" placeholder="Type your message..." aria-required="true" autocomplete="off" />
+      <button type="submit" id="send-btn" disabled>Send</button>
+    </form>
+  </div>
+</div>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-app.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.0/firebase-app.js";
   import {
     getAuth,
     onAuthStateChanged,
     signOut
-  } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
+  } from "https://www.gstatic.com/firebasejs/11.7.0/firebase-auth.js";
   import {
     getDatabase,
     ref,
+    get,
     onValue,
     onChildAdded,
     push,
     update,
-    serverTimestamp,
-    get,
-    child,
-    off
-  } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-database.js";
+    query,
+    orderByChild,
+    equalTo,
+  } from "https://www.gstatic.com/firebasejs/11.7.0/firebase-database.js";
 
-  // Your Firebase config here
   const firebaseConfig = {
-    apiKey: "AIzaSyD2Dgr5K8IC3TzBP_x9Fsc3X0gMEd4xLww",
+    apiKey: "YOUR_API_KEY",
     authDomain: "bandhanbypreeti.firebaseapp.com",
     databaseURL: "https://bandhanbypreeti-default-rtdb.firebaseio.com",
     projectId: "bandhanbypreeti",
     storageBucket: "bandhanbypreeti.appspot.com",
-    messagingSenderId: "880058352718",
-    appId: "1:880058352718:web:3c5444ce629265467eef1f"
+    messagingSenderId: "YOUR_SENDER_ID",
+    appId: "YOUR_APP_ID",
   };
-
-  const ADMIN_UID = "aZpKX3OhBVg9mtC2Ybhed2UfLHq1";
 
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getDatabase(app);
 
-  const usersList = document.getElementById("usersList");
-  const messagesList = document.getElementById("messages");
-  const messageForm = document.getElementById("messageForm");
-  const messageInput = document.getElementById("messageInput");
-  const chatWithName = document.getElementById("chatWithName");
-  const logoutBtn = document.getElementById("logoutBtn");
-  const sendBtn = document.getElementById("sendBtn");
+  // Admin UID (from your details)
+  const adminUid = "aZpKX3OhBVg9mtC2Ybhed2UfLHq1";
 
-  let currentUser = null;
-  let selectedUserId = null;
-  let messagesRef = null;
+  // UI Elements
+  const tabCases = document.getElementById("tab-cases");
+  const tabUsers = document.getElementById("tab-users");
+  const caseList = document.getElementById("case-list");
+  const userList = document.getElementById("user-list");
+  const chatHeader = document.getElementById("chat-header");
+  const chatMessages = document.getElementById("chat-messages");
+  const chatForm = document.getElementById("chat-form");
+  const chatInput = document.getElementById("chat-input");
+  const sendBtn = document.getElementById("send-btn");
 
-  const usersData = {};
+  let currentTab = "cases";
+  let selectedUser = null;
+  let chatMessagesRef = null;
+  let messagesListener = null;
 
   // Check admin auth
-  onAuthStateChanged(auth, async (user) => {
-    if (!user || user.uid !== ADMIN_UID) {
-      alert("You must be logged in as admin to access this page.");
+  onAuthStateChanged(auth, (user) => {
+    if (!user || user.uid !== adminUid) {
+      alert("Unauthorized! Please login as admin.");
       window.location.href = "/login.html";
       return;
     }
-    currentUser = user;
-    loadSupportUsers();
+    // Load cases on startup
+    loadSupportCases();
+    loadAllUsers();
   });
 
-  // Logout button
-  logoutBtn.addEventListener("click", async () => {
-    await signOut(auth);
-    window.location.href = "/login.html";
-  });
+  // Tab switching
+  tabCases.addEventListener("click", () => switchTab("cases"));
+  tabUsers.addEventListener("click", () => switchTab("users"));
 
-  // Load all users who contacted support
-  function loadSupportUsers() {
-    const supportChatsRef = ref(db, "supportChats");
+  tabCases.addEventListener("keydown", e => { if(e.key==="Enter"||e.key===" ") {e.preventDefault(); switchTab("cases");} });
+  tabUsers.addEventListener("keydown", e => { if(e.key==="Enter"||e.key===" ") {e.preventDefault(); switchTab("users");} });
 
-    onValue(supportChatsRef, (snapshot) => {
-      const chats = snapshot.val() || {};
-      usersList.innerHTML = "";
-      Object.keys(chats).forEach((uid) => {
-        if (!usersData[uid]) {
-          // Fetch profile info for the user
-          fetchUserProfile(uid);
-        }
-      });
-      // After fetching all profiles, render list
-      renderUsersList(chats);
-    });
-  }
-
-  // Fetch user profile from Realtime Database
-  async function fetchUserProfile(uid) {
-    const profileRef = ref(db, `profiles/${uid}`);
-    const snapshot = await get(profileRef);
-    if (snapshot.exists()) {
-      usersData[uid] = snapshot.val();
-      renderUsersList();
+  function switchTab(tab) {
+    if (currentTab === tab) return;
+    currentTab = tab;
+    if (tab === "cases") {
+      tabCases.classList.add("active");
+      tabCases.setAttribute("aria-selected", "true");
+      tabUsers.classList.remove("active");
+      tabUsers.setAttribute("aria-selected", "false");
+      caseList.style.display = "block";
+      userList.style.display = "none";
+      clearChat();
+      loadSupportCases();
     } else {
-      usersData[uid] = {
-        name: "Unknown User",
-        photoURL: "https://via.placeholder.com/40?text=?"
-      };
-      renderUsersList();
+      tabUsers.classList.add("active");
+      tabUsers.setAttribute("aria-selected", "true");
+      tabCases.classList.remove("active");
+      tabCases.setAttribute("aria-selected", "false");
+      userList.style.display = "block";
+      caseList.style.display = "none";
+      clearChat();
+      loadAllUsers();
     }
   }
 
-  // Render users in sidebar
-  function renderUsersList(chatsData) {
-    usersList.innerHTML = "";
-    const chats = chatsData || {};
-
-    // Sort by last message timestamp descending
-    const sortedUids = Object.keys(chats).sort((a, b) => {
-      const tA = chats[a]?.lastMessageTimestamp || 0;
-      const tB = chats[b]?.lastMessageTimestamp || 0;
-      return tB - tA;
+  // Load support cases (users with active supportChats)
+  async function loadSupportCases() {
+    caseList.innerHTML = "<p>Loading cases...</p>";
+    const chatsRef = ref(db, "supportChats");
+    onValue(chatsRef, (snapshot) => {
+      const data = snapshot.val();
+      if (!data) {
+        caseList.innerHTML = "<p>No support cases found.</p>";
+        return;
+      }
+      caseList.innerHTML = "";
+      for (const uid in data) {
+        // Get lastMessageTimestamp and unreadByAdmin count
+        const chatData = data[uid];
+        renderCaseListItem(uid, chatData);
+      }
     });
+  }
 
-    if (sortedUids.length === 0) {
-      usersList.innerHTML = "<li style='padding: 16px; color: #777;'>No support chats yet.</li>";
+  // Render each support case list item
+  async function renderCaseListItem(uid, chatData) {
+    const userRef = ref(db, `profiles/${uid}`);
+    const userSnap = await get(userRef);
+    const userData = userSnap.exists() ? userSnap.val() : { name: "Unknown User" };
+
+    const div = document.createElement("div");
+    div.classList.add("list-item");
+    div.setAttribute("role", "listitem");
+    div.tabIndex = 0;
+    div.textContent = userData.name + " ";
+
+    // Show unread badge if unreadByAdmin > 0
+    if (chatData.unreadByAdmin && chatData.unreadByAdmin > 0) {
+      const badge = document.createElement("span");
+      badge.classList.add("badge");
+      badge.textContent = chatData.unreadByAdmin;
+      div.appendChild(badge);
+    }
+
+    div.addEventListener("click", () => selectUserChat(uid, userData.name));
+    div.addEventListener("keydown", e => { if(e.key==="Enter"||e.key===" ") {e.preventDefault(); selectUserChat(uid, userData.name);} });
+    caseList.appendChild(div);
+  }
+
+  // Load all users list
+  async function loadAllUsers() {
+    userList.innerHTML = "<p>Loading users...</p>";
+    const profilesRef = ref(db, "profiles");
+    const profilesSnap = await get(profilesRef);
+    const profiles = profilesSnap.val();
+
+    if (!profiles) {
+      userList.innerHTML = "<p>No users found.</p>";
       return;
     }
 
-    sortedUids.forEach((uid) => {
-      const chatInfo = chats[uid];
-      const profile = usersData[uid] || {};
-      const userName = profile.name || "Unknown User";
-      const photoURL = profile.photoURL || "https://via.placeholder.com/40?text=?";
-      const unreadCount = chatInfo.unreadByAdmin || 0;
-      const caseNumber = chatInfo.caseNumber || "(No case #)";
-
-      const li = document.createElement("li");
-      li.setAttribute("tabindex", "0");
-      li.setAttribute("role", "listitem");
-      li.className = uid === selectedUserId ? "selected" : "";
-      li.dataset.uid = uid;
-
-      li.innerHTML = `
-        <img src="${photoURL}" alt="${userName} avatar" class="avatar" />
-        <div class="user-info">
-          <div class="user-name">${userName}</div>
-          <div class="case-number">Case #: ${caseNumber}</div>
-        </div>
-        ${unreadCount > 0 ? `<div class="badge-unread" aria-label="${unreadCount} unread messages">${unreadCount}</div>` : ""}
-      `;
-
-      li.onclick = () => selectUser(uid);
-      li.onkeypress = (e) => { if (e.key === "Enter") selectUser(uid); };
-
-      usersList.appendChild(li);
-    });
+    userList.innerHTML = "";
+    for (const uid in profiles) {
+      renderUserListItem(uid, profiles[uid]);
+    }
   }
 
-  // Select a user to chat with
-  function selectUser(uid) {
-    if (selectedUserId === uid) return; // same user, do nothing
+  // Render each user in All Users tab
+  async function renderUserListItem(uid, profile) {
+    const div = document.createElement("div");
+    div.classList.add("list-item");
+    div.setAttribute("role", "listitem");
+    div.tabIndex = 0;
 
-    // Clear previous listeners
-    if (messagesRef) {
-      off(messagesRef);
-    }
-    selectedUserId = uid;
+    div.textContent = profile.name;
 
-    // Highlight selected user
-    Array.from(usersList.children).forEach(li => {
-      li.classList.toggle("selected", li.dataset.uid === uid);
+    const btn = document.createElement("button");
+    btn.textContent = "Start Chat";
+    btn.style.background = "#9c27b0";
+    btn.style.color = "white";
+    btn.style.border = "none";
+    btn.style.borderRadius = "12px";
+    btn.style.padding = "4px 10px";
+    btn.style.cursor = "pointer";
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      startNewSupportChat(uid, profile.name);
     });
 
-    // Show chat panel message form
-    messageForm.hidden = false;
-    messageInput.value = "";
+    div.appendChild(btn);
+
+    div.addEventListener("click", () => selectUserChat(uid, profile.name));
+    div.addEventListener("keydown", e => { if(e.key==="Enter"||e.key===" ") {e.preventDefault(); selectUserChat(uid, profile.name);} });
+
+    userList.appendChild(div);
+  }
+
+  // Select user to open chat
+  function selectUserChat(uid, name) {
+    selectedUser = { uid, name };
+    highlightSelected(uid);
+    chatHeader.textContent = `Chat with ${name}`;
+    chatMessages.innerHTML = "";
+    chatForm.style.display = "flex";
+    chatInput.value = "";
     sendBtn.disabled = true;
 
-    // Load chat header info
-    const profile = usersData[uid] || {};
-    chatWithName.innerHTML = `
-      <img src="${profile.photoURL || 'https://via.placeholder.com/44?text=?'}" alt="${profile.name || 'User'} avatar" class="avatar" />
-      <div class="name-text">${profile.name || "Unknown User"}</div>
-    `;
+    if (messagesListener) {
+      messagesListener(); // unsubscribe old listener
+      messagesListener = null;
+    }
 
-    // Load messages
-    loadMessages(uid);
+    // Listen to chat messages between admin and selected user
+    const messagesRef = ref(db, `supportChats/${uid}/messages`);
+    chatMessagesRef = messagesRef;
+    messagesListener = onValue(messagesRef, (snapshot) => {
+      const messages = snapshot.val();
+      renderChatMessages(messages);
+      scrollToBottom();
+    });
 
-    // Mark unread messages as read by admin
-    markMessagesRead(uid);
+    // Mark messages as read by admin
+    update(ref(db, `supportChats/${uid}`), { unreadByAdmin: 0 });
   }
 
-  // Load messages from /supportChats/{uid}/messages
-  function loadMessages(uid) {
-    messagesList.innerHTML = "";
+  // Highlight selected user in sidebar
+  function highlightSelected(uid) {
+    const items = currentTab === "cases" ? caseList.children : userList.children;
+    for (const item of items) {
+      if (item.textContent.includes(selectedUser.name)) {
+        item.classList.add("selected");
+      } else {
+        item.classList.remove("selected");
+      }
+    }
+  }
 
-    messagesRef = ref(db, `supportChats/${uid}/messages`);
-    onChildAdded(messagesRef, (snapshot) => {
-      const msg = snapshot.val();
-      appendMessage(msg);
-      // Scroll to bottom
-      messagesList.scrollTop = messagesList.scrollHeight;
+  // Render chat messages in chat window
+  function renderChatMessages(messages) {
+    chatMessages.innerHTML = "";
+    if (!messages) return;
+    Object.entries(messages).forEach(([msgId, msg]) => {
+      const div = document.createElement("div");
+      div.classList.add("msg");
+
+      if (msg.sender === adminUid) {
+        div.classList.add("admin");
+        div.innerHTML = `
+          <div class="sender-label">BandhanByPreeti Support
+            <svg class="verified-tick" viewBox="0 0 24 24" aria-label="Verified admin">
+              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path>
+            </svg>
+          </div>
+          <div>${escapeHTML(msg.text)}</div>
+          <div class="timestamp">${new Date(msg.timestamp).toLocaleString()}</div>
+        `;
+      } else {
+        div.classList.add("user");
+        div.innerHTML = `
+          <div class="sender-label">${escapeHTML(selectedUser.name)}</div>
+          <div>${escapeHTML(msg.text)}</div>
+          <div class="timestamp">${new Date(msg.timestamp).toLocaleString()}</div>
+        `;
+      }
+      chatMessages.appendChild(div);
     });
   }
 
-  // Append single message to UI
-  function appendMessage(msg) {
-    const li = document.createElement("li");
-    li.className = "msg-item";
-    const senderIsAdmin = msg.sender === ADMIN_UID;
-
-    li.classList.add(senderIsAdmin ? "msg-admin" : "msg-user");
-
-    const senderLabel = senderIsAdmin
-      ? `<div class="msg-sender-label">BandhanByPreeti Support
-          <svg class="verified-tick" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-label="Verified">
-            <path d="M9 16.2l-3.5-3.5L4 14.2 9 19 20 8l-1.5-1.5z"/>
-          </svg>
-         </div>`
-      : "";
-
-    const timeStr = new Date(msg.timestamp).toLocaleString();
-
-    li.innerHTML = `
-      ${senderLabel}
-      <div>${escapeHtml(msg.text)}</div>
-      <div class="msg-timestamp">${timeStr}</div>
-    `;
-
-    messagesList.appendChild(li);
+  // Scroll chat to bottom
+  function scrollToBottom() {
+    chatMessages.scrollTop = chatMessages.scrollHeight;
   }
 
   // Escape HTML to prevent injection
-  function escapeHtml(text) {
-    return text.replace(/[&<>"']/g, (m) => {
-      return {
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#39;'
-      }[m];
+  function escapeHTML(str) {
+    return str.replace(/[&<>"']/g, (m) => {
+      switch (m) {
+        case "&": return "&amp;";
+        case "<": return "&lt;";
+        case ">": return "&gt;";
+        case '"': return "&quot;";
+        case "'": return "&#39;";
+        default: return m;
+      }
     });
   }
 
-  // Send a new message as admin
-  messageForm.addEventListener("submit", async (e) => {
+  // Chat input enable/disable
+  chatInput.addEventListener("input", () => {
+    sendBtn.disabled = !chatInput.value.trim();
+  });
+
+  // Send message handler
+  chatForm.addEventListener("submit", async (e) => {
     e.preventDefault();
-    const text = messageInput.value.trim();
-    if (!text || !selectedUserId) return;
+    if (!selectedUser) return;
 
-    const newMsgRef = push(ref(db, `supportChats/${selectedUserId}/messages`));
+    const text = chatInput.value.trim();
+    if (!text) return;
+
+    const newMsgRef = push(ref(db, `supportChats/${selectedUser.uid}/messages`));
+    const timestamp = Date.now();
+
     await newMsgRef.set({
-      sender: ADMIN_UID,
+      sender: adminUid,
       text,
-      timestamp: Date.now()
+      timestamp,
     });
 
-    // Update chat meta: lastMessageTimestamp, unreadByUser (because user hasn't read admin's reply yet)
-    const chatMetaRef = ref(db, `supportChats/${selectedUserId}`);
-    await update(chatMetaRef, {
-      lastMessageTimestamp: Date.now(),
-      unreadByUser: (chatMetaRef.unreadByUser || 0) + 1,
-      unreadByAdmin: 0 // admin just sent message, so reset unread by admin count
-    });
-
-    messageInput.value = "";
+    // Reset input
+    chatInput.value = "";
     sendBtn.disabled = true;
 
-    // Scroll to bottom
-    messagesList.scrollTop = messagesList.scrollHeight;
+    // Mark unread by user
+    const chatRef = ref(db, `supportChats/${selectedUser.uid}`);
+    get(chatRef).then((snap) => {
+      const chatData = snap.val() || {};
+      const newUnread = (chatData.unreadByUser || 0) + 1;
+      update(chatRef, { unreadByUser: newUnread });
+    });
   });
 
-  // Enable send button only if input has text
-  messageInput.addEventListener("input", () => {
-    sendBtn.disabled = messageInput.value.trim().length === 0;
-  });
+  // Clear chat panel
+  function clearChat() {
+    selectedUser = null;
+    chatHeader.textContent = "Select a user to chat";
+    chatMessages.innerHTML = "";
+    chatForm.style.display = "none";
+    if (messagesListener) {
+      messagesListener();
+      messagesListener = null;
+    }
+    highlightSelected(null);
+  }
 
-  // Mark unread messages as read by admin (reset unreadByAdmin count)
-  function markMessagesRead(uid) {
-    const chatMetaRef = ref(db, `supportChats/${uid}`);
-    update(chatMetaRef, { unreadByAdmin: 0 });
+  // Start new support chat for user
+  async function startNewSupportChat(uid, name) {
+    const chatRef = ref(db, `supportChats/${uid}`);
+    const chatSnap = await get(chatRef);
+    if (!chatSnap.exists()) {
+      // Create initial bot message with case number
+      const caseNumber = Math.floor(100000 + Math.random() * 900000);
+      await update(chatRef, {
+        unreadByAdmin: 1,
+        unreadByUser: 0,
+      });
+      const msgRef = push(ref(db, `supportChats/${uid}/messages`));
+      await msgRef.set({
+        sender: "bot",
+        text: `Your case number #${caseNumber} has been created. Please tell your issue.`,
+        timestamp: Date.now(),
+      });
+      alert(`New support chat started for ${name}.`);
+      // Refresh cases tab
+      if(currentTab === "cases") loadSupportCases();
+    } else {
+      alert(`Support chat already exists for ${name}.`);
+    }
   }
 </script>
 </body>
