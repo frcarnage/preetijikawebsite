@@ -1,293 +1,284 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Support Chat - BandhanByPreeti</title>
-<style>
-  body {
-    font-family: Arial, sans-serif;
-    margin: 0; padding: 0;
-    display: flex; flex-direction: column;
-    height: 100vh;
-    background: #f9f9f9;
-  }
-  header {
-    background: #9c27b0;
-    color: white;
-    padding: 1rem;
-    text-align: center;
-  }
-  #chat-container {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    max-width: 600px;
-    margin: 0 auto;
-    background: white;
-    border: 1px solid #ccc;
-  }
-  #messages {
-    flex-grow: 1;
-    overflow-y: auto;
-    padding: 1rem;
-    list-style: none;
-    margin: 0;
-  }
-  #messages li {
-    margin-bottom: 1rem;
-    max-width: 70%;
-    padding: 0.5rem 1rem;
-    border-radius: 15px;
-    word-wrap: break-word;
-  }
-  .msg-user {
-    background-color: #e1ffc7;
-    align-self: flex-end;
-    text-align: right;
-  }
-  .msg-support {
-    background-color: #eee;
-    align-self: flex-start;
-    position: relative;
-  }
-  .msg-support .msg-sender-label {
-    font-weight: bold;
-    margin-bottom: 0.2rem;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-  }
-  .verified-tick {
-    width: 16px;
-    height: 16px;
-    fill: #2196f3;
-  }
-  .msg-timestamp {
-    font-size: 0.7rem;
-    color: #666;
-    margin-top: 0.3rem;
-  }
-  form {
-    display: flex;
-    border-top: 1px solid #ccc;
-    padding: 0.5rem;
-    background: #fafafa;
-  }
-  input[type="text"] {
-    flex-grow: 1;
-    padding: 0.5rem 1rem;
-    font-size: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 25px;
-    outline: none;
-  }
-  button {
-    margin-left: 0.5rem;
-    background: #9c27b0;
-    color: white;
-    border: none;
-    border-radius: 25px;
-    padding: 0 1.5rem;
-    font-weight: bold;
-    cursor: pointer;
-  }
-  button:disabled {
-    background: #ccc;
-    cursor: default;
-  }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Support Chat - BandhanByPreeti</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0; padding: 0; background: #f9f9f9;
+      display: flex; flex-direction: column; height: 100vh;
+    }
+    header {
+      background-color: #ff4081;
+      color: white;
+      padding: 1rem;
+      font-size: 1.2rem;
+      text-align: center;
+    }
+    #chat {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem;
+      background: white;
+      border-top: 1px solid #ddd;
+      border-bottom: 1px solid #ddd;
+    }
+    .message {
+      margin-bottom: 1rem;
+      max-width: 70%;
+      padding: 10px 15px;
+      border-radius: 15px;
+      clear: both;
+      position: relative;
+      font-size: 0.95rem;
+      line-height: 1.3;
+    }
+    .bot-message {
+      background-color: #f0f0f0;
+      color: #333;
+      float: left;
+      border-top-left-radius: 0;
+    }
+    .user-message {
+      background-color: #ff4081;
+      color: white;
+      float: right;
+      border-top-right-radius: 0;
+    }
+    .admin-message {
+      background-color: #1976d2;
+      color: white;
+      float: left;
+      border-top-left-radius: 0;
+      padding-right: 40px;
+    }
+    .admin-message .verified-tick {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 18px;
+      height: 18px;
+    }
+    #inputForm {
+      display: flex;
+      padding: 10px;
+      background: white;
+      border-top: 1px solid #ddd;
+    }
+    #inputForm input[type="text"] {
+      flex: 1;
+      padding: 10px;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 25px;
+      outline: none;
+      margin-right: 10px;
+    }
+    #inputForm button {
+      background-color: #ff4081;
+      color: white;
+      border: none;
+      padding: 0 20px;
+      border-radius: 25px;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+    #inputForm button:disabled {
+      background-color: #f8a1c7;
+      cursor: not-allowed;
+    }
+  </style>
 </head>
 <body>
-<header>BandhanByPreeti Support Chat</header>
-<div id="chat-container" role="main" aria-live="polite" aria-atomic="false">
-  <ul id="messages" aria-label="Support chat messages"></ul>
-  <form id="message-form" aria-label="Send a message to support">
-    <input type="text" id="message-input" aria-required="true" placeholder="Type your message..." autocomplete="off" />
+  <header>Support Chat - BandhanByPreeti</header>
+  <div id="chat"></div>
+  <form id="inputForm">
+    <input type="text" id="messageInput" placeholder="Type your message..." autocomplete="off" />
     <button type="submit" disabled>Send</button>
   </form>
-</div>
 
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.0/firebase-app.js";
-  import {
-    getAuth,
-    onAuthStateChanged,
-  } from "https://www.gstatic.com/firebasejs/11.7.0/firebase-auth.js";
-  import {
-    getDatabase,
-    ref,
-    get,
-    set,
-    push,
-    onChildAdded,
-    update,
-    serverTimestamp,
-  } from "https://www.gstatic.com/firebasejs/11.7.0/firebase-database.js";
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/11.7.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.7.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.7.0/firebase-firestore.js"></script>
 
-  const firebaseConfig = {
+  <script>
+    // Your Firebase configuration (replace with your config)
+    const firebaseConfig = {
       apiKey: "AIzaSyD2Dgr5K8IC3TzBP_x9Fsc3X0gMEd4xLww",
       authDomain: "bandhanbypreeti.firebaseapp.com",
       projectId: "bandhanbypreeti",
       storageBucket: "bandhanbypreeti.appspot.com",
       messagingSenderId: "880058352718",
       appId: "1:880058352718:web:3c5444ce629265467eef1f"
-  };
+    };
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getDatabase(app);
+    // Initialize Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
 
-  // Elements
-  const messagesList = document.getElementById("messages");
-  const messageForm = document.getElementById("message-form");
-  const messageInput = document.getElementById("message-input");
-  const sendBtn = messageForm.querySelector("button");
+    const chatDiv = document.getElementById("chat");
+    const inputForm = document.getElementById("inputForm");
+    const messageInput = document.getElementById("messageInput");
+    const sendButton = inputForm.querySelector("button");
 
-  let user = null;
-  let supportChatRef = null;
-  let hasBotSentInitial = false;
-  let caseNumber = null;
+    let currentUser = null;
+    let caseId = null; // Unique support case ID
+    let botMessageSent = false; // To track if bot first message sent
 
-  // Escape HTML to prevent injection
-  function escapeHtml(text) {
-    return text.replace(/[&<>"']/g, (m) => {
-      return {
-        "&": "&amp;",
-        "<": "&lt;",
-        ">": "&gt;",
-        '"': "&quot;",
-        "'": "&#39;",
-      }[m];
-    });
-  }
-
-  // Format timestamp
-  function formatTimestamp(ts) {
-    return new Date(ts).toLocaleString();
-  }
-
-  // Append message to chat
-  function appendMessage(msg) {
-    const li = document.createElement("li");
-    const senderIsSupport = msg.sender === "support";
-    li.classList.add(senderIsSupport ? "msg-support" : "msg-user");
-
-    const senderLabel = senderIsSupport
-      ? `<div class="msg-sender-label">BandhanByPreeti Support
-          <svg class="verified-tick" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-label="Verified">
-            <path d="M9 16.2l-3.5-3.5L4 14.2 9 19 20 8l-1.5-1.5z"/>
-          </svg>
-         </div>`
-      : "";
-
-    const timeStr = formatTimestamp(msg.timestamp || Date.now());
-
-    li.innerHTML = `
-      ${senderLabel}
-      <div>${escapeHtml(msg.text)}</div>
-      <div class="msg-timestamp">${timeStr}</div>
-    `;
-    messagesList.appendChild(li);
-    messagesList.scrollTop = messagesList.scrollHeight;
-  }
-
-  // Generate random 6-digit case number
-  function generateCaseNumber() {
-    return Math.floor(100000 + Math.random() * 900000).toString();
-  }
-
-  // On user auth state change
-  onAuthStateChanged(auth, async (currentUser) => {
-    if (!currentUser) {
-      alert("Please log in to use support chat.");
-      window.location.href = "/login.html";
-      return;
+    // Helper: Scroll chat to bottom
+    function scrollToBottom() {
+      chatDiv.scrollTop = chatDiv.scrollHeight;
     }
-    user = currentUser;
-    supportChatRef = ref(db, `supportChats/${user.uid}`);
 
-    // Check if support chat exists for user
-    const chatSnapshot = await get(supportChatRef);
-    if (!chatSnapshot.exists()) {
-      // Create new support chat entry with case number
-      caseNumber = generateCaseNumber();
-      await set(supportChatRef, {
-        caseNumber,
-        lastMessageTimestamp: Date.now(),
-        unreadByUser: 0,
-        unreadByAdmin: 0,
+    // Helper: create message element and add to chat
+    function addMessage(text, type = "bot", showVerified = false) {
+      const msg = document.createElement("div");
+      msg.classList.add("message");
+      if (type === "bot") msg.classList.add("bot-message");
+      else if (type === "user") msg.classList.add("user-message");
+      else if (type === "admin") msg.classList.add("admin-message");
+      msg.textContent = text;
+
+      if (showVerified && type === "admin") {
+        const tick = document.createElement("img");
+        tick.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Twitter_verified_badge.svg/120px-Twitter_verified_badge.svg.png";
+        tick.alt = "Verified";
+        tick.classList.add("verified-tick");
+        msg.appendChild(tick);
+      }
+
+      chatDiv.appendChild(msg);
+      scrollToBottom();
+    }
+
+    // Generate random 6-digit case number
+    function generateCaseNumber() {
+      return Math.floor(100000 + Math.random() * 900000);
+    }
+
+    // Check auth state
+    auth.onAuthStateChanged(user => {
+      if (!user) {
+        alert("Please log in to use support chat.");
+        window.location.href = "login.html"; // redirect to login
+        return;
+      }
+      currentUser = user;
+      initializeChat();
+    });
+
+    async function initializeChat() {
+      // Check if user already has a support case document
+      const userSupportRef = db.collection("supportCases").doc(currentUser.uid);
+      const doc = await userSupportRef.get();
+
+      if (!doc.exists) {
+        // Create new support case
+        caseId = generateCaseNumber();
+        await userSupportRef.set({
+          caseId: caseId,
+          userId: currentUser.uid,
+          userName: currentUser.displayName || currentUser.email,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          messages: []
+        });
+
+        // Send bot's first auto message
+        addMessage(`Your case number #${caseId} has been created. Please tell your issue.`,"bot");
+        botMessageSent = true;
+      } else {
+        caseId = doc.data().caseId;
+
+        // Load existing messages
+        const messages = doc.data().messages || [];
+
+        messages.forEach(msg => {
+          if (msg.sender === "bot") addMessage(msg.text, "bot");
+          else if (msg.sender === "user") addMessage(msg.text, "user");
+          else if (msg.sender === "admin") addMessage(msg.text, "admin", true);
+        });
+      }
+
+      // Enable input
+      sendButton.disabled = false;
+    }
+
+    // Listen to real-time updates for admin replies or new messages
+    auth.onAuthStateChanged(user => {
+      if (!user) return;
+      const supportRef = db.collection("supportCases").doc(user.uid);
+
+      supportRef.onSnapshot(snapshot => {
+        if (!snapshot.exists) return;
+        const data = snapshot.data();
+        if (!data) return;
+
+        // Clear chat and reload all messages to avoid duplication
+        chatDiv.innerHTML = "";
+
+        data.messages.forEach(msg => {
+          if (msg.sender === "bot") addMessage(msg.text, "bot");
+          else if (msg.sender === "user") addMessage(msg.text, "user");
+          else if (msg.sender === "admin") addMessage(msg.text, "admin", true);
+        });
+
+        scrollToBottom();
       });
-
-      // Send initial bot message
-      await push(ref(db, `supportChats/${user.uid}/messages`), {
-        sender: "bot",
-        text: `Your case number #${caseNumber} has been created. Please tell your issue.`,
-        timestamp: Date.now(),
-      });
-      hasBotSentInitial = true;
-    } else {
-      // If chat exists, get case number from DB
-      const data = chatSnapshot.val();
-      caseNumber = data.caseNumber || generateCaseNumber();
-    }
-
-    // Load existing messages
-    loadMessages();
-
-    // Listen for new messages
-    onChildAdded(ref(db, `supportChats/${user.uid}/messages`), (snapshot) => {
-      const msg = snapshot.val();
-      appendMessage(msg);
-    });
-  });
-
-  // Load messages once on startup (optional if you want)
-  async function loadMessages() {
-    messagesList.innerHTML = "";
-    const messagesSnapshot = await get(ref(db, `supportChats/${user.uid}/messages`));
-    if (messagesSnapshot.exists()) {
-      const msgs = messagesSnapshot.val();
-      Object.values(msgs).forEach(appendMessage);
-    }
-  }
-
-  // Send user message
-  messageForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const text = messageInput.value.trim();
-    if (!text) return;
-
-    // Push user message
-    await push(ref(db, `supportChats/${user.uid}/messages`), {
-      sender: user.uid,
-      text,
-      timestamp: Date.now(),
     });
 
-    // Update lastMessageTimestamp and unreadByAdmin count
-    await update(supportChatRef, {
-      lastMessageTimestamp: Date.now(),
-      unreadByAdmin: (supportChatRef.unreadByAdmin || 0) + 1,
+    // Handle form submission
+    inputForm.addEventListener("submit", async e => {
+      e.preventDefault();
+      const text = messageInput.value.trim();
+      if (text === "") return;
+
+      // Disable send button until done
+      sendButton.disabled = true;
+
+      // Add user's message to UI
+      addMessage(text, "user");
+
+      // Add user's message to Firestore
+      const supportRef = db.collection("supportCases").doc(currentUser.uid);
+      const doc = await supportRef.get();
+
+      if (!doc.exists) {
+        alert("Support case not found. Please reload.");
+        sendButton.disabled = false;
+        return;
+      }
+
+      // Get current messages array
+      let messages = doc.data().messages || [];
+
+      // Add user's message
+      messages.push({ sender: "user", text: text, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
+
+      // If bot message not sent yet after user message, send the forwarding confirmation
+      if (!botMessageSent) {
+        messages.push({ sender: "bot", text: "Your issue has been forwarded to the support team. You’ll get a reply as soon as possible.", timestamp: firebase.firestore.FieldValue.serverTimestamp() });
+        addMessage("Your issue has been forwarded to the support team. You’ll get a reply as soon as possible.", "bot");
+        botMessageSent = true;
+      }
+
+      // Update Firestore document
+      await supportRef.update({ messages: messages });
+
+      // Clear input and enable button
+      messageInput.value = "";
+      sendButton.disabled = false;
+      messageInput.focus();
     });
 
-    messageInput.value = "";
-    sendBtn.disabled = true;
-
-    // Bot replies only on first user message (once per session)
-    if (hasBotSentInitial) {
-      await push(ref(db, `supportChats/${user.uid}/messages`), {
-        sender: "bot",
-        text: "Your issue has been forwarded to the support team. You’ll get a reply as soon as possible.",
-        timestamp: Date.now(),
-      });
-      hasBotSentInitial = false;
-    }
-  });
-
-  messageInput.addEventListener("input", () => {
-    sendBtn.disabled = messageInput.value.trim().length === 0;
-  });
-</script>
+    // Enable/disable send button based on input content
+    messageInput.addEventListener("input", () => {
+      sendButton.disabled = messageInput.value.trim() === "";
+    });
+  </script>
 </body>
 </html>
