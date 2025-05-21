@@ -1,60 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Chats | BandhanByPreeti</title>
-  <link rel="icon" href="favicon.ico">
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>
+  <style>
+    .chat-scroll { max-height: 80vh; overflow-y: auto; }
+    .chat-input { outline: none; border: none; width: 100%; }
+  </style>
 </head>
 <body class="bg-gray-100 text-gray-800">
 
-  <div class="flex h-screen">
+  <!-- Header -->
+  <header class="bg-black text-white p-4 text-center text-xl font-bold">BandhanByPreeti - Messages</header>
+
+  <main class="flex h-[calc(100vh-64px)]">
     <!-- Sidebar -->
-    <aside class="w-full md:w-1/3 lg:w-1/4 bg-white border-r overflow-y-auto">
-      <div class="p-4 font-bold text-xl text-center border-b">Chats</div>
-      <ul id="chatList" class="divide-y">
-        <!-- Chat items will be loaded here -->
-        <!-- Example:
-        <li class="p-4 hover:bg-gray-100 cursor-pointer" onclick="selectChat('uid123', 'Priya Sharma')">
-          <div class="font-medium">Priya Sharma</div>
-          <div class="text-sm text-gray-500">Hello there!</div>
-        </li>
-        -->
-      </ul>
+    <aside class="w-full sm:w-1/3 md:w-1/4 border-r bg-white p-4 overflow-y-auto">
+      <h2 class="text-lg font-semibold mb-4">Chats</h2>
+      <ul id="chatList" class="space-y-2"></ul>
     </aside>
 
-    <!-- Chat Area -->
-    <main class="flex-1 flex flex-col">
-      <!-- Chat Header -->
-      <div class="bg-white border-b p-4 font-semibold" id="chatHeader">
-        Select a chat
-      </div>
-
-      <!-- Chat Messages -->
-      <div id="messages" class="flex-1 p-4 overflow-y-auto space-y-2">
-        <!-- Messages will appear here -->
-      </div>
-
-      <!-- Message Input -->
-      <form id="messageForm" class="flex items-center p-4 bg-white border-t" style="display: none;">
-        <input type="text" id="messageInput" placeholder="Type your message..." class="flex-1 p-2 border rounded mr-2">
-        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Send</button>
+    <!-- Chat Window -->
+    <section class="flex-1 flex flex-col bg-gray-50">
+      <div id="chatHeader" class="border-b p-4 font-semibold text-lg bg-white">Select a user to chat</div>
+      <div id="chatBox" class="flex-1 p-4 chat-scroll space-y-2 overflow-y-auto"></div>
+      <form id="chatForm" class="flex border-t bg-white p-4 items-center gap-2" style="display: none;">
+        <input type="text" id="messageInput" placeholder="Type your message..." class="flex-1 px-3 py-2 border rounded chat-input"/>
+        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Send</button>
       </form>
-    </main>
-  </div>
+    </section>
+  </main>
 
   <!-- Firebase & Chat Script -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
-    import { getFirestore, collection, addDoc, doc, onSnapshot, query, orderBy, where, getDocs } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js";
+    import {
+      getAuth, onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
+    import {
+      getFirestore, collection, query, orderBy, addDoc, onSnapshot, doc, getDocs, getDoc, setDoc
+    } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyD2Dgr5K8IC3TzBP_x9Fsc3X0gMEd4xLww",
       authDomain: "bandhanbypreeti.firebaseapp.com",
       projectId: "bandhanbypreeti",
-      storageBucket: "bandhanbypreeti.firebasestorage.app",
+      storageBucket: "bandhanbypreeti.appspot.com",
       messagingSenderId: "880058352718",
       appId: "1:880058352718:web:3c5444ce629265467eef1f"
     };
@@ -63,79 +56,77 @@
     const auth = getAuth();
     const db = getFirestore(app);
 
-    let currentUser, currentChatUID = null;
+    let currentUser = null;
+    let selectedUser = null;
+    let chatId = null;
 
-    const chatList = document.getElementById('chatList');
-    const messagesDiv = document.getElementById('messages');
-    const messageForm = document.getElementById('messageForm');
-    const messageInput = document.getElementById('messageInput');
-    const chatHeader = document.getElementById('chatHeader');
+    const chatList = document.getElementById("chatList");
+    const chatBox = document.getElementById("chatBox");
+    const chatForm = document.getElementById("chatForm");
+    const chatHeader = document.getElementById("chatHeader");
+    const messageInput = document.getElementById("messageInput");
 
-    onAuthStateChanged(auth, async user => {
-      if (!user) return location.href = 'login.html';
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) return location.href = "login.html";
       currentUser = user;
-      loadChatList();
-    });
 
-    async function loadChatList() {
-      const snapshot = await getDocs(collection(db, 'profiles'));
-      snapshot.forEach(docSnap => {
-        const profile = docSnap.data();
-        if (profile.uid !== currentUser.uid) {
-          const li = document.createElement('li');
-          li.className = 'p-4 hover:bg-gray-100 cursor-pointer';
-          li.innerHTML = `<div class="font-medium">${profile.name}</div>
-                          <div class="text-sm text-gray-500">${profile.city}</div>`;
-          li.onclick = () => selectChat(profile.uid, profile.name);
+      const profilesSnapshot = await getDocs(collection(db, "profiles"));
+      profilesSnapshot.forEach(docSnap => {
+        const data = docSnap.data();
+        if (data.uid !== user.uid) {
+          const li = document.createElement("li");
+          li.className = "cursor-pointer hover:bg-gray-200 p-2 rounded";
+          li.textContent = data.name;
+          li.onclick = () => openChat(data);
           chatList.appendChild(li);
         }
       });
+    });
+
+    function generateChatId(uid1, uid2) {
+      return [uid1, uid2].sort().join("_");
     }
 
-    function selectChat(uid, name) {
-      currentChatUID = uid;
-      chatHeader.textContent = name;
-      messageForm.style.display = 'flex';
-      loadMessages(uid);
-    }
+    function openChat(userData) {
+      selectedUser = userData;
+      chatHeader.textContent = `Chat with ${userData.name}`;
+      chatForm.style.display = "flex";
+      chatBox.innerHTML = "";
 
-    function getChatId(uid1, uid2) {
-      return [uid1, uid2].sort().join('_');
-    }
+      chatId = generateChatId(currentUser.uid, userData.uid);
 
-    function loadMessages(otherUID) {
-      messagesDiv.innerHTML = '';
-      const chatId = getChatId(currentUser.uid, otherUID);
-      const messagesRef = collection(db, 'chats', chatId, 'messages');
-      const q = query(messagesRef, orderBy('timestamp'));
-      onSnapshot(q, snapshot => {
-        messagesDiv.innerHTML = '';
+      const messagesRef = collection(db, "chats", chatId, "messages");
+      const q = query(messagesRef, orderBy("timestamp"));
+
+      onSnapshot(q, (snapshot) => {
+        chatBox.innerHTML = "";
         snapshot.forEach(doc => {
           const msg = doc.data();
-          const div = document.createElement('div');
-          div.className = `p-2 max-w-xs rounded-lg ${msg.sender === currentUser.uid ? 'bg-blue-600 text-white self-end ml-auto' : 'bg-gray-200 text-black self-start mr-auto'}`;
-          div.textContent = msg.text;
-          messagesDiv.appendChild(div);
+          const bubble = document.createElement("div");
+          bubble.className = `max-w-xs px-4 py-2 rounded text-white ${
+            msg.sender === currentUser.uid ? "bg-blue-600 ml-auto" : "bg-gray-400"
+          }`;
+          bubble.textContent = msg.text;
+          chatBox.appendChild(bubble);
         });
-        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        chatBox.scrollTop = chatBox.scrollHeight;
       });
     }
 
-    messageForm.addEventListener('submit', async (e) => {
+    chatForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       const text = messageInput.value.trim();
-      if (!text || !currentChatUID) return;
+      if (!text) return;
 
-      const chatId = getChatId(currentUser.uid, currentChatUID);
-      const messagesRef = collection(db, 'chats', chatId, 'messages');
+      const messagesRef = collection(db, "chats", chatId, "messages");
       await addDoc(messagesRef, {
-        sender: currentUser.uid,
         text,
-        timestamp: Date.now()
+        sender: currentUser.uid,
+        timestamp: new Date()
       });
-      messageInput.value = '';
+
+      messageInput.value = "";
     });
   </script>
-
 </body>
 </html>
