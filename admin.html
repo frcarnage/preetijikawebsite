@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin Support Chat - BandhanByPreeti</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      display: flex;
+      height: 100vh;
+      background: #f4f6f8;
+    }
+    #usersPanel {
+      width: 280px;
+      background: white;
+      border-right: 1px solid #ddd;
+      display: flex;
+      flex-direction: column;
+    }
+    #usersPanel h2 {
+      margin: 0;
+      padding: 16px;
+      background: #007bff;
+      color: white;
+      font-size: 18px;
+      text-align: center;
+    }
+    #usersList {
+      flex-grow: 1;
+      overflow-y: auto;
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    #usersList li {
+      padding: 12px 16px;
+      border-bottom: 1px solid #eee;
+      cursor: pointer;
+    }
+    #usersList li:hover, #usersList li.selected {
+      background: #e0eaff;
+    }
+
+    #chatPanel {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    #chatHeader {
+      padding: 16px;
+      background: #007bff;
+      color: white;
+      font-size: 18px;
+      border-bottom: 1px solid #ddd;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    #messages {
+      flex-grow: 1;
+      overflow-y: auto;
+      padding: 16px;
+      background: white;
+      list-style: none;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    #messages li {
+      max-width: 70%;
+      padding: 10px 14px;
+      border-radius: 8px;
+      word-wrap: break-word;
+      line-height: 1.3;
+      font-size: 15px;
+    }
+    .admin-msg {
+      background: #f1dada;
+      align-self: flex-start;
+    }
+    .user-msg {
+      background: #daf1da;
+      align-self: flex-end;
+    }
+    #messageForm {
+      display: flex;
+      padding: 12px 16px;
+      border-top: 1px solid #ddd;
+      background: #fafafa;
+    }
+    #messageInput {
+      flex-grow: 1;
+      padding: 10px 14px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      outline-offset: 2px;
+    }
+    #sendBtn {
+      margin-left: 12px;
+      padding: 10px 20px;
+      background: #007bff;
+      border: none;
+      color: white;
+      font-weight: bold;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    #sendBtn:hover {
+      background: #0056b3;
+    }
+    #logoutBtn {
+      background: #dc3545;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      cursor: pointer;
+      border-radius: 4px;
+      font-weight: bold;
+      margin-left: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div id="usersPanel" role="navigation" aria-label="User list">
+    <h2>Users</h2>
+    <ul id="usersList" tabindex="0"></ul>
+  </div>
+
+  <div id="chatPanel" role="main" aria-label="Support chat panel">
+    <div id="chatHeader">
+      <div id="chatWith">Select a user to chat</div>
+      <button id="logoutBtn" aria-label="Logout">Logout</button>
+    </div>
+    <ul id="messages" aria-live="polite" aria-label="Messages"></ul>
+    <form id="messageForm" aria-label="Send message form" hidden>
+      <input type="text" id="messageInput" placeholder="Type your message..." aria-required="true" autocomplete="off" />
+      <button type="submit" id="sendBtn">Send</button>
+    </form>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-app.js";
+    import {
+      getAuth,
+      onAuthStateChanged,
+      signOut
+    } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
+    import {
+      getDatabase,
+      ref,
+      onValue,
+      push,
+      serverTimestamp,
+      off,
+      query,
+      orderByChild
+    } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyD2Dgr5K8IC3TzBP_x9Fsc3X0gMEd4xLww",
+      authDomain: "bandhanbypreeti.firebaseapp.com",
+      databaseURL: "https://bandhanbypreeti-default-rtdb.firebaseio.com/",
+      projectId: "bandhanbypreeti",
+      storageBucket: "bandhanbypreeti.firebasestorage.app",
+      messagingSenderId: "880058352718",
+      appId: "1:880058352718:web:3c5444ce629265467eef1f"
+    };
+
+    const ADMIN_UID = "aZpKX3OhBVg9mtC2Ybhed2UfLHq1";
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    const usersList = document.getElementById("usersList");
+    const messagesList = document.getElementById("messages");
+    const messageForm = document.getElementById("messageForm");
+    const messageInput = document.getElementById("messageInput");
+    const chatWith = document.getElementById("chatWith");
+    const logoutBtn = document.getElementById("logoutBtn");
+
+    let currentUser = null;
+    let selectedUserId = null;
+    let messagesRef = null;
+
+    // Only admin can access
+    onAuthStateChanged(auth, (user) => {
+      if (!user || user.uid !== ADMIN_UID) {
+        alert("Access denied. Admin only.");
+        signOut(auth).then(() => window.location.href = "login.html");
+        return;
+      }
+      currentUser = user;
+      loadUsers();
+    });
+
+    logoutBtn.addEventListener("click", () => {
+      signOut(auth).then(() => window.location.href = "login.html");
+    });
+
+    // Load all users who sent support messages
+    function loadUsers() {
+      const supportChatsRef = ref(db, "supportChats");
+      onValue(supportChatsRef, (snapshot) => {
+        usersList.innerHTML = "";
+        const usersData = snapshot.val();
+
+        if (!usersData) {
+          usersList.innerHTML = "<li>No users yet</li>";
+          clearChat();
+          return;
+        }
+
+        for (const userId in usersData) {
+          const li = document.createElement("li");
+          li.textContent = userId;
+          li.tabIndex = 0;
+          li.dataset.userid = userId;
+
+          if (userId === selectedUserId) li.classList.add("selected");
+
+          li.addEventListener("click", () => {
+            if (selectedUserId === userId) return;
+            selectUser(userId);
+          });
+          li.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              selectUser(userId);
+            }
+          });
+
+          usersList.appendChild(li);
+        }
+
+        // Auto-select first user if none selected
+        if (!selectedUserId && Object.keys(usersData).length > 0) {
+          selectUser(Object.keys(usersData)[0]);
+        }
+      });
+    }
+
+    // Select user and load messages
+    function selectUser(userId) {
+      if (messagesRef) {
+        off(messagesRef);
+      }
+      selectedUserId = userId;
+      chatWith.textContent = `Chat with User: ${userId}`;
+      messagesList.innerHTML = "";
+      messageForm.hidden = false;
+
+      messagesRef = query(ref(db, `supportChats/${userId}/messages`), orderByChild("timestamp"));
+
+      onValue(messagesRef, (snapshot) => {
+        messagesList.innerHTML = "";
+        const msgs = snapshot.val();
+
+        if (!msgs) {
+          messagesList.innerHTML = "<li>No messages yet</li>";
+          return;
+        }
+
+        for (const msgId in msgs) {
+          const msg = msgs[msgId];
+          const li = document.createElement("li");
+          li.textContent = (msg.sender === ADMIN_UID ? "Support: " : "User: ") + msg.text;
+          li.className = msg.sender === ADMIN_UID ? "admin-msg" : "user-msg";
+          messagesList.appendChild(li);
+        }
+        messagesList.scrollTop = messagesList.scrollHeight;
+      });
+    }
+
+    // Clear chat view when no users
+    function clearChat() {
+      selectedUserId = null;
+      messagesList.innerHTML = "";
+      chatWith.textContent = "Select a user to chat";
+      messageForm.hidden = true;
+    }
+
+    // Handle sending admin message
+    messageForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const text = messageInput.value.trim();
+      if (!text || !selectedUserId) return;
+
+      const msgRef = ref(db, `supportChats/${selectedUserId}/messages`);
+      push(msgRef, {
+        text: text,
+        sender: ADMIN_UID,
+        timestamp: serverTimestamp()
+      })
+      .then(() => {
+        messageInput.value = "";
+      })
+      .catch((error) => {
+        alert("Error sending message: " + error.message);
+      });
+    });
+  </script>
+</body>
+</html>
