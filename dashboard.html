@@ -2,38 +2,54 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Dashboard | BandhanByPreeti</title>
-  <meta name="description" content="Dashboard to browse all user profiles on BandhanByPreeti" />
-  <meta name="keywords" content="matrimony, matchmaking, dashboard, profiles" />
-  <meta name="author" content="BandhanByPreeti" />
-  <link rel="icon" href="favicon.ico" type="image/x-icon" />
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+  <link rel="icon" href="favicon.ico" />
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body class="bg-gray-100 text-gray-800">
+<body class="bg-gray-50 text-gray-800">
 
-  <!-- Navbar -->
+  <!-- Header -->
   <header class="bg-black text-white p-4 flex justify-between items-center">
     <h1 class="text-xl font-bold">BandhanByPreeti</h1>
     <nav class="space-x-4">
-      <a href="profile.html" class="hover:underline">Profile</a>
-      <a href="search.html" class="hover:underline">Search</a>
-      <a href="chat.html" class="hover:underline">Chat</a>
-      <a href="settings.html" class="hover:underline">Settings</a>
+      <button onclick="location.href='create-profile.html'" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded">Your Profile</button>
+      <button onclick="location.href='chat.html'" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded">Chats</button>
+      <button onclick="location.href='settings.html'" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded">Settings</button>
     </nav>
   </header>
 
-  <!-- Profiles Grid -->
-  <main class="p-6">
-    <h2 class="text-2xl font-bold mb-4">Explore Profiles</h2>
-    <div id="profilesContainer" class="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-      <!-- Profiles will be inserted here -->
-    </div>
-  </main>
+  <!-- Greeting -->
+  <section class="text-center py-6">
+    <h2 class="text-2xl font-semibold">Welcome, <span id="userEmail"></span> 👋</h2>
+    <p class="text-gray-500 mt-1">Browse through all profiles below</p>
+  </section>
 
-  <!-- Firebase Scripts -->
+  <!-- Search -->
+  <section class="max-w-4xl mx-auto px-4 mb-6">
+    <form id="searchForm" class="grid grid-cols-1 md:grid-cols-4 gap-3">
+      <input type="text" id="nameSearch" placeholder="Search by name" class="p-2 border rounded" />
+      <input type="text" id="citySearch" placeholder="Search by city" class="p-2 border rounded" />
+      <select id="religionSearch" class="p-2 border rounded">
+        <option value="">All Religions</option>
+        <option value="Hindu">Hindu</option>
+        <option value="Muslim">Muslim</option>
+        <option value="Christian">Christian</option>
+        <option value="Sikh">Sikh</option>
+      </select>
+      <button type="submit" class="bg-blue-600 text-white rounded px-4 py-2 hover:bg-blue-700">Search</button>
+    </form>
+  </section>
+
+  <!-- Profiles Section -->
+  <section class="max-w-6xl mx-auto px-4 pb-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3" id="profilesContainer">
+    <!-- Profiles will be injected here -->
+  </section>
+
+  <!-- Firebase & Profile Loader -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
     import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -47,33 +63,69 @@
     };
 
     const app = initializeApp(firebaseConfig);
+    const auth = getAuth();
     const db = getFirestore(app);
 
-    async function loadProfiles() {
-      const container = document.getElementById('profilesContainer');
-      container.innerHTML = '<p class="text-gray-500">Loading profiles...</p>';
+    const userEmailSpan = document.getElementById('userEmail');
+    const profilesContainer = document.getElementById('profilesContainer');
+    let allProfiles = [];
 
-      const querySnapshot = await getDocs(collection(db, "profiles"));
-      container.innerHTML = '';
+    // Load user & fetch profiles
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        userEmailSpan.textContent = user.email;
+        const snapshot = await getDocs(collection(db, "profiles"));
+        allProfiles = snapshot.docs.map(doc => doc.data());
+        renderProfiles(allProfiles);
+      } else {
+        window.location.href = "login.html";
+      }
+    });
 
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        const card = document.createElement('div');
-        card.className = "bg-white rounded-lg shadow p-4";
+    function renderProfiles(profiles) {
+      profilesContainer.innerHTML = '';
+      if (profiles.length === 0) {
+        profilesContainer.innerHTML = '<p class="col-span-full text-center text-gray-500">No profiles found.</p>';
+        return;
+      }
+
+      profiles.forEach(profile => {
+        const card = document.createElement("div");
+        card.className = "bg-white p-4 rounded shadow";
         card.innerHTML = `
-          <img src="${data.photoURL}" alt="Profile Photo" class="w-full h-48 object-cover rounded mb-3">
-          <h3 class="text-lg font-semibold">${data.name}</h3>
-          <p class="text-sm">Age: ${data.age}</p>
-          <p class="text-sm">City: ${data.city}</p>
-          <p class="text-sm">Religion: ${data.religion}</p>
-          <p class="text-sm">Hobby: ${data.hobby}</p>
-          <p class="text-sm">Country: ${data.country}</p>
+          <img src="${profile.photoURL || 'https://via.placeholder.com/150'}" alt="${profile.name}" class="w-full h-48 object-cover rounded mb-4">
+          <h3 class="text-lg font-semibold mb-1">${profile.name}</h3>
+          <p class="text-sm text-gray-600">Age: ${profile.age} | City: ${profile.city}</p>
+          <p class="text-sm text-gray-600">Religion: ${profile.religion} | Hobby: ${profile.hobby}</p>
+          <button onclick="viewProfile('${profile.uid}')" class="mt-2 text-blue-600 hover:underline text-sm">View More</button>
         `;
-        container.appendChild(card);
+        profilesContainer.appendChild(card);
       });
     }
 
-    loadProfiles();
+    // Search filter
+    const searchForm = document.getElementById('searchForm');
+    searchForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = document.getElementById('nameSearch').value.toLowerCase();
+      const city = document.getElementById('citySearch').value.toLowerCase();
+      const religion = document.getElementById('religionSearch').value;
+
+      const filtered = allProfiles.filter(p => {
+        return (
+          (name === "" || p.name.toLowerCase().includes(name)) &&
+          (city === "" || p.city.toLowerCase().includes(city)) &&
+          (religion === "" || p.religion === religion)
+        );
+      });
+      renderProfiles(filtered);
+    });
+
+    // View profile redirect
+    function viewProfile(uid) {
+      window.location.href = `profile.html?uid=${uid}`;
+    }
   </script>
+
 </body>
 </html>
