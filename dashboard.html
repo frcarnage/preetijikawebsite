@@ -50,7 +50,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
-    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyD2Dgr5K8IC3TzBP_x9Fsc3X0gMEd4xLww",
@@ -71,16 +71,25 @@
     let allProfiles = [];
 
     onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        // Show displayName if exists, else fallback to email
-        userNameSpan.textContent = user.displayName || user.email;
-
-        const snapshot = await getDocs(collection(db, "profiles"));
-        allProfiles = snapshot.docs.map(doc => doc.data());
-        renderProfiles(allProfiles);
-      } else {
+      if (!user) {
         window.location.href = "login.html";
+        return;
       }
+
+      // Greet user
+      userNameSpan.textContent = user.displayName || user.email;
+
+      // Check if user profile exists
+      const userDoc = await getDoc(doc(db, "profiles", user.uid));
+      if (!userDoc.exists()) {
+        window.location.href = "create-profile.html";
+        return;
+      }
+
+      // Load all profiles
+      const snapshot = await getDocs(collection(db, "profiles"));
+      allProfiles = snapshot.docs.map(doc => doc.data());
+      renderProfiles(allProfiles);
     });
 
     function renderProfiles(profiles) {
@@ -105,8 +114,7 @@
     }
 
     // Search filter
-    const searchForm = document.getElementById('searchForm');
-    searchForm.addEventListener('submit', (e) => {
+    document.getElementById('searchForm').addEventListener('submit', (e) => {
       e.preventDefault();
       const name = document.getElementById('nameSearch').value.toLowerCase();
       const city = document.getElementById('citySearch').value.toLowerCase();
@@ -122,11 +130,9 @@
       renderProfiles(filtered);
     });
 
-    // View profile redirect
     function viewProfile(uid) {
       window.location.href = `profile.html?uid=${uid}`;
     }
   </script>
-
 </body>
 </html>
