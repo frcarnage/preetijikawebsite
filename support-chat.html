@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Support Chat - BandhanByPreeti</title>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-app.js";
+    import {
+      getAuth,
+      onAuthStateChanged,
+      signOut
+    } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
+    import {
+      getDatabase,
+      ref,
+      push,
+      onChildAdded,
+      serverTimestamp,
+      query,
+      orderByChild
+    } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyD2Dgr5K8IC3TzBP_x9Fsc3X0gMEd4xLww",
+      authDomain: "bandhanbypreeti.firebaseapp.com",
+      databaseURL: "https://bandhanbypreeti-default-rtdb.firebaseio.com/",
+      projectId: "bandhanbypreeti",
+      storageBucket: "bandhanbypreeti.firebasestorage.app",
+      messagingSenderId: "880058352718",
+      appId: "1:880058352718:web:3c5444ce629265467eef1f"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    let currentUser = null;
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        currentUser = user;
+        loadMessages();
+      } else {
+        window.location.href = "login.html";
+      }
+    });
+
+    const messagesList = document.getElementById("messages");
+    const messageForm = document.getElementById("messageForm");
+    const messageInput = document.getElementById("messageInput");
+    const logoutBtn = document.getElementById("logoutBtn");
+
+    logoutBtn.addEventListener("click", () => {
+      signOut(auth).then(() => window.location.href = "login.html");
+    });
+
+    messageForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const text = messageInput.value.trim();
+      if (!text) return;
+
+      const messageRef = ref(db, `supportChats/${currentUser.uid}/messages`);
+      push(messageRef, {
+        sender: currentUser.uid,
+        text,
+        timestamp: serverTimestamp()
+      });
+      messageInput.value = "";
+    });
+
+    function loadMessages() {
+      const userMessagesRef = query(ref(db, `supportChats/${currentUser.uid}/messages`), orderByChild("timestamp"));
+      onChildAdded(userMessagesRef, (snapshot) => {
+        const msg = snapshot.val();
+        const isAdmin = msg.sender === "aZpKX3OhBVg9mtC2Ybhed2UfLHq1";
+        const messageItem = document.createElement("li");
+        messageItem.textContent = (isAdmin ? "Support: " : "You: ") + msg.text;
+        messageItem.className = isAdmin ? "admin-msg" : "user-msg";
+        messagesList.appendChild(messageItem);
+        messagesList.scrollTop = messagesList.scrollHeight;
+      });
+    }
+  </script>
+
+  <style>
+    body { font-family: Arial, sans-serif; background: #f0f0f0; padding: 20px; max-width: 600px; margin: auto;}
+    #messages { list-style: none; padding: 0; max-height: 400px; overflow-y: auto; background: white; border: 1px solid #ddd; margin-bottom: 10px; }
+    #messages li { padding: 8px 12px; margin-bottom: 5px; border-radius: 4px; }
+    .user-msg { background: #daf1da; text-align: right; }
+    .admin-msg { background: #f1dada; text-align: left; }
+    #messageForm { display: flex; }
+    #messageInput { flex-grow: 1; padding: 10px; border: 1px solid #ccc; border-radius: 4px 0 0 4px; }
+    button { padding: 10px 15px; border: none; background: #007bff; color: white; cursor: pointer; border-radius: 0 4px 4px 0; }
+    button:hover { background: #0056b3; }
+    #logoutBtn { margin-bottom: 20px; background: #dc3545; }
+  </style>
+</head>
+<body>
+
+  <button id="logoutBtn">Logout</button>
+
+  <ul id="messages" aria-live="polite" aria-label="Chat messages"></ul>
+
+  <form id="messageForm" aria-label="Send message form">
+    <input type="text" id="messageInput" placeholder="Type your message..." aria-required="true" autocomplete="off" />
+    <button type="submit">Send</button>
+  </form>
+
+</body>
+</html>
+
