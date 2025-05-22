@@ -92,8 +92,14 @@
       const snapshot = await getDocs(collection(db, "profiles"));
       allProfiles = snapshot.docs.map(doc => doc.data());
 
-      // Filter by opposite gender
-      const filteredProfiles = allProfiles.filter(p => p.uid !== user.uid && p.gender && currentUserGender && p.gender.toLowerCase() !== currentUserGender.toLowerCase());
+      // Gender-based filter
+      const filteredProfiles = allProfiles.filter(p => 
+        p.uid !== user.uid &&
+        p.gender &&
+        currentUserGender &&
+        p.gender.toLowerCase() !== currentUserGender.toLowerCase()
+      );
+
       renderProfiles(filteredProfiles);
     });
 
@@ -139,12 +145,15 @@
       const filtered = allProfiles.filter(p => {
         return (
           p.uid !== auth.currentUser.uid &&
-          p.gender && currentUserGender && p.gender.toLowerCase() !== currentUserGender.toLowerCase() &&
+          p.gender &&
+          currentUserGender &&
+          p.gender.toLowerCase() !== currentUserGender.toLowerCase() &&
           (city === "" || p.city.toLowerCase().includes(city)) &&
           (!p.age || (p.age >= minAge && p.age <= maxAge)) &&
           (religion === "" || p.religion === religion)
         );
       });
+
       renderProfiles(filtered);
     });
   </script>
