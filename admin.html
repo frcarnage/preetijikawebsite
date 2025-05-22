@@ -6,202 +6,153 @@
 <title>Admin Support Panel - BandhanByPreeti</title>
 <style>
   body, html {
-    margin: 0; padding: 0; height: 100%;
-    font-family: Arial, sans-serif;
-    display: flex; flex-direction: column;
-    background: #f4f4f4;
-  }
-  header {
-    background: #9c27b0;
-    color: white;
-    padding: 1rem;
-    text-align: center;
-    font-weight: bold;
-    font-size: 1.2rem;
-  }
-  #container {
+    margin: 0; padding: 0; height: 100%; font-family: Arial, sans-serif;
     display: flex;
-    flex-grow: 1;
-    height: calc(100vh - 60px);
+    background: #f9f9f9;
   }
   #sidebar {
     width: 280px;
-    background: white;
-    border-right: 1px solid #ccc;
-    display: flex;
-    flex-direction: column;
-  }
-  #tabs {
-    display: flex;
-  }
-  .tab {
-    flex-grow: 1;
-    padding: 1rem;
-    text-align: center;
-    cursor: pointer;
-    border-bottom: 2px solid transparent;
-    font-weight: bold;
-  }
-  .tab.active {
-    border-color: #9c27b0;
-    color: #9c27b0;
-  }
-  #case-list, #user-list {
-    overflow-y: auto;
-    flex-grow: 1;
-    padding: 0.5rem;
-  }
-  .list-item {
-    padding: 0.5rem;
-    border-bottom: 1px solid #eee;
-    cursor: pointer;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .list-item:hover {
-    background: #f0e6f9;
-  }
-  .list-item.selected {
-    background: #d9c7f7;
-  }
-  .badge {
-    background: red;
+    background: #d35400;
     color: white;
-    border-radius: 50%;
-    min-width: 20px;
-    height: 20px;
-    font-size: 0.8rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0 6px;
-  }
-  #chat-panel {
-    flex-grow: 1;
-    background: white;
     display: flex;
     flex-direction: column;
+    padding-top: 20px;
+    overflow-y: auto;
   }
-  #chat-header {
-    padding: 1rem;
-    border-bottom: 1px solid #ccc;
+  #sidebar h2 {
+    text-align: center;
+    margin-bottom: 15px;
+  }
+  #chat-list {
+    flex-grow: 1;
+    overflow-y: auto;
+  }
+  .chat-item {
+    padding: 12px 15px;
+    border-bottom: 1px solid rgba(255,255,255,0.2);
+    cursor: pointer;
+  }
+  .chat-item:hover,
+  .chat-item.active {
+    background: #e67e22;
+  }
+  .chat-item .user-name {
     font-weight: bold;
-    font-size: 1.1rem;
+  }
+  .chat-item .case-number {
+    font-size: 12px;
+    opacity: 0.8;
+  }
+  #main {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    background: white;
+    box-shadow: 0 0 8px rgba(0,0,0,0.1);
+  }
+  #main-header {
+    padding: 15px;
+    background: #d35400;
+    color: white;
+    font-weight: bold;
+    font-size: 20px;
   }
   #chat-messages {
     flex-grow: 1;
+    padding: 15px;
     overflow-y: auto;
-    padding: 1rem;
+    background: #f5f5f5;
   }
-  #chat-messages .msg {
-    max-width: 70%;
-    margin-bottom: 1rem;
-    padding: 0.5rem 1rem;
-    border-radius: 15px;
-    word-wrap: break-word;
+  .message {
+    margin-bottom: 15px;
+    max-width: 80%;
+    padding: 10px 15px;
+    border-radius: 18px;
+    font-size: 14px;
+    line-height: 1.3;
     position: relative;
   }
-  .msg.admin {
-    background-color: #e1ffc7;
-    margin-left: auto;
-    text-align: right;
+  .message.user {
+    background: #eee;
+    color: #333;
+    border-bottom-left-radius: 2px;
+    align-self: flex-start;
   }
-  .msg.user {
-    background-color: #eee;
-    margin-right: auto;
-  }
-  .msg .sender-label {
-    font-weight: bold;
-    margin-bottom: 0.2rem;
+  .message.admin {
+    background: #3498db;
+    color: white;
+    border-bottom-right-radius: 2px;
+    align-self: flex-end;
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 6px;
   }
   .verified-tick {
-    width: 16px;
-    height: 16px;
-    fill: #2196f3;
+    width: 16px; height: 16px;
+    background: #2980b9;
+    mask: url('data:image/svg+xml;utf8,<svg fill="white" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9 16.172l-3.95-3.95-1.414 1.414L9 19 21 7l-1.414-1.414z"/></svg>') no-repeat center;
+    -webkit-mask: url('data:image/svg+xml;utf8,<svg fill="white" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9 16.172l-3.95-3.95-1.414 1.414L9 19 21 7l-1.414-1.414z"/></svg>') no-repeat center;
   }
-  .msg .timestamp {
-    font-size: 0.7rem;
-    color: #666;
-    margin-top: 0.3rem;
-  }
-  #chat-form {
-    border-top: 1px solid #ccc;
-    padding: 0.5rem;
+  #input-area {
     display: flex;
-    background: #fafafa;
+    padding: 10px;
+    border-top: 1px solid #ccc;
+    background: #fff;
   }
-  #chat-input {
+  #message-input {
     flex-grow: 1;
-    padding: 0.5rem 1rem;
-    font-size: 1rem;
-    border-radius: 25px;
+    font-size: 16px;
+    padding: 10px;
+    border-radius: 18px;
     border: 1px solid #ccc;
     outline: none;
   }
   #send-btn {
-    margin-left: 0.5rem;
-    background: #9c27b0;
-    color: white;
+    background: #d35400;
     border: none;
-    padding: 0 1.5rem;
-    border-radius: 25px;
+    color: white;
+    padding: 0 20px;
+    margin-left: 10px;
+    border-radius: 18px;
     cursor: pointer;
     font-weight: bold;
+    font-size: 16px;
+    transition: background 0.3s;
   }
-  #send-btn:disabled {
-    background: #ccc;
-    cursor: default;
+  #send-btn:hover {
+    background: #e67e22;
   }
-  .no-selection {
-    flex-grow: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #888;
-    font-size: 1.2rem;
+  #no-chat {
+    color: #666;
+    font-style: italic;
+    margin: 30px auto;
   }
 </style>
 </head>
 <body>
-<header>BandhanByPreeti Admin Support Panel</header>
-<div id="container">
-  <div id="sidebar">
-    <div id="tabs" role="tablist">
-      <div id="tab-cases" class="tab active" role="tab" aria-selected="true" tabindex="0">Support Cases</div>
-      <div id="tab-users" class="tab" role="tab" aria-selected="false" tabindex="0">All Users</div>
-    </div>
-    <div id="case-list" role="list" aria-label="Support Cases"></div>
-    <div id="user-list" role="list" aria-label="All Users" style="display:none;"></div>
-  </div>
-  <div id="chat-panel" aria-live="polite" aria-atomic="false">
-    <div id="chat-header">Select a user to chat</div>
-    <div id="chat-messages" role="log" aria-live="polite" aria-relevant="additions"></div>
-    <form id="chat-form" aria-label="Send message to user" style="display:none;">
-      <input type="text" id="chat-input" placeholder="Type your message..." aria-required="true" autocomplete="off" />
-      <button type="submit" id="send-btn" disabled>Send</button>
-    </form>
+
+<div id="sidebar">
+  <h2>Support Chats</h2>
+  <div id="chat-list">
+    <!-- List of user chats here -->
   </div>
 </div>
 
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.0/firebase-app.js";
-  import {
-    getAuth,
-    onAuthStateChanged,
-  } from "https://www.gstatic.com/firebasejs/11.7.0/firebase-auth.js";
-  import {
-    getDatabase,
-    ref,
-    get,
-    onValue,
-    push,
-    update,
-  } from "https://www.gstatic.com/firebasejs/11.7.0/firebase-database.js";
+<div id="main">
+  <div id="main-header">Select a chat to view messages</div>
+  <div id="chat-messages"></div>
+  <div id="input-area" style="display:none;">
+    <input type="text" id="message-input" placeholder="Type your reply..." autocomplete="off" />
+    <button id="send-btn">Send</button>
+  </div>
+</div>
 
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/11.7.3/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.7.3/firebase-database.js"></script>
+
+<script>
   const firebaseConfig = {
     apiKey: "AIzaSyD2Dgr5K8IC3TzBP_x9Fsc3X0gMEd4xLww",
     authDomain: "bandhanbypreeti.firebaseapp.com",
@@ -212,344 +163,133 @@
     appId: "1:880058352718:web:3c5444ce629265467eef1f",
   };
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getDatabase(app);
+  const app = firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.database();
 
-  // Admin UID (replace with your actual admin UID)
-  const adminUid = "aZpKX3OhBVg9mtC2Ybhed2UfLHq1";
+  const adminUid = 'aZpKX3OhBVg9mtC2Ybhed2UfLHq1';
 
-  // UI Elements
-  const tabCases = document.getElementById("tab-cases");
-  const tabUsers = document.getElementById("tab-users");
-  const caseList = document.getElementById("case-list");
-  const userList = document.getElementById("user-list");
-  const chatHeader = document.getElementById("chat-header");
-  const chatMessages = document.getElementById("chat-messages");
-  const chatForm = document.getElementById("chat-form");
-  const chatInput = document.getElementById("chat-input");
-  const sendBtn = document.getElementById("send-btn");
+  const chatListEl = document.getElementById('chat-list');
+  const chatMessagesEl = document.getElementById('chat-messages');
+  const mainHeader = document.getElementById('main-header');
+  const inputArea = document.getElementById('input-area');
+  const messageInput = document.getElementById('message-input');
+  const sendBtn = document.getElementById('send-btn');
 
-  let currentTab = "cases";
-  let selectedUser = null;
-  let messagesListener = null;
+  let currentUser = null;
+  let selectedChatUid = null;
+  let messagesRef = null;
 
-  // Escape HTML utility for safe display
-  function escapeHTML(text) {
-    const div = document.createElement("div");
-    div.textContent = text;
-    return div.innerHTML;
+  // Append message to chat messages box
+  function appendMessage(text, sender) {
+    const div = document.createElement('div');
+    div.classList.add('message');
+    if(sender === 'user') {
+      div.classList.add('user');
+      div.textContent = text;
+    } else if(sender === 'admin') {
+      div.classList.add('admin');
+      div.innerHTML = `
+        <span>${text}</span>
+        <span class="verified-tick" title="Verified Support"></span>
+      `;
+    }
+    chatMessagesEl.appendChild(div);
+    chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
   }
 
-  // Format timestamp to human-readable
-  function formatTimestamp(ts) {
-    const d = new Date(ts);
-    return d.toLocaleString();
+  // Load chat list
+  function loadChatList() {
+    db.ref('supportChats').on('value', snapshot => {
+      chatListEl.innerHTML = '';
+      const chats = snapshot.val();
+      if(!chats) {
+        chatListEl.innerHTML = '<p style="padding:15px;">No support chats yet.</p>';
+        return;
+      }
+      Object.entries(chats).forEach(([uid, chat]) => {
+        const div = document.createElement('div');
+        div.classList.add('chat-item');
+        div.dataset.uid = uid;
+        div.innerHTML = `
+          <div class="user-name">${chat.userName || 'User'}</div>
+          <div class="case-number">Case #${chat.caseNumber}</div>
+        `;
+        div.addEventListener('click', () => selectChat(uid, chat.userName));
+        chatListEl.appendChild(div);
+      });
+    });
   }
 
-  // Check admin auth
-  onAuthStateChanged(auth, (user) => {
-    if (!user || user.uid !== adminUid) {
-      alert("Unauthorized! Please login as admin.");
-      window.location.href = "/login.html";
+  // Select a chat and show messages
+  function selectChat(uid, userName) {
+    if(selectedChatUid === uid) return;
+    selectedChatUid = uid;
+
+    // Highlight selected in list
+    Array.from(chatListEl.children).forEach(child => {
+      child.classList.toggle('active', child.dataset.uid === uid);
+    });
+
+    mainHeader.textContent = `Chat with ${userName}`;
+    chatMessagesEl.innerHTML = '';
+    inputArea.style.display = 'flex';
+
+    if(messagesRef) {
+      messagesRef.off();
+    }
+    messagesRef = db.ref(`supportChats/${uid}/messages`);
+
+    // Reset adminReplied flag (user has now seen the reply)
+    db.ref(`supportChats/${uid}`).update({ adminReplied: false });
+
+    messagesRef.on('child_added', snapshot => {
+      const msg = snapshot.val();
+      appendMessage(msg.text, msg.sender);
+    });
+  }
+
+  // Send admin reply
+  async function sendAdminMessage() {
+    if(!selectedChatUid) return;
+    const text = messageInput.value.trim();
+    if(!text) return;
+
+    await db.ref(`supportChats/${selectedChatUid}/messages`).push({
+      text,
+      sender: 'admin',
+      timestamp: Date.now()
+    });
+
+    // Set adminReplied flag so user UI can show badge
+    db.ref(`supportChats/${selectedChatUid}`).update({ adminReplied: true });
+
+    messageInput.value = '';
+  }
+
+  // Auth check for admin
+  auth.onAuthStateChanged(user => {
+    if(!user) {
+      window.location.href = 'login.html';
       return;
     }
-    // Load data on startup
-    loadSupportCases();
-    loadAllUsers();
+    if(user.uid !== adminUid) {
+      alert('Access denied: You are not an admin.');
+      auth.signOut();
+      return;
+    }
+    currentUser = user;
+    loadChatList();
   });
 
-  // Tab switching
-  tabCases.addEventListener("click", () => switchTab("cases"));
-  tabUsers.addEventListener("click", () => switchTab("users"));
-
-  tabCases.addEventListener("keydown", e => {
-    if(e.key === "Enter" || e.key === " ") {
+  sendBtn.addEventListener('click', sendAdminMessage);
+  messageInput.addEventListener('keydown', e => {
+    if(e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      switchTab("cases");
+      sendAdminMessage();
     }
-  });
-  tabUsers.addEventListener("keydown", e => {
-    if(e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      switchTab("users");
-    }
-  });
-
-  function switchTab(tab) {
-    if (currentTab === tab) return;
-    currentTab = tab;
-
-    if (tab === "cases") {
-      tabCases.classList.add("active");
-      tabCases.setAttribute("aria-selected", "true");
-      tabCases.tabIndex = 0;
-      tabUsers.classList.remove("active");
-      tabUsers.setAttribute("aria-selected", "false");
-      tabUsers.tabIndex = -1;
-      caseList.style.display = "block";
-      userList.style.display = "none";
-      clearSelection();
-      chatHeader.textContent = "Select a support case";
-      chatMessages.innerHTML = "";
-      chatForm.style.display = "none";
-      selectedUser = null;
-    } else {
-      tabUsers.classList.add("active");
-      tabUsers.setAttribute("aria-selected", "true");
-      tabUsers.tabIndex = 0;
-      tabCases.classList.remove("active");
-      tabCases.setAttribute("aria-selected", "false");
-      tabCases.tabIndex = -1;
-      userList.style.display = "block";
-      caseList.style.display = "none";
-      clearSelection();
-      chatHeader.textContent = "Select a user to chat";
-      chatMessages.innerHTML = "";
-      chatForm.style.display = "none";
-      selectedUser = null;
-    }
-  }
-
-  // Load all support cases with unread badge count
-  function loadSupportCases() {
-    // support cases are stored under 'supportChats/{userUid}'
-    const supportChatsRef = ref(db, "supportChats");
-    onValue(supportChatsRef, (snapshot) => {
-      const cases = snapshot.val() || {};
-      caseList.innerHTML = "";
-      for (const uid in cases) {
-        const userCases = cases[uid];
-        // Count unread messages from user (adminUnread: true)
-        const messages = Object.values(userCases.messages || {});
-        const unreadCount = messages.filter(m => m.sender === "user" && !m.readByAdmin).length;
-
-        // We'll show user's name stored in user profile at 'profiles/{uid}'
-        get(ref(db, `profiles/${uid}`)).then((userSnap) => {
-          let name = "Unknown User";
-          if (userSnap.exists()) {
-            name = userSnap.val().name || name;
-          }
-          const item = document.createElement("div");
-          item.className = "list-item";
-          item.tabIndex = 0;
-          item.setAttribute("role", "listitem");
-          item.dataset.uid = uid;
-          item.textContent = name;
-          if (unreadCount > 0) {
-            const badge = document.createElement("span");
-            badge.className = "badge";
-            badge.textContent = unreadCount;
-            item.appendChild(badge);
-          }
-          item.onclick = () => selectSupportCase(uid, name);
-          item.onkeydown = (e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              e.preventDefault();
-              selectSupportCase(uid, name);
-            }
-          };
-          caseList.appendChild(item);
-        });
-      }
-      // Clear chat panel if no selection
-      if (!selectedUser || currentTab !== "cases") {
-        chatHeader.textContent = "Select a support case";
-        chatMessages.innerHTML = "";
-        chatForm.style.display = "none";
-      }
-    });
-  }
-
-  // Load all users for manual chats
-  function loadAllUsers() {
-    const profilesRef = ref(db, "profiles");
-    get(profilesRef).then(snapshot => {
-      const users = snapshot.val() || {};
-      userList.innerHTML = "";
-      for (const uid in users) {
-        if (uid === adminUid) continue; // skip admin self
-        const u = users[uid];
-        const item = document.createElement("div");
-        item.className = "list-item";
-        item.tabIndex = 0;
-        item.setAttribute("role", "listitem");
-        item.dataset.uid = uid;
-        item.textContent = u.name || "Unnamed User";
-        item.onclick = () => selectUserChat(uid, u.name);
-        item.onkeydown = (e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            selectUserChat(uid, u.name);
-          }
-        };
-        userList.appendChild(item);
-      }
-    });
-  }
-
-  function clearSelection() {
-    const lists = [caseList, userList];
-    lists.forEach(list => {
-      Array.from(list.children).forEach(item => item.classList.remove("selected"));
-    });
-    if (messagesListener) {
-      messagesListener();
-      messagesListener = null;
-    }
-  }
-
-  // Select support case chat
-  function selectSupportCase(uid, name) {
-    clearSelection();
-    // highlight
-    [...caseList.children].find(i => i.dataset.uid === uid)?.classList.add("selected");
-
-    selectedUser = { uid, name, type: "support" };
-    chatHeader.innerHTML = `${escapeHTML(name)} <span style="color:#2196f3;">(User Support Chat)</span>`;
-    chatForm.style.display = "flex";
-    chatInput.value = "";
-    sendBtn.disabled = true;
-    loadMessages(uid, "support");
-  }
-
-  // Select manual user chat
-  function selectUserChat(uid, name) {
-    clearSelection();
-    // highlight
-    [...userList.children].find(i => i.dataset.uid === uid)?.classList.add("selected");
-
-    selectedUser = { uid, name, type: "manual" };
-    chatHeader.innerHTML = `${escapeHTML(name)} <span style="color:#9c27b0;">(Manual Chat)</span>`;
-    chatForm.style.display = "flex";
-    chatInput.value = "";
-    sendBtn.disabled = true;
-    loadMessages(uid, "manual");
-  }
-
-  // Load chat messages from Firebase Realtime DB
-  function loadMessages(uid, chatType) {
-    if (messagesListener) {
-      messagesListener();
-      messagesListener = null;
-    }
-    chatMessages.innerHTML = "Loading messages...";
-
-    // Path depends on chatType:
-    // support chat: supportChats/{uid}/messages
-    // manual chat: manualChats/{uid}/messages
-    const path =
-      chatType === "support"
-        ? `supportChats/${uid}/messages`
-        : `manualChats/${uid}/messages`;
-    const messagesRef = ref(db, path);
-
-    messagesListener = onValue(messagesRef, (snapshot) => {
-      const msgs = snapshot.val() || {};
-      chatMessages.innerHTML = "";
-      const sortedMsgs = Object.entries(msgs).sort(
-        (a, b) => a[1].timestamp - b[1].timestamp
-      );
-      sortedMsgs.forEach(([msgId, msg]) => {
-        const div = document.createElement("div");
-        div.classList.add("msg");
-        const isAdmin = msg.sender === "admin";
-        div.classList.add(isAdmin ? "admin" : "user");
-
-        // Sender label with verified tick for admin in support chat
-        const senderLabel = document.createElement("div");
-        senderLabel.className = "sender-label";
-        senderLabel.textContent = isAdmin
-          ? "BandhanByPreeti Support"
-          : selectedUser.name;
-        if (isAdmin && chatType === "support") {
-          const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-          svg.setAttribute("viewBox", "0 0 24 24");
-          svg.classList.add("verified-tick");
-          svg.innerHTML =
-            '<path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>';
-          senderLabel.appendChild(svg);
-        }
-        div.appendChild(senderLabel);
-
-        // Message text
-        const textDiv = document.createElement("div");
-        textDiv.innerHTML = escapeHTML(msg.text).replace(/\n/g, "<br>");
-        div.appendChild(textDiv);
-
-        // Timestamp
-        const tsDiv = document.createElement("div");
-        tsDiv.className = "timestamp";
-        tsDiv.textContent = formatTimestamp(msg.timestamp);
-        div.appendChild(tsDiv);
-
-        chatMessages.appendChild(div);
-      });
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-
-      // Mark unread messages as read
-      markMessagesRead(uid, chatType);
-    });
-  }
-
-  // Mark unread messages as read by admin (only for support chats)
-  function markMessagesRead(uid, chatType) {
-    if (chatType !== "support") return;
-    const messagesRef = ref(db, `supportChats/${uid}/messages`);
-    get(messagesRef).then(snapshot => {
-      const msgs = snapshot.val() || {};
-      const updates = {};
-      let updated = false;
-      for (const msgId in msgs) {
-        const msg = msgs[msgId];
-        if (msg.sender === "user" && !msg.readByAdmin) {
-          updates[`messages/${msgId}/readByAdmin`] = true;
-          updated = true;
-        }
-      }
-      if (updated) {
-        update(ref(db, `supportChats/${uid}`), updates);
-      }
-    });
-  }
-
-  // Enable/disable send button on input
-  chatInput.addEventListener("input", () => {
-    sendBtn.disabled = chatInput.value.trim().length === 0;
-  });
-
-  // Send message handler
-  chatForm.addEventListener("submit", (e) => {
-    e.preventDefault();
-    if (!selectedUser) return;
-    const text = chatInput.value.trim();
-    if (!text) return;
-    sendBtn.disabled = true;
-
-    // Push message under supportChats/{uid}/messages for support chats
-    // or manualChats/{uid}/messages for manual chats
-    const path =
-      selectedUser.type === "support"
-        ? `supportChats/${selectedUser.uid}/messages`
-        : `manualChats/${selectedUser.uid}/messages`;
-
-    const messagesRef = ref(db, path);
-    const newMsgRef = push(messagesRef);
-    newMsgRef
-      .set({
-        sender: "admin",
-        text,
-        timestamp: Date.now(),
-      })
-      .then(() => {
-        chatInput.value = "";
-        sendBtn.disabled = true;
-      })
-      .catch((err) => {
-        alert("Error sending message: " + err.message);
-        sendBtn.disabled = false;
-      });
   });
 </script>
+
 </body>
 </html>
