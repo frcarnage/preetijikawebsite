@@ -1,383 +1,164 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Your Profile - BandhanByPreeti</title>
-<style>
-  body {
-    font-family: Arial, sans-serif;
-    margin: 0; padding: 20px; background: #f9f9f9;
-  }
-  .profile-container {
-    max-width: 450px;
-    margin: auto;
-    background: white;
-    border-radius: 8px;
-    padding: 20px;
-    box-shadow: 0 0 8px rgba(0,0,0,0.1);
-  }
-  h2 {
-    text-align: center;
-  }
-  .profile-photo {
-    width: 150px; height: 150px;
-    border-radius: 50%;
-    object-fit: cover;
-    display: block;
-    margin: 15px auto;
-    border: 3px solid #d35400;
-    cursor: pointer;
-  }
-  #drop-area {
-    border: 2px dashed #ccc;
-    border-radius: 8px;
-    padding: 15px;
-    text-align: center;
-    color: #888;
-    margin-bottom: 15px;
-    cursor: pointer;
-  }
-  #drop-area.dragover {
-    border-color: #d35400;
-    background: #fff0e6;
-    color: #d35400;
-  }
-  label {
-    display: block;
-    margin-top: 10px;
-    font-weight: bold;
-    color: #333;
-  }
-  input[type="text"], input[type="date"], select {
-    width: 100%;
-    padding: 8px 10px;
-    margin-top: 5px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 14px;
-  }
-  input[disabled] {
-    background: #eee;
-  }
-  .buttons {
-    margin-top: 20px;
-    text-align: center;
-  }
-  button {
-    background: #d35400;
-    border: none;
-    color: white;
-    padding: 10px 18px;
-    font-size: 16px;
-    border-radius: 5px;
-    cursor: pointer;
-    margin: 0 8px;
-    transition: background 0.3s;
-  }
-  button:hover {
-    background: #e67e22;
-  }
-  .message {
-    text-align: center;
-    margin-top: 40px;
-    font-size: 18px;
-    color: #888;
-  }
-</style>
+  <meta charset="UTF-8">
+  <title>Your Profile | BandhanByPreeti</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body>
+<body class="bg-gray-100 text-gray-800">
 
-<div class="profile-container" id="profileContainer">
-  <h2>Your Profile</h2>
+  <div class="max-w-3xl mx-auto mt-10 p-6 bg-white shadow-md rounded-lg">
+    <h1 class="text-2xl font-bold mb-4 text-center">Your Profile</h1>
 
-  <!-- Drag & Drop photo upload area -->
-  <div id="drop-area">
-    <p>Drag & Drop a photo here or click to select</p>
-    <input type="file" id="fileElem" accept="image/*" style="display:none" />
-    <img id="profilePhoto" class="profile-photo" src="" alt="Profile Photo" />
+    <div id="noProfile" class="text-center hidden">
+      <p class="mb-4">You don't have a profile yet. Profile can be created only once.</p>
+      <a href="create-profile.html" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Create Profile</a>
+    </div>
+
+    <div id="profileBox" class="space-y-4 hidden">
+      <div class="flex flex-col items-center">
+        <div id="dropArea" class="w-32 h-32 rounded-full overflow-hidden border-4 border-dashed border-gray-300 cursor-pointer mb-2 bg-gray-50 flex items-center justify-center">
+          <img id="profileImage" src="https://via.placeholder.com/150" class="w-full h-full object-cover" />
+        </div>
+        <input type="file" id="imageInput" accept="image/*" class="hidden">
+        <p class="text-sm text-gray-500">Click or drag image to update</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <input type="text" id="name" class="p-2 border rounded" disabled>
+        <input type="date" id="dob" class="p-2 border rounded" disabled>
+        <input type="text" id="city" class="p-2 border rounded" disabled>
+        <input type="text" id="religion" class="p-2 border rounded" disabled>
+        <input type="text" id="hobby" class="p-2 border rounded" disabled>
+        <input type="text" id="country" class="p-2 border rounded" disabled>
+        <input type="text" id="gender" class="p-2 border rounded" disabled>
+      </div>
+
+      <p class="text-gray-600 text-sm mt-2">Age: <span id="ageDisplay"></span></p>
+
+      <div class="flex justify-end gap-3">
+        <button id="editBtn" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">Edit</button>
+        <button id="saveBtn" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 hidden">Confirm</button>
+      </div>
+    </div>
   </div>
 
-  <label for="fullName">Full Name</label>
-  <input type="text" id="fullName" disabled />
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
+    import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-database.js";
+    import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-storage.js";
 
-  <label for="dob">Date of Birth</label>
-  <input type="date" id="dob" disabled />
-
-  <label for="age">Age</label>
-  <input type="text" id="age" disabled />
-
-  <label for="city">City</label>
-  <input type="text" id="city" disabled />
-
-  <label for="religion">Religion</label>
-  <input type="text" id="religion" disabled />
-
-  <label for="hobby">Hobby</label>
-  <input type="text" id="hobby" disabled />
-
-  <label for="country">Country</label>
-  <input type="text" id="country" disabled />
-
-  <div class="buttons">
-    <button id="editBtn">Edit</button>
-    <button id="confirmBtn" style="display:none;">Confirm</button>
-  </div>
-</div>
-
-<div class="message" id="noProfileMsg" style="display:none;">
-  <p>You don't have a profile yet.<br />
-  Profile creation is allowed only once.<br />
-  Please <a href="create-profile.html">create your profile here</a>.</p>
-</div>
-
-<!-- Firebase SDKs -->
-<script src="https://www.gstatic.com/firebasejs/11.7.3/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/11.7.3/firebase-database.js"></script>
-<script src="https://www.gstatic.com/firebasejs/11.7.3/firebase-storage.js"></script>
-
-<script>
-  // Your Firebase config - update with your project's details
-  const firebaseConfig = {
-    apiKey: "AIzaSyD2Dgr5K8IC3TzBP_x9Fsc3X0gMEd4xLww",
-    authDomain: "bandhanbypreeti.firebaseapp.com",
-    databaseURL: "https://bandhanbypreeti-default-rtdb.firebaseio.com",
-    projectId: "bandhanbypreeti",
-    storageBucket: "bandhanbypreeti.appspot.com",
-    messagingSenderId: "880058352718",
-    appId: "1:880058352718:web:3c5444ce629265467eef1f",
-  };
-
-  // Initialize Firebase
-  const app = firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const db = firebase.database();
-  const storage = firebase.storage();
-
-  // Elements references
-  const profileContainer = document.getElementById('profileContainer');
-  const noProfileMsg = document.getElementById('noProfileMsg');
-  const profilePhoto = document.getElementById('profilePhoto');
-  const dropArea = document.getElementById('drop-area');
-  const fileElem = document.getElementById('fileElem');
-
-  const fullNameInput = document.getElementById('fullName');
-  const dobInput = document.getElementById('dob');
-  const ageInput = document.getElementById('age');
-  const cityInput = document.getElementById('city');
-  const religionInput = document.getElementById('religion');
-  const hobbyInput = document.getElementById('hobby');
-  const countryInput = document.getElementById('country');
-
-  const editBtn = document.getElementById('editBtn');
-  const confirmBtn = document.getElementById('confirmBtn');
-
-  let currentUser = null;
-  let profileData = null;
-  let photoFile = null;
-  let photoChanged = false;
-
-  // Calculate age from DOB string yyyy-mm-dd
-  function calculateAge(dobStr) {
-    if (!dobStr) return '';
-    const dob = new Date(dobStr);
-    const diff = Date.now() - dob.getTime();
-    const ageDt = new Date(diff);
-    return Math.abs(ageDt.getUTCFullYear() - 1970);
-  }
-
-  // Toggle editable fields
-  function setEditable(editable) {
-    [fullNameInput, dobInput, cityInput, religionInput, hobbyInput, countryInput].forEach(input => {
-      input.disabled = !editable;
-    });
-    // Age is always disabled (calculated)
-    ageInput.disabled = true;
-
-    if(editable) {
-      dropArea.style.cursor = 'pointer';
-      dropArea.classList.add('editable');
-    } else {
-      dropArea.style.cursor = 'default';
-      dropArea.classList.remove('editable');
-      photoChanged = false; // reset on cancel
-      photoFile = null;
-    }
-  }
-
-  // Load profile data into form
-  function loadProfile(data) {
-    profileData = data || {};
-    fullNameInput.value = profileData.fullName || '';
-    dobInput.value = profileData.dob || '';
-    ageInput.value = calculateAge(profileData.dob);
-    cityInput.value = profileData.city || '';
-    religionInput.value = profileData.religion || '';
-    hobbyInput.value = profileData.hobby || '';
-    countryInput.value = profileData.country || '';
-    profilePhoto.src = profileData.photoURL || 'https://via.placeholder.com/150?text=No+Photo';
-  }
-
-  // Fetch profile data from Realtime DB
-  function fetchProfile(uid) {
-    db.ref('profiles/' + uid).once('value')
-    .then(snapshot => {
-      if(snapshot.exists()) {
-        loadProfile(snapshot.val());
-        profileContainer.style.display = 'block';
-        noProfileMsg.style.display = 'none';
-      } else {
-        // No profile exists yet
-        profileContainer.style.display = 'none';
-        noProfileMsg.style.display = 'block';
-      }
-    })
-    .catch(err => {
-      alert('Error loading profile: ' + err.message);
-    });
-  }
-
-  // Upload photo to Firebase Storage and get URL
-  async function uploadPhoto(uid, file) {
-    if (!file) return null;
-    const storageRef = storage.ref();
-    const photoRef = storageRef.child('profilePhotos/' + uid + '/' + file.name);
-    await photoRef.put(file);
-    return await photoRef.getDownloadURL();
-  }
-
-  // Handle drag & drop and file select
-  function setupDragAndDrop() {
-    dropArea.addEventListener('click', () => {
-      if(editBtn.style.display === 'none') { // only clickable in edit mode
-        fileElem.click();
-      }
-    });
-
-    fileElem.addEventListener('change', e => {
-      if(e.target.files.length > 0) {
-        const file = e.target.files[0];
-        previewPhoto(file);
-      }
-    });
-
-    dropArea.addEventListener('dragover', e => {
-      e.preventDefault();
-      if(editBtn.style.display === 'none') dropArea.classList.add('dragover');
-    });
-    dropArea.addEventListener('dragleave', e => {
-      e.preventDefault();
-      dropArea.classList.remove('dragover');
-    });
-    dropArea.addEventListener('drop', e => {
-      e.preventDefault();
-      dropArea.classList.remove('dragover');
-      if(editBtn.style.display === 'none') {
-        if(e.dataTransfer.files.length > 0) {
-          const file = e.dataTransfer.files[0];
-          previewPhoto(file);
-        }
-      }
-    });
-  }
-
-  // Preview photo in img element
-  function previewPhoto(file) {
-    if(!file.type.startsWith('image/')) {
-      alert('Only image files are allowed!');
-      return;
-    }
-    photoFile = file;
-    photoChanged = true;
-    const reader = new FileReader();
-    reader.onload = e => {
-      profilePhoto.src = e.target.result;
+    const firebaseConfig = {
+      apiKey: "AIzaSyD2Dgr5K8IC3TzBP_x9Fsc3X0gMEd4xLww",
+      authDomain: "bandhanbypreeti.firebaseapp.com",
+      databaseURL: "https://bandhanbypreeti-default-rtdb.firebaseio.com",
+      projectId: "bandhanbypreeti",
+      storageBucket: "bandhanbypreeti.appspot.com",
+      messagingSenderId: "880058352718",
+      appId: "1:880058352718:web:3c5444ce629265467eef1f"
     };
-    reader.readAsDataURL(file);
-  }
 
-  // Save profile changes
-  async function saveProfile() {
-    if(!currentUser) return;
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+    const storage = getStorage(app);
 
-    // Validate full name and DOB (mandatory)
-    if(fullNameInput.value.trim() === '') {
-      alert('Full Name is required');
-      return;
-    }
-    if(dobInput.value === '') {
-      alert('Date of Birth is required');
-      return;
-    }
+    const noProfileDiv = document.getElementById('noProfile');
+    const profileBox = document.getElementById('profileBox');
+    const imageInput = document.getElementById('imageInput');
+    const dropArea = document.getElementById('dropArea');
+    const profileImage = document.getElementById('profileImage');
+    const ageDisplay = document.getElementById('ageDisplay');
 
-    // Upload photo if changed
-    let photoURL = profileData.photoURL || '';
-    if(photoChanged && photoFile) {
-      try {
-        photoURL = await uploadPhoto(currentUser.uid, photoFile);
-      } catch(err) {
-        alert('Photo upload failed: ' + err.message);
+    const fields = ['name', 'dob', 'city', 'religion', 'hobby', 'country', 'gender'];
+    const inputs = Object.fromEntries(fields.map(id => [id, document.getElementById(id)]));
+
+    let currentUID = null;
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) return window.location.href = 'login.html';
+      currentUID = user.uid;
+
+      const profileSnap = await get(ref(db, 'profiles/' + currentUID));
+      if (!profileSnap.exists()) {
+        noProfileDiv.classList.remove('hidden');
         return;
       }
-    }
 
-    // Prepare profile object
-    const updatedProfile = {
-      fullName: fullNameInput.value.trim(),
-      dob: dobInput.value,
-      age: calculateAge(dobInput.value),
-      city: cityInput.value.trim(),
-      religion: religionInput.value.trim(),
-      hobby: hobbyInput.value.trim(),
-      country: countryInput.value.trim(),
-      photoURL: photoURL
-    };
+      const profile = profileSnap.val();
+      profileBox.classList.remove('hidden');
 
-    // Save to Realtime Database
-    db.ref('profiles/' + currentUser.uid).set(updatedProfile)
-    .then(() => {
-      loadProfile(updatedProfile);
-      setEditable(false);
-      editBtn.style.display = 'inline-block';
-      confirmBtn.style.display = 'none';
-      alert('Profile updated successfully!');
-    })
-    .catch(err => {
-      alert('Failed to save profile: ' + err.message);
-    });
-  }
+      fields.forEach(field => {
+        inputs[field].value = profile[field] || '';
+      });
 
-  // Initialize page
-  function init() {
-    setEditable(false);
-    confirmBtn.style.display = 'none';
+      const age = calculateAge(profile.dob);
+      ageDisplay.textContent = age || 'N/A';
 
-    auth.onAuthStateChanged(user => {
-      if(user) {
-        currentUser = user;
-        fetchProfile(user.uid);
-      } else {
-        // Redirect to login if not authenticated
-        window.location.href = 'login.html';
+      if (profile.photoURL) {
+        profileImage.src = profile.photoURL;
       }
     });
 
-    editBtn.addEventListener('click', () => {
-      setEditable(true);
-      editBtn.style.display = 'none';
-      confirmBtn.style.display = 'inline-block';
-    });
+    function calculateAge(dob) {
+      if (!dob) return null;
+      const birthDate = new Date(dob);
+      const diff = Date.now() - birthDate.getTime();
+      return Math.floor(diff / (1000 * 60 * 60 * 24 * 365.25));
+    }
 
-    confirmBtn.addEventListener('click', () => {
-      saveProfile();
-    });
+    document.getElementById('editBtn').onclick = () => {
+      fields.forEach(f => inputs[f].disabled = false);
+      document.getElementById('saveBtn').classList.remove('hidden');
+    };
 
-    setupDragAndDrop();
-  }
+    document.getElementById('saveBtn').onclick = async () => {
+      const updatedProfile = {};
+      fields.forEach(f => updatedProfile[f] = inputs[f].value);
+      updatedProfile.age = calculateAge(updatedProfile.dob);
+      updatedProfile.photoURL = profileImage.src;
 
-  window.onload = init;
-</script>
+      await set(ref(db, 'profiles/' + currentUID), updatedProfile);
+      fields.forEach(f => inputs[f].disabled = true);
+      document.getElementById('saveBtn').classList.add('hidden');
+      alert("Profile updated successfully!");
+    };
 
+    // Drag and drop image upload
+    dropArea.onclick = () => imageInput.click();
+
+    dropArea.ondragover = (e) => {
+      e.preventDefault();
+      dropArea.classList.add('border-blue-500');
+    };
+
+    dropArea.ondragleave = () => {
+      dropArea.classList.remove('border-blue-500');
+    };
+
+    dropArea.ondrop = (e) => {
+      e.preventDefault();
+      dropArea.classList.remove('border-blue-500');
+      const file = e.dataTransfer.files[0];
+      if (file) uploadImage(file);
+    };
+
+    imageInput.onchange = () => {
+      const file = imageInput.files[0];
+      if (file) uploadImage(file);
+    };
+
+    async function uploadImage(file) {
+      if (!currentUID) return;
+      const imgRef = storageRef(storage, 'profileImages/' + currentUID);
+      await uploadBytes(imgRef, file);
+      const downloadURL = await getDownloadURL(imgRef);
+      profileImage.src = downloadURL;
+      alert('Photo uploaded!');
+    }
+  </script>
 </body>
 </html>
