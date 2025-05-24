@@ -1,272 +1,144 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Create Profile - BandhanByPreeti</title>
-<style>
-  body {
-    font-family: Arial, sans-serif;
-    margin: 0; padding: 20px; background: #fafafa;
-  }
-  .container {
-    max-width: 450px;
-    margin: auto;
-    background: white;
-    border-radius: 8px;
-    padding: 20px;
-    box-shadow: 0 0 8px rgba(0,0,0,0.1);
-  }
-  h2 {
-    text-align: center;
-    color: #d35400;
-  }
-  #drop-area {
-    border: 2px dashed #ccc;
-    border-radius: 8px;
-    padding: 15px;
-    text-align: center;
-    color: #888;
-    margin-bottom: 15px;
-    cursor: pointer;
-  }
-  #drop-area.dragover {
-    border-color: #d35400;
-    background: #fff0e6;
-    color: #d35400;
-  }
-  #profilePhoto {
-    width: 150px; height: 150px;
-    border-radius: 50%;
-    object-fit: cover;
-    display: none;
-    margin: 10px auto 15px auto;
-    border: 3px solid #d35400;
-  }
-  label {
-    display: block;
-    margin-top: 10px;
-    font-weight: bold;
-    color: #333;
-  }
-  input[type="text"], input[type="date"], select {
-    width: 100%;
-    padding: 8px 10px;
-    margin-top: 5px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 14px;
-  }
-  button {
-    background: #d35400;
-    border: none;
-    color: white;
-    padding: 12px 20px;
-    font-size: 16px;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-top: 20px;
-    width: 100%;
-    transition: background 0.3s;
-  }
-  button:hover {
-    background: #e67e22;
-  }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Create Profile | BandhanByPreeti</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body>
+<body class="bg-gray-50 text-gray-800">
 
-<div class="container" id="container">
-  <h2>Create Your Profile</h2>
+  <div class="max-w-3xl mx-auto mt-10 p-6 bg-white shadow rounded">
+    <h1 class="text-2xl font-bold mb-6 text-center">Create Your Profile</h1>
 
-  <div id="drop-area">
-    <p>Drag & Drop a photo here or click to select (Required)</p>
-    <input type="file" id="fileElem" accept="image/*" style="display:none" />
-    <img id="profilePhoto" alt="Profile Photo Preview" />
+    <div id="dropArea" class="w-32 h-32 mx-auto rounded-full border-4 border-dashed border-gray-300 cursor-pointer mb-4 flex items-center justify-center bg-gray-50">
+      <img id="profilePreview" src="https://via.placeholder.com/150" class="w-full h-full object-cover rounded-full" />
+    </div>
+    <input type="file" id="photoInput" accept="image/*" class="hidden">
+    <p class="text-sm text-center text-gray-500 mb-6">Click or drag photo to upload (required)</p>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <input id="name" type="text" placeholder="Full Name" class="p-2 border rounded" required />
+      <input id="dob" type="date" class="p-2 border rounded" required />
+      <input id="city" type="text" placeholder="City" class="p-2 border rounded" />
+      <input id="religion" type="text" placeholder="Religion" class="p-2 border rounded" />
+      <input id="hobby" type="text" placeholder="Hobby" class="p-2 border rounded" />
+      <input id="country" type="text" placeholder="Country" class="p-2 border rounded" />
+      <select id="gender" class="p-2 border rounded">
+        <option value="">Select Gender</option>
+        <option value="male">Male</option>
+        <option value="female">Female</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
+
+    <button id="submitBtn" class="mt-6 w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">Create Profile</button>
   </div>
 
-  <form id="profileForm">
-    <label for="fullName">Full Name *</label>
-    <input type="text" id="fullName" name="fullName" required />
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
+    import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-database.js";
+    import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-storage.js";
 
-    <label for="dob">Date of Birth *</label>
-    <input type="date" id="dob" name="dob" required />
-
-    <label for="city">City</label>
-    <input type="text" id="city" name="city" />
-
-    <label for="religion">Religion</label>
-    <input type="text" id="religion" name="religion" />
-
-    <label for="hobby">Hobby</label>
-    <input type="text" id="hobby" name="hobby" />
-
-    <label for="country">Country</label>
-    <input type="text" id="country" name="country" />
-
-    <button type="submit">Create Profile</button>
-  </form>
-</div>
-
-<!-- Firebase SDKs -->
-<script src="https://www.gstatic.com/firebasejs/11.7.3/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/11.7.3/firebase-database.js"></script>
-<script src="https://www.gstatic.com/firebasejs/11.7.3/firebase-storage.js"></script>
-
-<script>
-  // Firebase config - update your keys here
-  const firebaseConfig = {
-    apiKey: "AIzaSyD2Dgr5K8IC3TzBP_x9Fsc3X0gMEd4xLww",
-    authDomain: "bandhanbypreeti.firebaseapp.com",
-    databaseURL: "https://bandhanbypreeti-default-rtdb.firebaseio.com",
-    projectId: "bandhanbypreeti",
-    storageBucket: "bandhanbypreeti.appspot.com",
-    messagingSenderId: "880058352718",
-    appId: "1:880058352718:web:3c5444ce629265467eef1f",
-  };
-
-  // Initialize Firebase
-  const app = firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const db = firebase.database();
-  const storage = firebase.storage();
-
-  // DOM elements
-  const dropArea = document.getElementById('drop-area');
-  const fileElem = document.getElementById('fileElem');
-  const profilePhoto = document.getElementById('profilePhoto');
-  const profileForm = document.getElementById('profileForm');
-
-  let currentUser = null;
-  let photoFile = null;
-
-  // Setup drag & drop
-  dropArea.addEventListener('click', () => fileElem.click());
-  fileElem.addEventListener('change', e => {
-    if(e.target.files.length > 0) {
-      previewPhoto(e.target.files[0]);
-    }
-  });
-  dropArea.addEventListener('dragover', e => {
-    e.preventDefault();
-    dropArea.classList.add('dragover');
-  });
-  dropArea.addEventListener('dragleave', e => {
-    e.preventDefault();
-    dropArea.classList.remove('dragover');
-  });
-  dropArea.addEventListener('drop', e => {
-    e.preventDefault();
-    dropArea.classList.remove('dragover');
-    if(e.dataTransfer.files.length > 0) {
-      previewPhoto(e.dataTransfer.files[0]);
-    }
-  });
-
-  // Preview photo
-  function previewPhoto(file) {
-    if(!file.type.startsWith('image/')) {
-      alert('Only image files are allowed!');
-      return;
-    }
-    photoFile = file;
-    const reader = new FileReader();
-    reader.onload = e => {
-      profilePhoto.src = e.target.result;
-      profilePhoto.style.display = 'block';
+    const firebaseConfig = {
+      apiKey: "AIzaSyD2Dgr5K8IC3TzBP_x9Fsc3X0gMEd4xLww",
+      authDomain: "bandhanbypreeti.firebaseapp.com",
+      databaseURL: "https://bandhanbypreeti-default-rtdb.firebaseio.com",
+      projectId: "bandhanbypreeti",
+      storageBucket: "bandhanbypreeti.appspot.com",
+      messagingSenderId: "880058352718",
+      appId: "1:880058352718:web:3c5444ce629265467eef1f"
     };
-    reader.readAsDataURL(file);
-  }
 
-  // Redirect if profile exists (enforce one-time creation)
-  function checkProfileExists(uid) {
-    db.ref('profiles/' + uid).once('value')
-      .then(snapshot => {
-        if(snapshot.exists()) {
-          // Profile exists, redirect to profile.html
-          window.location.href = 'profile.html';
-        } else {
-          // Allow create profile
-          document.getElementById('container').style.display = 'block';
-        }
-      })
-      .catch(err => {
-        alert('Error checking profile: ' + err.message);
-      });
-  }
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+    const storage = getStorage(app);
 
-  // Upload photo to Firebase Storage
-  async function uploadPhoto(uid, file) {
-    if (!file) {
-      throw new Error('Profile photo is required.');
+    const dropArea = document.getElementById("dropArea");
+    const photoInput = document.getElementById("photoInput");
+    const profilePreview = document.getElementById("profilePreview");
+
+    let currentUID = null;
+    let uploadedPhotoURL = null;
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) return location.href = "login.html";
+      currentUID = user.uid;
+
+      const snapshot = await get(ref(db, "profiles/" + currentUID));
+      if (snapshot.exists()) {
+        // Already has profile
+        window.location.href = "profile.html";
+      }
+    });
+
+    function calculateAge(dob) {
+      const birthDate = new Date(dob);
+      const ageDiff = Date.now() - birthDate.getTime();
+      return Math.floor(ageDiff / (1000 * 60 * 60 * 24 * 365.25));
     }
-    const storageRef = storage.ref();
-    const photoRef = storageRef.child('profilePhotos/' + uid + '/' + file.name);
-    await photoRef.put(file);
-    return await photoRef.getDownloadURL();
-  }
 
-  // Calculate age
-  function calculateAge(dobStr) {
-    if (!dobStr) return '';
-    const dob = new Date(dobStr);
-    const diff = Date.now() - dob.getTime();
-    const ageDt = new Date(diff);
-    return Math.abs(ageDt.getUTCFullYear() - 1970);
-  }
+    dropArea.onclick = () => photoInput.click();
 
-  // On form submit
-  profileForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    if (!currentUser) return alert('User not authenticated.');
+    dropArea.ondragover = (e) => {
+      e.preventDefault();
+      dropArea.classList.add("border-blue-500");
+    };
 
-    const fullName = profileForm.fullName.value.trim();
-    const dob = profileForm.dob.value;
-    const city = profileForm.city.value.trim();
-    const religion = profileForm.religion.value.trim();
-    const hobby = profileForm.hobby.value.trim();
-    const country = profileForm.country.value.trim();
+    dropArea.ondragleave = () => {
+      dropArea.classList.remove("border-blue-500");
+    };
 
-    if (!fullName) return alert('Full Name is required.');
-    if (!dob) return alert('Date of Birth is required.');
-    if (!photoFile) return alert('Profile photo is required.');
+    dropArea.ondrop = (e) => {
+      e.preventDefault();
+      dropArea.classList.remove("border-blue-500");
+      const file = e.dataTransfer.files[0];
+      if (file) uploadImage(file);
+    };
 
-    try {
-      // Upload photo first
-      const photoURL = await uploadPhoto(currentUser.uid, photoFile);
+    photoInput.onchange = () => {
+      const file = photoInput.files[0];
+      if (file) uploadImage(file);
+    };
 
-      const profileData = {
-        fullName,
-        dob,
-        age: calculateAge(dob),
-        city,
-        religion,
-        hobby,
-        country,
-        photoURL
+    async function uploadImage(file) {
+      if (!currentUID) return;
+      const storageReference = storageRef(storage, 'profileImages/' + currentUID);
+      await uploadBytes(storageReference, file);
+      const downloadURL = await getDownloadURL(storageReference);
+      uploadedPhotoURL = downloadURL;
+      profilePreview.src = downloadURL;
+      alert("Photo uploaded!");
+    }
+
+    document.getElementById("submitBtn").onclick = async () => {
+      const name = document.getElementById("name").value.trim();
+      const dob = document.getElementById("dob").value;
+      const city = document.getElementById("city").value.trim();
+      const religion = document.getElementById("religion").value.trim();
+      const hobby = document.getElementById("hobby").value.trim();
+      const country = document.getElementById("country").value.trim();
+      const gender = document.getElementById("gender").value;
+
+      if (!name || !dob || !gender || !uploadedPhotoURL) {
+        return alert("Please fill in all required fields and upload a photo.");
+      }
+
+      const age = calculateAge(dob);
+
+      const profile = {
+        name, dob, city, religion, hobby, country, gender,
+        age,
+        photoURL: uploadedPhotoURL
       };
 
-      // Save profile in Realtime Database
-      await db.ref('profiles/' + currentUser.uid).set(profileData);
-      alert('Profile created successfully!');
-      window.location.href = 'profile.html';
-
-    } catch(err) {
-      alert('Error creating profile: ' + err.message);
-    }
-  });
-
-  // Initialize
-  auth.onAuthStateChanged(user => {
-    if(user) {
-      currentUser = user;
-      checkProfileExists(user.uid);
-    } else {
-      window.location.href = 'login.html';
-    }
-  });
-</script>
-
+      await set(ref(db, "profiles/" + currentUID), profile);
+      alert("Profile created successfully!");
+      window.location.href = "profile.html";
+    };
+  </script>
 </body>
 </html>
