@@ -45,7 +45,7 @@
 
     <!-- Profiles Section -->
     <section class="max-w-6xl mx-auto px-4 pb-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3" id="profilesContainer">
-      <!-- Profiles will be injected here -->
+      <p class="col-span-full text-center text-gray-500" id="loadingText">Loading profiles...</p>
     </section>
   </div>
 
@@ -76,23 +76,32 @@
 
     const userNameSpan = document.getElementById('userName');
     const profilesContainer = document.getElementById('profilesContainer');
+    const loadingText = document.getElementById('loadingText');
     let allProfiles = [];
     let currentUserGender = null;
 
     onAuthStateChanged(auth, async (user) => {
-      if (!user) return window.location.href = "login.html";
+      if (!user) {
+        window.location.href = "login.html";
+        return;
+      }
 
       userNameSpan.textContent = user.displayName || user.email;
 
+      // Fetch current user's profile
       const userDoc = await getDoc(doc(db, "profiles", user.uid));
-      if (!userDoc.exists()) return window.location.href = "create-profile.html";
+      if (!userDoc.exists()) {
+        window.location.href = "create-profile.html";
+        return;
+      }
 
       currentUserGender = userDoc.data().gender || null;
 
+      // Fetch all profiles with their document IDs as uid
       const snapshot = await getDocs(collection(db, "profiles"));
-      allProfiles = snapshot.docs.map(doc => doc.data());
+      allProfiles = snapshot.docs.map(doc => ({ uid: doc.id, ...doc.data() }));
 
-      // Gender-based filter
+      // Gender-based filter to show opposite gender only
       const filteredProfiles = allProfiles.filter(p => 
         p.uid !== user.uid &&
         p.gender &&
@@ -100,6 +109,8 @@
         p.gender.toLowerCase() !== currentUserGender.toLowerCase()
       );
 
+      // Remove loading text before rendering
+      loadingText.style.display = 'none';
       renderProfiles(filteredProfiles);
     });
 
@@ -116,8 +127,8 @@
         card.innerHTML = `
           <img src="${profile.photoURL || 'https://via.placeholder.com/150'}" alt="${profile.name}" class="w-full h-48 object-cover rounded mb-4">
           <h3 class="text-lg font-semibold mb-1">${profile.name}</h3>
-          <p class="text-sm text-gray-600">Age: ${profile.age} | City: ${profile.city}</p>
-          <p class="text-sm text-gray-600">Religion: ${profile.religion} | Hobby: ${profile.hobby}</p>
+          <p class="text-sm text-gray-600">Age: ${profile.age || 'N/A'} | City: ${profile.city || 'N/A'}</p>
+          <p class="text-sm text-gray-600">Religion: ${profile.religion || 'N/A'} | Hobby: ${profile.hobby || 'N/A'}</p>
           <div class="flex justify-between mt-2">
             <button onclick="viewProfile('${profile.uid}')" class="text-blue-600 hover:underline text-sm">View More</button>
             <button onclick="messageUser('${profile.uid}', '${profile.name}')" class="text-green-600 hover:underline text-sm">Message</button>
@@ -148,7 +159,7 @@
           p.gender &&
           currentUserGender &&
           p.gender.toLowerCase() !== currentUserGender.toLowerCase() &&
-          (city === "" || p.city.toLowerCase().includes(city)) &&
+          (city === "" || (p.city && p.city.toLowerCase().includes(city))) &&
           (!p.age || (p.age >= minAge && p.age <= maxAge)) &&
           (religion === "" || p.religion === religion)
         );
