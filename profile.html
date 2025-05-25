@@ -1,45 +1,150 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Your Profile | BandhanByPreeti</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link
+    href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+    rel="stylesheet"
+  />
 </head>
 <body class="bg-gray-100 text-gray-800">
-
-  <div class="max-w-3xl mx-auto mt-10 p-6 bg-white shadow-md rounded-lg">
+  <div
+    class="max-w-3xl mx-auto mt-10 p-6 bg-white shadow-md rounded-lg"
+    role="main"
+  >
     <h1 class="text-2xl font-bold mb-4 text-center">Your Profile</h1>
 
-    <div id="noProfile" class="text-center hidden">
-      <p class="mb-4">You don't have a profile yet. Profile can be created only once.</p>
-      <a href="create-profile.html" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Create Profile</a>
+    <div id="noProfile" class="text-center hidden" role="alert" aria-live="polite">
+      <p class="mb-4">
+        You don't have a profile yet. Profile can be created only once.
+      </p>
+      <a
+        href="create-profile.html"
+        class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
+        >Create Profile</a
+      >
     </div>
 
-    <div id="profileBox" class="space-y-4 hidden">
+    <div id="profileBox" class="space-y-4 hidden" aria-live="polite">
       <div class="flex flex-col items-center">
-        <div id="dropArea" class="w-32 h-32 rounded-full overflow-hidden border-4 border-dashed border-gray-300 cursor-pointer mb-2 bg-gray-50 flex items-center justify-center">
-          <img id="profileImage" src="https://via.placeholder.com/150" class="w-full h-full object-cover" />
+        <div
+          id="dropArea"
+          class="w-32 h-32 rounded-full overflow-hidden border-4 border-dashed border-gray-300 cursor-pointer mb-2 bg-gray-50 flex items-center justify-center"
+          tabindex="0"
+          role="button"
+          aria-label="Click or drag image here to update profile photo"
+        >
+          <img
+            id="profileImage"
+            src="https://via.placeholder.com/150"
+            alt="Profile photo"
+            class="w-full h-full object-cover"
+          />
         </div>
-        <input type="file" id="imageInput" accept="image/*" class="hidden">
+        <input
+          type="file"
+          id="imageInput"
+          accept="image/*"
+          class="hidden"
+          aria-hidden="true"
+        />
         <p class="text-sm text-gray-500">Click or drag image to update</p>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <input type="text" id="name" class="p-2 border rounded" disabled>
-        <input type="date" id="dob" class="p-2 border rounded" disabled>
-        <input type="text" id="city" class="p-2 border rounded" disabled>
-        <input type="text" id="religion" class="p-2 border rounded" disabled>
-        <input type="text" id="hobby" class="p-2 border rounded" disabled>
-        <input type="text" id="country" class="p-2 border rounded" disabled>
-        <input type="text" id="gender" class="p-2 border rounded" disabled>
+        <input
+          type="text"
+          id="name"
+          class="p-2 border rounded"
+          disabled
+          aria-label="Full Name"
+        />
+        <input
+          type="date"
+          id="dob"
+          class="p-2 border rounded"
+          disabled
+          aria-label="Date of Birth"
+        />
+        <input
+          type="text"
+          id="city"
+          class="p-2 border rounded"
+          disabled
+          aria-label="City"
+        />
+        <input
+          type="text"
+          id="religion"
+          class="p-2 border rounded"
+          disabled
+          aria-label="Religion"
+        />
+        <input
+          type="text"
+          id="hobby"
+          class="p-2 border rounded"
+          disabled
+          aria-label="Hobby"
+        />
+        <input
+          type="text"
+          id="country"
+          class="p-2 border rounded"
+          disabled
+          aria-label="Country"
+        />
+        <input
+          type="text"
+          id="gender"
+          class="p-2 border rounded"
+          disabled
+          aria-label="Gender"
+        />
       </div>
 
-      <p class="text-gray-600 text-sm mt-2">Age: <span id="ageDisplay"></span></p>
+      <p class="text-gray-600 text-sm mt-2">
+        Age: <span id="ageDisplay" aria-live="polite"></span>
+      </p>
 
       <div class="flex justify-end gap-3">
-        <button id="editBtn" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">Edit</button>
-        <button id="saveBtn" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 hidden">Confirm</button>
+        <button
+          id="editBtn"
+          class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+          aria-pressed="false"
+        >
+          Edit
+        </button>
+        <button
+          id="saveBtn"
+          class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-400 hidden"
+          aria-disabled="true"
+        >
+          <span id="saveBtnText">Confirm</span>
+          <svg
+            id="saveSpinner"
+            class="animate-spin h-5 w-5 text-white inline-block ml-2 hidden"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              class="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              stroke-width="4"
+            ></circle>
+            <path
+              class="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+            ></path>
+          </svg>
+        </button>
       </div>
     </div>
   </div>
@@ -47,9 +152,17 @@
   <!-- Firebase SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
+    import {
+      getAuth,
+      onAuthStateChanged,
+    } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
     import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-database.js";
-    import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-storage.js";
+    import {
+      getStorage,
+      ref as storageRef,
+      uploadBytes,
+      getDownloadURL,
+    } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-storage.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyD2Dgr5K8IC3TzBP_x9Fsc3X0gMEd4xLww",
@@ -58,7 +171,7 @@
       projectId: "bandhanbypreeti",
       storageBucket: "bandhanbypreeti.appspot.com",
       messagingSenderId: "880058352718",
-      appId: "1:880058352718:web:3c5444ce629265467eef1f"
+      appId: "1:880058352718:web:3c5444ce629265467eef1f",
     };
 
     const app = initializeApp(firebaseConfig);
@@ -66,82 +179,131 @@
     const db = getDatabase(app);
     const storage = getStorage(app);
 
-    const noProfileDiv = document.getElementById('noProfile');
-    const profileBox = document.getElementById('profileBox');
-    const imageInput = document.getElementById('imageInput');
-    const dropArea = document.getElementById('dropArea');
-    const profileImage = document.getElementById('profileImage');
-    const ageDisplay = document.getElementById('ageDisplay');
+    const noProfileDiv = document.getElementById("noProfile");
+    const profileBox = document.getElementById("profileBox");
+    const imageInput = document.getElementById("imageInput");
+    const dropArea = document.getElementById("dropArea");
+    const profileImage = document.getElementById("profileImage");
+    const ageDisplay = document.getElementById("ageDisplay");
 
-    const fields = ['name', 'dob', 'city', 'religion', 'hobby', 'country', 'gender'];
-    const inputs = Object.fromEntries(fields.map(id => [id, document.getElementById(id)]));
+    const saveBtn = document.getElementById("saveBtn");
+    const saveBtnText = document.getElementById("saveBtnText");
+    const saveSpinner = document.getElementById("saveSpinner");
+    const editBtn = document.getElementById("editBtn");
+
+    const fields = ["name", "dob", "city", "religion", "hobby", "country", "gender"];
+    const inputs = Object.fromEntries(
+      fields.map((id) => [id, document.getElementById(id)])
+    );
 
     let currentUID = null;
+    let latestUploadedPhotoURL = null;
 
     onAuthStateChanged(auth, async (user) => {
-      if (!user) return window.location.href = 'login.html';
-      currentUID = user.uid;
-
-      const profileSnap = await get(ref(db, 'profiles/' + currentUID));
-      if (!profileSnap.exists()) {
-        noProfileDiv.classList.remove('hidden');
+      if (!user) {
+        window.location.href = "login.html";
         return;
       }
+      currentUID = user.uid;
 
-      const profile = profileSnap.val();
-      profileBox.classList.remove('hidden');
+      try {
+        const profileSnap = await get(ref(db, "profiles/" + currentUID));
+        if (!profileSnap.exists()) {
+          noProfileDiv.classList.remove("hidden");
+          return;
+        }
 
-      fields.forEach(field => {
-        inputs[field].value = profile[field] || '';
-      });
+        const profile = profileSnap.val();
+        profileBox.classList.remove("hidden");
 
-      const age = calculateAge(profile.dob);
-      ageDisplay.textContent = age || 'N/A';
+        fields.forEach((field) => {
+          inputs[field].value = profile[field] || "";
+        });
 
-      if (profile.photoURL) {
-        profileImage.src = profile.photoURL;
+        const age = calculateAge(profile.dob);
+        ageDisplay.textContent = age || "N/A";
+
+        if (profile.photoURL) {
+          profileImage.src = profile.photoURL;
+          latestUploadedPhotoURL = profile.photoURL;
+        }
+      } catch (error) {
+        alert("Failed to load profile: " + error.message);
       }
     });
 
     function calculateAge(dob) {
       if (!dob) return null;
       const birthDate = new Date(dob);
+      if (isNaN(birthDate)) return null;
       const diff = Date.now() - birthDate.getTime();
       return Math.floor(diff / (1000 * 60 * 60 * 24 * 365.25));
     }
 
-    document.getElementById('editBtn').onclick = () => {
-      fields.forEach(f => inputs[f].disabled = false);
-      document.getElementById('saveBtn').classList.remove('hidden');
+    editBtn.onclick = () => {
+      fields.forEach((f) => (inputs[f].disabled = false));
+      saveBtn.classList.remove("hidden");
+      editBtn.disabled = true;
+      editBtn.setAttribute("aria-pressed", "true");
     };
 
-    document.getElementById('saveBtn').onclick = async () => {
-      const updatedProfile = {};
-      fields.forEach(f => updatedProfile[f] = inputs[f].value);
-      updatedProfile.age = calculateAge(updatedProfile.dob);
-      updatedProfile.photoURL = profileImage.src;
+    saveBtn.onclick = async () => {
+      // Validate DOB
+      const dobVal = inputs["dob"].value;
+      if (!dobVal || isNaN(new Date(dobVal))) {
+        alert("Please enter a valid Date of Birth");
+        inputs["dob"].focus();
+        return;
+      }
 
-      await set(ref(db, 'profiles/' + currentUID), updatedProfile);
-      fields.forEach(f => inputs[f].disabled = true);
-      document.getElementById('saveBtn').classList.add('hidden');
-      alert("Profile updated successfully!");
+      // Disable buttons and show spinner
+      saveBtn.disabled = true;
+      editBtn.disabled = true;
+      saveBtn.setAttribute("aria-disabled", "true");
+      saveSpinner.classList.remove("hidden");
+      saveBtnText.textContent = "Saving...";
+
+      try {
+        const updatedProfile = {};
+        fields.forEach((f) => {
+          updatedProfile[f] = inputs[f].value.trim();
+        });
+        updatedProfile.age = calculateAge(updatedProfile.dob);
+        // Use the latest uploaded photo URL (or existing if none new uploaded)
+        updatedProfile.photoURL = latestUploadedPhotoURL || profileImage.src;
+
+        await set(ref(db, "profiles/" + currentUID), updatedProfile);
+
+        fields.forEach((f) => (inputs[f].disabled = true));
+        saveBtn.classList.add("hidden");
+        alert("Profile updated successfully!");
+      } catch (error) {
+        alert("Error saving profile: " + error.message);
+      } finally {
+        saveBtn.disabled = false;
+        editBtn.disabled = false;
+        saveBtn.setAttribute("aria-disabled", "false");
+        saveSpinner.classList.add("hidden");
+        saveBtnText.textContent = "Confirm";
+        editBtn.setAttribute("aria-pressed", "false");
+      }
     };
 
-    // Drag and drop image upload
+    // Drag and drop image upload + click to open file dialog
     dropArea.onclick = () => imageInput.click();
 
     dropArea.ondragover = (e) => {
       e.preventDefault();
-      dropArea.classList.add('border-blue-500');
+      dropArea.classList.add("border-blue-500");
     };
 
     dropArea.ondragleave = () => {
-      dropArea.classList.remove('border-blue-500');
+      dropArea.classList.remove("border-blue-500");
     };
 
     dropArea.ondrop = (e) => {
       e.preventDefault();
-      dropArea.classList.remove('border-blue-500');
+      dropArea.classList.remove("border-blue-500");
       const file = e.dataTransfer.files[0];
       if (file) uploadImage(file);
     };
@@ -152,12 +314,32 @@
     };
 
     async function uploadImage(file) {
-      if (!currentUID) return;
-      const imgRef = storageRef(storage, 'profileImages/' + currentUID);
-      await uploadBytes(imgRef, file);
-      const downloadURL = await getDownloadURL(imgRef);
-      profileImage.src = downloadURL;
-      alert('Photo uploaded!');
+      if (!currentUID) return alert("User not authenticated");
+      try {
+        // Disable buttons during upload
+        saveBtn.disabled = true;
+        editBtn.disabled = true;
+        saveBtn.setAttribute("aria-disabled", "true");
+        saveSpinner.classList.remove("hidden");
+        saveBtnText.textContent = "Uploading...";
+
+        const imgRef = storageRef(storage, "profileImages/" + currentUID);
+        await uploadBytes(imgRef, file);
+        const downloadURL = await getDownloadURL(imgRef);
+
+        profileImage.src = downloadURL;
+        latestUploadedPhotoURL = downloadURL;
+
+        alert("Photo uploaded! Don't forget to confirm changes.");
+      } catch (error) {
+        alert("Failed to upload photo: " + error.message);
+      } finally {
+        saveBtn.disabled = false;
+        editBtn.disabled = false;
+        saveBtn.setAttribute("aria-disabled", "false");
+        saveSpinner.classList.add("hidden");
+        saveBtnText.textContent = "Confirm";
+      }
     }
   </script>
 </body>
