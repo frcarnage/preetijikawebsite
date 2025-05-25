@@ -2,34 +2,57 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Admin Panel | BandhanByPreeti</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin Support Panel | BandhanByPreeti</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
 </head>
-<body class="bg-gray-100 text-gray-800">
+<body class="bg-gray-100 flex h-screen">
 
-  <div class="flex min-h-screen">
-    
-    <!-- Sidebar -->
-    <div class="w-64 bg-white shadow p-4">
-      <h2 class="text-xl font-bold mb-4">Admin Panel</h2>
-      <button id="viewSupportBtn" class="w-full bg-blue-500 text-white py-2 rounded mb-2">Support Cases</button>
-      <button id="viewUsersBtn" class="w-full bg-green-600 text-white py-2 rounded">All Users</button>
-    </div>
+  <!-- Sidebar -->
+  <div class="w-64 bg-white shadow-md flex flex-col">
+    <div class="p-4 border-b text-xl font-semibold text-center">Support Cases</div>
+    <div id="usersList" class="flex-1 overflow-y-auto p-2 space-y-2"></div>
+    <button id="logoutBtn" class="m-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">Logout</button>
+  </div>
 
-    <!-- Main Content -->
-    <div class="flex-1 p-6 overflow-y-auto">
-      <div id="contentArea">
-        <!-- Content will load here -->
+  <!-- Chat area -->
+  <div class="flex-1 flex flex-col bg-white shadow-md">
+    <div id="chatHeader" class="p-4 border-b font-semibold flex items-center justify-between">
+      <div id="chatUserName">Select a user to chat</div>
+      <div>
+        <button id="banBtn" class="mr-4 bg-red-500 text-white px-3 py-1 rounded hidden">Ban</button>
+        <button id="unbanBtn" class="mr-4 bg-green-500 text-white px-3 py-1 rounded hidden">Unban</button>
       </div>
     </div>
+
+    <div id="messages" class="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50"></div>
+
+    <form id="messageForm" class="p-4 border-t flex" style="display:none;">
+      <input id="messageInput" type="text" placeholder="Type your message..." class="flex-1 border rounded-l px-4 py-2" required />
+      <button type="submit" class="bg-blue-600 text-white px-4 rounded-r">Send</button>
+    </form>
   </div>
 
   <!-- Firebase -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
-    import { getDatabase, ref, get, set, onChildAdded, push } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-database.js";
+    import {
+      getAuth,
+      onAuthStateChanged,
+      signOut
+    } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
+    import {
+      getDatabase,
+      ref,
+      get,
+      onValue,
+      update,
+      push,
+      child,
+      query,
+      orderByChild,
+      equalTo
+    } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyD2Dgr5K8IC3TzBP_x9Fsc3X0gMEd4xLww",
@@ -44,142 +67,206 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getDatabase(app);
-    const ADMIN_UID = "aZpKX3OhBVg9mtC2Ybhed2UfLHq1";
 
-    let currentUID = null;
+    const adminUID = "aZpKX3OhBVg9mtC2Ybhed2UfLHq1"; // your admin UID
 
-    const contentArea = document.getElementById("contentArea");
+    const usersListDiv = document.getElementById("usersList");
+    const messagesDiv = document.getElementById("messages");
+    const chatHeader = document.getElementById("chatHeader");
+    const chatUserNameDiv = document.getElementById("chatUserName");
+    const messageForm = document.getElementById("messageForm");
+    const messageInput = document.getElementById("messageInput");
+    const banBtn = document.getElementById("banBtn");
+    const unbanBtn = document.getElementById("unbanBtn");
+    const logoutBtn = document.getElementById("logoutBtn");
 
-    onAuthStateChanged(auth, async (user) => {
-      if (!user || user.uid !== ADMIN_UID) {
-        alert("Access denied. Admins only.");
+    let selectedUserUID = null;
+    let usersData = {};
+
+    // Check admin auth
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
         location.href = "login.html";
-        return;
+      } else if (user.uid !== adminUID) {
+        alert("Access denied: Admins only");
+        signOut(auth);
+      } else {
+        loadUsers();
       }
-
-      currentUID = user.uid;
-      loadSupportCases(); // load by default
     });
 
-    // View Support Cases
-    document.getElementById("viewSupportBtn").onclick = loadSupportCases;
+    // Logout
+    logoutBtn.onclick = () => signOut(auth);
 
-    async function loadSupportCases() {
-      contentArea.innerHTML = "<h2 class='text-xl font-bold mb-4'>Support Cases</h2>";
+    // Load all users who have support chats
+    async function loadUsers() {
+      const supportChatsRef = ref(db, "supportChats");
+      onValue(supportChatsRef, async (snapshot) => {
+        const data = snapshot.val() || {};
+        usersListDiv.innerHTML = "";
+        usersData = data;
 
-      const supportRef = ref(db, "supportMessages");
-      const snapshot = await get(supportRef);
+        // Load profile info for each user (to get name/email)
+        for (const uid in data) {
+          let userInfo = await getUserInfo(uid);
+          const hasNewReply = data[uid].hasNewReply || false;
+          const isBanned = data[uid].banned || false;
 
-      if (!snapshot.exists()) {
-        contentArea.innerHTML += "<p>No support messages yet.</p>";
-        return;
-      }
+          const userDiv = document.createElement("div");
+          userDiv.className = `p-2 rounded cursor-pointer flex justify-between items-center ${
+            selectedUserUID === uid ? "bg-blue-100" : "hover:bg-gray-100"
+          }`;
+          userDiv.innerHTML = `
+            <div>
+              <div class="font-semibold">${userInfo.name || userInfo.email || uid}</div>
+              <div class="text-xs text-gray-500">UID: ${uid}</div>
+            </div>
+            <div class="flex items-center space-x-2">
+              ${
+                hasNewReply
+                  ? `<span class="bg-red-600 text-white text-xs rounded-full px-2 py-0.5">New</span>`
+                  : ""
+              }
+              ${
+                isBanned
+                  ? `<span class="bg-gray-600 text-white text-xs rounded-full px-2 py-0.5">Banned</span>`
+                  : ""
+              }
+            </div>
+          `;
 
-      const cases = snapshot.val();
-      for (const userId in cases) {
-        const messages = cases[userId];
-        const latest = Object.values(messages).slice(-1)[0];
+          userDiv.onclick = () => {
+            selectUser(uid, userInfo.name || userInfo.email || uid);
+          };
 
-        const userSnapshot = await get(ref(db, "profiles/" + userId));
-        const user = userSnapshot.exists() ? userSnapshot.val() : { name: "Unknown" };
-
-        const div = document.createElement("div");
-        div.className = "p-4 mb-2 bg-white shadow rounded";
-        div.innerHTML = `
-          <h3 class="font-bold text-lg">${user.name}</h3>
-          <p class="text-sm text-gray-600">Last message: ${latest.message}</p>
-          <button class="mt-2 bg-blue-500 text-white px-3 py-1 rounded" onclick="viewSupportChat('${userId}', '${user.name}')">Reply</button>
-        `;
-        contentArea.appendChild(div);
-      }
+          usersListDiv.appendChild(userDiv);
+        }
+      });
     }
 
-    // View Support Chat
-    window.viewSupportChat = async function(uid, name) {
-      contentArea.innerHTML = `
-        <h2 class="text-xl font-bold mb-4">Support Chat with ${name}</h2>
-        <div id="chatBox" class="border p-4 mb-4 bg-white rounded h-96 overflow-y-scroll"></div>
-        <div class="flex">
-          <input id="adminMsg" class="flex-1 p-2 border rounded-l" placeholder="Type your reply..." />
-          <button class="bg-blue-600 text-white px-4 rounded-r" onclick="sendAdminReply('${uid}')">Send</button>
-        </div>
-      `;
-
-      const chatBox = document.getElementById("chatBox");
-      chatBox.innerHTML = "";
-
-      const msgRef = ref(db, `supportMessages/${uid}`);
-      const snapshot = await get(msgRef);
-      const messages = snapshot.exists() ? snapshot.val() : {};
-
-      for (const id in messages) {
-        const msg = messages[id];
-        const align = msg.sender === "admin" ? "text-right" : "text-left";
-        const nameTag = msg.sender === "admin" ? "<span class='text-blue-600 font-semibold'>BandhanByPreeti ✓</span>" : "<span class='text-gray-700 font-semibold'>User</span>";
-        chatBox.innerHTML += `<p class="${align} mb-2">${nameTag}<br/>${msg.message}</p>`;
-      }
-
-      chatBox.scrollTop = chatBox.scrollHeight;
+    // Fetch user info from Realtime Database (assuming profile stored in /profiles/{uid})
+    async function getUserInfo(uid) {
+      const profileRef = ref(db, `profiles/${uid}`);
+      const snap = await get(profileRef);
+      if (snap.exists()) return snap.val();
+      else return { name: null, email: null };
     }
 
-    window.sendAdminReply = async function(uid) {
-      const msgInput = document.getElementById("adminMsg");
-      const message = msgInput.value.trim();
-      if (!message) return;
+    // Select user to chat
+    function selectUser(uid, displayName) {
+      selectedUserUID = uid;
+      chatUserNameDiv.textContent = `Chat with: ${displayName}`;
+      messageForm.style.display = "flex";
+      messagesDiv.innerHTML = "";
+      banBtn.style.display = "inline-block";
+      unbanBtn.style.display = "none"; // show based on ban state below
 
-      const msgRef = ref(db, `supportMessages/${uid}`);
-      await push(msgRef, {
-        sender: "admin",
-        message,
-        timestamp: Date.now()
+      // Clear hasNewReply flag
+      update(ref(db, `supportChats/${uid}`), { hasNewReply: false });
+
+      // Show ban/unban buttons properly
+      const userData = usersData[uid] || {};
+      if (userData.banned) {
+        banBtn.style.display = "none";
+        unbanBtn.style.display = "inline-block";
+      } else {
+        banBtn.style.display = "inline-block";
+        unbanBtn.style.display = "none";
+      }
+
+      listenMessages(uid);
+    }
+
+    let messagesListenerUnsubscribe = null;
+
+    // Listen to messages of selected user
+    function listenMessages(uid) {
+      if (messagesListenerUnsubscribe) messagesListenerUnsubscribe();
+
+      const messagesRef = ref(db, `supportChats/${uid}/messages`);
+      onValue(messagesRef, (snapshot) => {
+        messagesDiv.innerHTML = "";
+        const messages = snapshot.val() || {};
+
+        // Sort by timestamp ascending
+        const msgsSorted = Object.entries(messages).sort(
+          (a, b) => a[1].timestamp - b[1].timestamp
+        );
+
+        msgsSorted.forEach(([msgId, msg]) => {
+          const msgDiv = document.createElement("div");
+          msgDiv.className = msg.sender === "admin"
+            ? "text-right"
+            : "text-left";
+
+          const senderName = msg.sender === "admin"
+            ? "BandhanByPreeti Support ✅"
+            : "User";
+
+          msgDiv.innerHTML = `
+            <div class="inline-block max-w-xs rounded p-2 ${
+              msg.sender === "admin" ? "bg-blue-200" : "bg-gray-200"
+            }">
+              <p class="text-xs font-semibold">${senderName}</p>
+              <p>${msg.text}</p>
+            </div>
+          `;
+
+          messagesDiv.appendChild(msgDiv);
+        });
+
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
       });
 
-      msgInput.value = "";
-      viewSupportChat(uid);
+      messagesListenerUnsubscribe = () => {}; // no off in RTDB onValue, workaround: add if needed
     }
 
-    // View All Users
-    document.getElementById("viewUsersBtn").onclick = async () => {
-      contentArea.innerHTML = "<h2 class='text-xl font-bold mb-4'>All Users</h2>";
+    // Send admin message
+    messageForm.onsubmit = async (e) => {
+      e.preventDefault();
+      if (!selectedUserUID) return;
 
-      const snapshot = await get(ref(db, "profiles"));
-      if (!snapshot.exists()) {
-        contentArea.innerHTML += "<p>No users found.</p>";
+      // Check if user is banned
+      const userData = usersData[selectedUserUID] || {};
+      if (userData.banned) {
+        alert("Cannot send message. User is banned from support.");
         return;
       }
 
-      const users = snapshot.val();
-      for (const uid in users) {
-        const user = users[uid];
+      const text = messageInput.value.trim();
+      if (!text) return;
 
-        const div = document.createElement("div");
-        div.className = "p-4 mb-2 bg-white shadow rounded flex justify-between items-center";
-        div.innerHTML = `
-          <div>
-            <p><strong>${user.name}</strong> (${user.email})</p>
-            <p class="text-sm">Status: <span class="${user.status === 'suspended' ? 'text-red-600' : 'text-green-600'}">${user.status || 'active'}</span></p>
-          </div>
-          <div class="space-x-2">
-            <button onclick="messageUser('${uid}', '${user.name}')" class="bg-indigo-600 text-white px-3 py-1 rounded">Message</button>
-            <button onclick="toggleBan('${uid}', '${user.status || 'active'}')" class="${user.status === 'suspended' ? 'bg-green-600' : 'bg-red-600'} text-white px-3 py-1 rounded">
-              ${user.status === 'suspended' ? 'Unban' : 'Ban'}
-            </button>
-          </div>
-        `;
-        contentArea.appendChild(div);
-      }
+      const messagesRef = ref(db, `supportChats/${selectedUserUID}/messages`);
+      await push(messagesRef, {
+        sender: "admin",
+        text,
+        timestamp: Date.now(),
+      });
+
+      // Clear input
+      messageInput.value = "";
+
+      // Clear hasNewReply flag because admin replied
+      update(ref(db, `supportChats/${selectedUserUID}`), { hasNewReply: false });
     };
 
-    window.toggleBan = async function(uid, currentStatus) {
-      const newStatus = currentStatus === "suspended" ? "active" : "suspended";
-      await set(ref(db, `profiles/${uid}/status`), newStatus);
-      alert(`User has been ${newStatus === 'suspended' ? 'banned' : 'unbanned'}.`);
-      document.getElementById("viewUsersBtn").click();
-    }
+    // Ban user
+    banBtn.onclick = () => {
+      if (!selectedUserUID) return;
+      update(ref(db, `supportChats/${selectedUserUID}`), { banned: true });
+      alert("User has been banned from support.");
+      banBtn.style.display = "none";
+      unbanBtn.style.display = "inline-block";
+    };
 
-    window.messageUser = function(uid, name) {
-      viewSupportChat(uid, name);
-    }
+    // Unban user
+    unbanBtn.onclick = () => {
+      if (!selectedUserUID) return;
+      update(ref(db, `supportChats/${selectedUserUID}`), { banned: false });
+      alert("User has been unbanned.");
+      banBtn.style.display = "inline-block";
+      unbanBtn.style.display = "none";
+    };
   </script>
 </body>
 </html>
