@@ -6,33 +6,30 @@
   <title>Admin Panel | BandhanByPreeti</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body class="bg-gray-100">
+<body class="bg-gray-100 text-gray-800">
 
-  <div class="flex h-screen">
-    <!-- User List -->
-    <div class="w-1/4 bg-white border-r overflow-y-auto">
-      <h2 class="text-xl font-bold p-4 border-b">User Chats</h2>
-      <ul id="userList" class="divide-y"></ul>
+  <div class="flex min-h-screen">
+    
+    <!-- Sidebar -->
+    <div class="w-64 bg-white shadow p-4">
+      <h2 class="text-xl font-bold mb-4">Admin Panel</h2>
+      <button id="viewSupportBtn" class="w-full bg-blue-500 text-white py-2 rounded mb-2">Support Cases</button>
+      <button id="viewUsersBtn" class="w-full bg-green-600 text-white py-2 rounded">All Users</button>
     </div>
 
-    <!-- Chat Area -->
-    <div class="flex-1 flex flex-col">
-      <div class="p-4 border-b">
-        <h2 id="chatHeader" class="text-xl font-bold">Select a user to view chat</h2>
+    <!-- Main Content -->
+    <div class="flex-1 p-6 overflow-y-auto">
+      <div id="contentArea">
+        <!-- Content will load here -->
       </div>
-      <div id="chatArea" class="flex-1 overflow-y-auto p-4 space-y-3"></div>
-      <form id="messageForm" class="flex p-4 border-t">
-        <input id="messageInput" type="text" placeholder="Type your message..." class="flex-1 border rounded-l px-4 py-2" required />
-        <button type="submit" class="bg-blue-600 text-white px-4 rounded-r">Send</button>
-      </form>
     </div>
   </div>
 
-  <!-- Firebase SDK -->
+  <!-- Firebase -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
-    import { getDatabase, ref, onChildAdded, onValue, push, set, get, child } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-database.js";
+    import { getDatabase, ref, get, set, onChildAdded, push } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyD2Dgr5K8IC3TzBP_x9Fsc3X0gMEd4xLww",
@@ -47,93 +44,142 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getDatabase(app);
+    const ADMIN_UID = "aZpKX3OhBVg9mtC2Ybhed2UfLHq1";
 
-    const adminUID = "aZpKX3OhBVg9mtC2Ybhed2UfLHq1";
-    let selectedUserUID = null;
+    let currentUID = null;
 
-    const userListEl = document.getElementById("userList");
-    const chatHeaderEl = document.getElementById("chatHeader");
-    const chatAreaEl = document.getElementById("chatArea");
-    const messageFormEl = document.getElementById("messageForm");
-    const messageInputEl = document.getElementById("messageInput");
+    const contentArea = document.getElementById("contentArea");
 
-    // Authenticate admin
     onAuthStateChanged(auth, async (user) => {
-      if (!user || user.uid !== adminUID) {
+      if (!user || user.uid !== ADMIN_UID) {
         alert("Access denied. Admins only.");
-        window.location.href = "login.html";
+        location.href = "login.html";
         return;
       }
 
-      // Fetch user list
-      const supportChatsRef = ref(db, "supportChats");
-      onValue(supportChatsRef, (snapshot) => {
-        userListEl.innerHTML = "";
-        snapshot.forEach((childSnapshot) => {
-          const userUID = childSnapshot.key;
-          const hasNewReply = childSnapshot.val().hasNewReply;
-
-          const li = document.createElement("li");
-          li.className = "p-4 hover:bg-gray-100 cursor-pointer flex justify-between items-center";
-          li.textContent = userUID;
-          if (hasNewReply) {
-            const badge = document.createElement("span");
-            badge.className = "bg-red-500 text-white text-xs px-2 py-1 rounded-full";
-            badge.textContent = "New";
-            li.appendChild(badge);
-          }
-          li.addEventListener("click", () => loadChat(userUID));
-          userListEl.appendChild(li);
-        });
-      });
+      currentUID = user.uid;
+      loadSupportCases(); // load by default
     });
 
-    // Load chat messages
-    function loadChat(userUID) {
-      selectedUserUID = userUID;
-      chatHeaderEl.textContent = `Chat with ${userUID}`;
-      chatAreaEl.innerHTML = "";
+    // View Support Cases
+    document.getElementById("viewSupportBtn").onclick = loadSupportCases;
 
-      const messagesRef = ref(db, `supportChats/${userUID}/messages`);
-      onValue(messagesRef, (snapshot) => {
-        chatAreaEl.innerHTML = "";
-        snapshot.forEach((childSnapshot) => {
-          const msg = childSnapshot.val();
-          const msgEl = document.createElement("div");
-          msgEl.className = msg.sender === "admin" ? "text-right" : "text-left";
-          msgEl.innerHTML = `
-            <div class="inline-block bg-${msg.sender === 'admin' ? 'blue' : 'gray'}-200 rounded p-2 max-w-xs">
-              <p class="text-sm font-medium">${msg.sender === 'admin' ? 'BandhanByPreeti Support ✅' : userUID}</p>
-              <p>${msg.text}</p>
-            </div>
-          `;
-          chatAreaEl.appendChild(msgEl);
-        });
-        chatAreaEl.scrollTop = chatAreaEl.scrollHeight;
-      });
+    async function loadSupportCases() {
+      contentArea.innerHTML = "<h2 class='text-xl font-bold mb-4'>Support Cases</h2>";
 
-      // Mark messages as read
-      set(ref(db, `supportChats/${userUID}/hasNewReply`), false);
+      const supportRef = ref(db, "supportMessages");
+      const snapshot = await get(supportRef);
+
+      if (!snapshot.exists()) {
+        contentArea.innerHTML += "<p>No support messages yet.</p>";
+        return;
+      }
+
+      const cases = snapshot.val();
+      for (const userId in cases) {
+        const messages = cases[userId];
+        const latest = Object.values(messages).slice(-1)[0];
+
+        const userSnapshot = await get(ref(db, "profiles/" + userId));
+        const user = userSnapshot.exists() ? userSnapshot.val() : { name: "Unknown" };
+
+        const div = document.createElement("div");
+        div.className = "p-4 mb-2 bg-white shadow rounded";
+        div.innerHTML = `
+          <h3 class="font-bold text-lg">${user.name}</h3>
+          <p class="text-sm text-gray-600">Last message: ${latest.message}</p>
+          <button class="mt-2 bg-blue-500 text-white px-3 py-1 rounded" onclick="viewSupportChat('${userId}', '${user.name}')">Reply</button>
+        `;
+        contentArea.appendChild(div);
+      }
     }
 
-    // Send message
-    messageFormEl.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const text = messageInputEl.value.trim();
-      if (!text || !selectedUserUID) return;
+    // View Support Chat
+    window.viewSupportChat = async function(uid, name) {
+      contentArea.innerHTML = `
+        <h2 class="text-xl font-bold mb-4">Support Chat with ${name}</h2>
+        <div id="chatBox" class="border p-4 mb-4 bg-white rounded h-96 overflow-y-scroll"></div>
+        <div class="flex">
+          <input id="adminMsg" class="flex-1 p-2 border rounded-l" placeholder="Type your reply..." />
+          <button class="bg-blue-600 text-white px-4 rounded-r" onclick="sendAdminReply('${uid}')">Send</button>
+        </div>
+      `;
 
-      const messagesRef = ref(db, `supportChats/${selectedUserUID}/messages`);
-      await push(messagesRef, {
+      const chatBox = document.getElementById("chatBox");
+      chatBox.innerHTML = "";
+
+      const msgRef = ref(db, `supportMessages/${uid}`);
+      const snapshot = await get(msgRef);
+      const messages = snapshot.exists() ? snapshot.val() : {};
+
+      for (const id in messages) {
+        const msg = messages[id];
+        const align = msg.sender === "admin" ? "text-right" : "text-left";
+        const nameTag = msg.sender === "admin" ? "<span class='text-blue-600 font-semibold'>BandhanByPreeti ✓</span>" : "<span class='text-gray-700 font-semibold'>User</span>";
+        chatBox.innerHTML += `<p class="${align} mb-2">${nameTag}<br/>${msg.message}</p>`;
+      }
+
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    window.sendAdminReply = async function(uid) {
+      const msgInput = document.getElementById("adminMsg");
+      const message = msgInput.value.trim();
+      if (!message) return;
+
+      const msgRef = ref(db, `supportMessages/${uid}`);
+      await push(msgRef, {
         sender: "admin",
-        text,
+        message,
         timestamp: Date.now()
       });
 
-      messageInputEl.value = "";
+      msgInput.value = "";
+      viewSupportChat(uid);
+    }
 
-      // Notify user
-      set(ref(db, `supportChats/${selectedUserUID}/hasNewReply`), true);
-    });
+    // View All Users
+    document.getElementById("viewUsersBtn").onclick = async () => {
+      contentArea.innerHTML = "<h2 class='text-xl font-bold mb-4'>All Users</h2>";
+
+      const snapshot = await get(ref(db, "profiles"));
+      if (!snapshot.exists()) {
+        contentArea.innerHTML += "<p>No users found.</p>";
+        return;
+      }
+
+      const users = snapshot.val();
+      for (const uid in users) {
+        const user = users[uid];
+
+        const div = document.createElement("div");
+        div.className = "p-4 mb-2 bg-white shadow rounded flex justify-between items-center";
+        div.innerHTML = `
+          <div>
+            <p><strong>${user.name}</strong> (${user.email})</p>
+            <p class="text-sm">Status: <span class="${user.status === 'suspended' ? 'text-red-600' : 'text-green-600'}">${user.status || 'active'}</span></p>
+          </div>
+          <div class="space-x-2">
+            <button onclick="messageUser('${uid}', '${user.name}')" class="bg-indigo-600 text-white px-3 py-1 rounded">Message</button>
+            <button onclick="toggleBan('${uid}', '${user.status || 'active'}')" class="${user.status === 'suspended' ? 'bg-green-600' : 'bg-red-600'} text-white px-3 py-1 rounded">
+              ${user.status === 'suspended' ? 'Unban' : 'Ban'}
+            </button>
+          </div>
+        `;
+        contentArea.appendChild(div);
+      }
+    };
+
+    window.toggleBan = async function(uid, currentStatus) {
+      const newStatus = currentStatus === "suspended" ? "active" : "suspended";
+      await set(ref(db, `profiles/${uid}/status`), newStatus);
+      alert(`User has been ${newStatus === 'suspended' ? 'banned' : 'unbanned'}.`);
+      document.getElementById("viewUsersBtn").click();
+    }
+
+    window.messageUser = function(uid, name) {
+      viewSupportChat(uid, name);
+    }
   </script>
 </body>
 </html>
