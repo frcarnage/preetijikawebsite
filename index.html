@@ -62,7 +62,7 @@
         <p class="text-xl mb-10 max-w-3xl mx-auto">
           Connecting hearts with trust, respect, and understanding. Begin your journey to find a life partner who truly complements you.
         </p>
-        
+
         <!-- Search Form -->
         <div class="bg-white/10 backdrop-blur-sm p-6 rounded-xl shadow-2xl max-w-5xl mx-auto">
           <form class="grid grid-cols-1 md:grid-cols-12 gap-4" method="GET" action="search.html" aria-label="Search Matches">
@@ -76,21 +76,13 @@
             <div class="md:col-span-2">
               <select name="ageFrom" class="w-full p-3 rounded-lg border-0 focus:ring-2 focus:ring-pink-500" required>
                 <option value="">Age From</option>
-                <script>
-                  for (let i = 18; i <= 60; i++) {
-                    document.write(`<option value="${i}">${i} Years</option>`);
-                  }
-                </script>
+                <script>for (let i = 18; i <= 60; i++) document.write(`<option value="${i}">${i} Years</option>`);</script>
               </select>
             </div>
             <div class="md:col-span-2">
               <select name="ageTo" class="w-full p-3 rounded-lg border-0 focus:ring-2 focus:ring-pink-500" required>
                 <option value="">To</option>
-                <script>
-                  for (let i = 18; i <= 60; i++) {
-                    document.write(`<option value="${i}">${i} Years</option>`);
-                  }
-                </script>
+                <script>for (let i = 18; i <= 60; i++) document.write(`<option value="${i}">${i} Years</option>`);</script>
               </select>
             </div>
             <div class="md:col-span-2">
@@ -120,12 +112,10 @@
               </button>
             </div>
           </form>
-          <p class="text-sm mt-4 text-gray-3
-          </p>
         </div>
-        
+
+        <!-- Highlights -->
         <div class="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
-          <div class="text-center">
           <div class="text-center">
             <div class="text-3xl font-bold text-pink-400">100%</div>
             <div class="text-gray-300">Verified Profiles</div>
@@ -139,7 +129,7 @@
     </div>
   </section>
 
-  <!-- How It Works Section -->
+  <!-- How It Works -->
   <section id="how-it-works" class="py-20 bg-white" role="region" aria-label="How It Works">
     <div class="container mx-auto px-4">
       <div class="text-center mb-16">
@@ -148,66 +138,47 @@
           Find your perfect match in just a few simple steps with BandhanByPreeti
         </p>
       </div>
-      
       <div class="grid md:grid-cols-3 gap-10 max-w-5xl mx-auto">
-        <!-- Step 1 -->
-        <div class="text-center p-6 rounded-xl bg-pink-50 transform transition-all duration-300 hover:shadow-xl hover:-translate-y-2">
-          <div class="w-20 h-20 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-6">
+        <div class="text-center p-6 rounded-xl bg-pink-50 hover:shadow-xl hover:-translate-y-2 transition duration-300">
+          <div class="w-20 h-20 bg-pink-100 rounded-full mx-auto mb-6 flex items-center justify-center">
             <i class="fas fa-user-plus text-3xl text-pink-500"></i>
           </div>
           <h3 class="text-xl font-semibold mb-3">Create Your Profile</h3>
-          <p class="text-gray-600">
-            Sign up and create a detailed profile with your preferences, interests, and partner expectations.
-          </p>
-          <div class="mt-4 text-pink-500 font-medium">Step 1</div>
+          <p class="text-gray-600">Sign up and add your details, interests, and preferences.</p>
         </div>
-        
-        <!-- Step 2 -->
-        <div class="text-center p-6 rounded-xl bg-blue-50 transform transition-all duration-300 hover:shadow-xl hover:-translate-y-2">
-          <div class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
+        <div class="text-center p-6 rounded-xl bg-blue-50 hover:shadow-xl hover:-translate-y-2 transition duration-300">
+          <div class="w-20 h-20 bg-blue-100 rounded-full mx-auto mb-6 flex items-center justify-center">
             <i class="fas fa-search text-3xl text-blue-500"></i>
           </div>
           <h3 class="text-xl font-semibold mb-3">Find Matches</h3>
-          <p class="text-gray-600">
-            Use our advanced search filters to find profiles that match your preferences and interests.
-          </p>
-          <div class="mt-4 text-blue-500 font-medium">Step 2</div>
+          <p class="text-gray-600">Browse through suitable matches using smart filters.</p>
         </div>
-        
-        <!-- Step 3 -->
-        <div class="text-center p-6 rounded-xl bg-purple-50 transform transition-all duration-300 hover:shadow-xl hover:-translate-y-2">
-          <div class="w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
+        <div class="text-center p-6 rounded-xl bg-purple-50 hover:shadow-xl hover:-translate-y-2 transition duration-300">
+          <div class="w-20 h-20 bg-purple-100 rounded-full mx-auto mb-6 flex items-center justify-center">
             <i class="fas fa-heart text-3xl text-purple-500"></i>
           </div>
           <h3 class="text-xl font-semibold mb-3">Connect & Build</h3>
-          <p class="text-gray-600">
-            Connect with your matches, start meaningful conversations, and build a lasting relationship.
-          </p>
-          <div class="mt-4 text-purple-500 font-medium">Step 3</div>
+          <p class="text-gray-600">Start chatting and build meaningful connections.</p>
         </div>
       </div>
-      
       <div class="text-center mt-16">
-        <a href="register.html" class="bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 px-8 rounded-full inline-flex items-center transition-all duration-300 transform hover:scale-105">
-          Get Started Now
-          <i class="fas fa-arrow-right ml-2"></i>
+        <a href="register.html" class="bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 px-8 rounded-full transition-all duration-300">
+          Get Started Now <i class="fas fa-arrow-right ml-2"></i>
         </a>
       </div>
     </div>
   </section>
 
   <!-- CTA Section -->
-  <section class="py-20 bg-pink-600 text-white">
-    <div class="container mx-auto px-4 text-center">
+  <section class="py-20 bg-pink-600 text-white text-center">
+    <div class="container mx-auto px-4">
       <h2 class="text-4xl font-bold mb-6">Ready to Find Your Perfect Match?</h2>
-      <p class="text-xl mb-8 max-w-2xl mx-auto">
-        Join thousands of happy couples who found their life partners with BandhanByPreeti
-      </p>
+      <p class="text-xl mb-8 max-w-2xl mx-auto">Join thousands who found love with BandhanByPreeti</p>
       <div class="space-x-4">
-        <a href="register.html" class="bg-white text-pink-600 hover:bg-gray-100 font-bold py-3 px-8 rounded-full inline-block transition-all duration-300 transform hover:scale-105">
+        <a href="register.html" class="bg-white text-pink-600 font-bold py-3 px-8 rounded-full hover:bg-gray-100 transition">
           Create Free Profile
         </a>
-        <a href="#how-it-works" class="border-2 border-white hover:bg-white/10 font-bold py-3 px-8 rounded-full inline-block transition-all duration-300">
+        <a href="#how-it-works" class="border-2 border-white py-3 px-8 rounded-full hover:bg-white/10 transition">
           Learn More
         </a>
       </div>
@@ -215,96 +186,34 @@
   </section>
 
   <!-- Footer -->
-  <footer class="bg-gray-900 text-white pt-16 pb-8">
-    <div class="container mx-auto px-4">
-      <div class="grid md:grid-cols-4 gap-8 mb-12">
-        <div>
-          <h3 class="text-xl font-bold mb-4">BandhanByPreeti</h3>
-          <p class="text-gray-400">
-            Connecting hearts with trust and understanding since 2025. Your journey to find the perfect life partner starts here.
-          </p>
-        </div>
-        <div>
-          <h4 class="text-lg font-semibold mb-4">Quick Links</h4>
-          <ul class="space-y-2">
-            <li><a href="#" class="text-gray-400 hover:text-white">Home</a></li>
-            <li><a href="#how-it-works" class="text-gray-400 hover:text-white">How It Works</a></li>
-            <li><a href="#success-stories" class="text-gray-400 hover:text-white">Success Stories</a></li>
-            <li><a href="#pricing" class="text-gray-400 hover:text-white">Membership</a></li>
-          </ul>
-        </div>
-        <div>
-          <h4 class="text-lg font-semibold mb-4">Legal</h4>
-          <ul class="space-y-2">
-            <li><a href="privacy.html" class="text-gray-400 hover:text-white">Privacy Policy</a></li>
-            <li><a href="tos.html" class="text-gray-400 hover:text-white">Terms & Conditions</a></li>
-            
-          </ul>
-        </div>
-        <div>
-          <h4 class="text-lg font-semibold mb-4">Contact Us</h4>
-          <ul class="space-y-2 text-gray-400">
-            <li class="flex items-start">
-              <i class="fas fa-map-marker-alt mt-1 mr-2"></i>
-              <span></span>
-            </li>
-            <li class="flex items-center">
-              <i class="fas fa-phone-alt mr-2"></i>
-              <span></span>
-            </li>
-            <li class="flex items-center">
-              <i class="fas fa-envelope mr-2"></i>
-              <span>Through in-built contact support</span>
-            </li>
-          </ul>
-        </div>
+  <footer class="bg-black text-white py-10">
+    <div class="container mx-auto px-4 grid md:grid-cols-3 gap-8 text-sm">
+      <div>
+        <h3 class="text-lg font-semibold mb-3">BandhanByPreeti</h3>
+        <p>Modern, trusted and secure matchmaking for the new generation.</p>
       </div>
-      <div class="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center">
-        <p class="text-gray-400">&copy; 2023 BandhanByPreeti. All rights reserved.</p>
-        <div class="flex space-x-4 mt-4 md:mt-0">
-          <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-facebook-f"></i></a>
-          <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-twitter"></i></a>
+      <div>
+        <h3 class="text-lg font-semibold mb-3">Quick Links</h3>
+        <ul>
+          <li><a href="privacy.html" class="hover:text-pink-400">Privacy Policy</a></li>
+          <li><a href="terms.html" class="hover:text-pink-400">Terms of Service</a></li>
+          <li><a href="contact.html" class="hover:text-pink-400">Contact Us</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3 class="text-lg font-semibold mb-3">Connect With Us</h3>
+        <p>Email: support@bandhanbypreeti.com</p>
+        <p>Instagram: @BandhanByPreeti</p>
+      </div>
+    </div>
+    <div class="text-center mt-6 text-gray-500">&copy; 2025 BandhanByPreeti. All rights reserved.</div>
   </footer>
 
-  <!-- Back to Top Button -->
-  <button id="backToTop" class="fixed bottom-8 right-8 bg-pink-600 text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg hover:bg-pink-700 transition-all duration-300 hidden">
-    <i class="fas fa-arrow-up"></i>
-  </button>
-
-
-  <!-- Scripts -->
   <script>
-    // Mobile menu toggle
-    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-    const mobileMenu = document.getElementById('mobileMenu');
-    
-    if (mobileMenuBtn && mobileMenu) {
-      mobileMenuBtn.addEventListener('click', () => {
-        mobileMenu.classList.toggle('hidden');
-        mobileMenuBtn.innerHTML = mobileMenu.classList.contains('hidden') ? 
-          '<i class="fas fa-bars"></i>' : 
-          '<i class="fas fa-times"></i>';
-      });
-    }
-
-    // Back to top button
-    const backToTopBtn = document.getElementById('backToTop');
-    if (backToTopBtn) {
-      window.addEventListener('scroll', () => {
-        if (window.pageYOffset > 300) {
-          backToTopBtn.classList.remove('hidden');
-        } else {
-          backToTopBtn.classList.add('hidden');
-        }
-      });
-      
-      backToTopBtn.addEventListener('click', () => {
-        window.scrollTo({
-          top: 0,
-          behavior: 'smooth'
-        });
-      });
-    }
+    document.getElementById("mobileMenuBtn").addEventListener("click", () => {
+      const menu = document.getElementById("mobileMenu");
+      menu.classList.toggle("hidden");
+    });
   </script>
 </body>
 </html>
