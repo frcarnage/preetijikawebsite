@@ -1,220 +1,140 @@
 <!DOCTYPE html>
-<html lang="en" >
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Support Chat | BandhanByPreeti</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
-  <style>
-    /* Custom scrollbar for messages container */
-    #messages::-webkit-scrollbar {
-      width: 8px;
-    }
-    #messages::-webkit-scrollbar-track {
-      background: #f1f1f1;
-    }
-    #messages::-webkit-scrollbar-thumb {
-      background: #888;
-      border-radius: 4px;
-    }
-    #messages::-webkit-scrollbar-thumb:hover {
-      background: #555;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BandhanByPreeti - Support Chat</title>
+    <script src="https://www.gstatic.com/firebasejs/9.x.x/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.x.x/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.x.x/firebase-database-compat.js"></script>
+    <script src="firebaseConfig.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100">
+<body class="bg-gradient-to-r from-pink-50 to-red-50">
+    <div class="min-h-screen">
+        <!-- Header -->
+        <header class="bg-white shadow">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between h-16">
+                    <div class="flex items-center">
+                        <h1 class="text-xl font-bold text-pink-600">Support Chat</h1>
+                    </div>
+                    <div class="flex items-center">
+                        <button onclick="window.history.back()" 
+                                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-pink-600 hover:bg-pink-700">
+                            Back
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
 
-  <div class="max-w-3xl mx-auto mt-10 bg-white shadow rounded-lg flex flex-col h-[90vh]">
-    <!-- Header -->
-    <header class="p-4 border-b flex items-center justify-between">
-      <h1 class="text-xl font-semibold text-center flex-1">Support Chat</h1>
-      <button id="logoutBtn" class="text-sm text-red-500 hover:underline">Logout</button>
-    </header>
+        <!-- Main content -->
+        <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="space-y-6">
+                    <!-- Case Info -->
+                    <div>
+                        <h2 class="text-xl font-medium text-gray-900">Case Information</h2>
+                        <div id="caseInfo" class="mt-4 space-y-2">
+                            <!-- Case info will be loaded here -->
+                        </div>
+                    </div>
 
-    <!-- Messages container -->
-    <div id="messages" class="flex-1 overflow-y-auto p-6 space-y-4 bg-gray-50"></div>
+                    <!-- Chat Window -->
+                    <div class="h-[600px] flex flex-col">
+                        <div id="supportMessages" class="flex-1 overflow-y-auto p-4 space-y-4">
+                            <!-- Messages will be loaded here -->
+                        </div>
+                        <div class="flex-shrink-0 p-4 border-t">
+                            <div class="flex space-x-4">
+                                <input type="text" id="supportMessageInput" 
+                                       placeholder="Type your message..." 
+                                       class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-pink-500 focus:ring-pink-500">
+                                <button onclick="sendSupportMessage()" 
+                                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-pink-600 hover:bg-pink-700">
+                                    Send
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
 
-    <!-- Message input form -->
-    <form id="messageForm" class="flex border-t p-4 bg-white">
-      <input
-        id="messageInput"
-        type="text"
-        placeholder="Type your message..."
-        class="flex-1 border rounded-l px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        autocomplete="off"
-        required
-      />
-      <button
-        type="submit"
-        class="bg-blue-600 hover:bg-blue-700 transition text-white px-6 rounded-r font-semibold"
-        aria-label="Send message"
-      >
-        Send
-      </button>
-    </form>
-  </div>
+    <script>
+        auth.onAuthStateChanged(async (user) => {
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
 
-  <!-- Firebase scripts -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
-    import { getDatabase, ref, push, onChildAdded, set, get, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-database.js";
-
-    // Your Firebase configuration
-    const firebaseConfig = {
-      apiKey: "AIzaSyD2Dgr5K8IC3TzBP_x9Fsc3X0gMEd4xLww",
-      authDomain: "bandhanbypreeti.firebaseapp.com",
-      databaseURL: "https://bandhanbypreeti-default-rtdb.firebaseio.com",
-      projectId: "bandhanbypreeti",
-      storageBucket: "bandhanbypreeti.appspot.com",
-      messagingSenderId: "880058352718",
-      appId: "1:880058352718:web:3c5444ce629265467eef1f"
-    };
-
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getDatabase(app);
-
-    let user = null;
-    let caseCreated = false;
-    let caseNumber = null;
-    const messagesDiv = document.getElementById("messages");
-    const messageForm = document.getElementById("messageForm");
-    const messageInput = document.getElementById("messageInput");
-    const logoutBtn = document.getElementById("logoutBtn");
-
-    // Utility: Format timestamp to readable string
-    function formatTimestamp(ts) {
-      const date = new Date(ts);
-      return date.toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' });
-    }
-
-    // Scroll messages container to bottom
-    function scrollToBottom() {
-      messagesDiv.scrollTop = messagesDiv.scrollHeight;
-    }
-
-    // Append a message to the chat container
-    function appendMessage(msg) {
-      // Determine message alignment and background color
-      let alignClass = "text-left";
-      let bgColorClass = "bg-gray-200";
-      let senderName = "";
-      let isAdmin = false;
-      let isBot = false;
-
-      if (msg.sender === "admin") {
-        alignClass = "text-right";
-        bgColorClass = "bg-blue-200";
-        senderName = "BandhanByPreeti Support ✅";
-        isAdmin = true;
-      } else if (msg.sender === "bot") {
-        alignClass = "text-center";
-        bgColorClass = "bg-yellow-200 italic";
-        senderName = "Bot 🤖";
-        isBot = true;
-      } else if (msg.sender === "user") {
-        alignClass = "text-left";
-        bgColorClass = "bg-gray-200";
-        senderName = user.displayName || user.email;
-      } else {
-        // Unknown sender fallback
-        senderName = msg.sender;
-      }
-
-      // Create message container
-      const msgEl = document.createElement("div");
-      msgEl.className = `${alignClass} max-w-xs md:max-w-md mx-auto`;
-
-      // Compose inner HTML with sender, text and timestamp
-      msgEl.innerHTML = `
-        <div class="${bgColorClass} rounded px-4 py-3 break-words shadow-sm">
-          <p class="text-xs font-semibold mb-1 ${isBot ? 'italic' : ''}">${senderName}</p>
-          <p class="whitespace-pre-wrap">${msg.text}</p>
-          <p class="text-xs text-gray-500 mt-1 text-right">${formatTimestamp(msg.timestamp)}</p>
-        </div>
-      `;
-
-      messagesDiv.appendChild(msgEl);
-      scrollToBottom();
-    }
-
-    // Listen to auth state and initialize chat
-    onAuthStateChanged(auth, async (u) => {
-      if (!u) {
-        location.href = "login.html";
-        return;
-      }
-      user = u;
-
-      // Reference to this user's support chat messages
-      const chatRef = ref(db, `supportChats/${user.uid}/messages`);
-
-      // Load existing messages and listen for new ones
-      onChildAdded(chatRef, (snapshot) => {
-        const msg = snapshot.val();
-        appendMessage(msg);
-      });
-
-      // Check if chat is new (no messages yet)
-      const snapshot = await get(chatRef);
-      if (!snapshot.exists()) {
-        // Generate case number
-        caseNumber = Math.floor(100000 + Math.random() * 900000); // 6-digit number
-
-        // Send bot welcome message with case number
-        await push(chatRef, {
-          sender: "bot",
-          text: `Your case number #${caseNumber} has been created. Please tell your issue.`,
-          timestamp: Date.now()
+            // Load support chat
+            const supportRef = db.ref(`supportChats/${user.uid}`);
+            supportRef.on('value', (snapshot) => {
+                const supportChat = snapshot.val();
+                if (supportChat) {
+                    displaySupportChat(supportChat);
+                } else {
+                    // Create new support chat
+                    const caseNumber = `#${Math.floor(100000 + Math.random() * 900000)}`;
+                    supportRef.set({
+                        messages: {},
+                        caseNumber: caseNumber,
+                        timestamp: Date.now()
+                    });
+                }
+            });
         });
 
-        caseCreated = true;
-      } else {
-        // Already existing chat
-        caseCreated = true;
-      }
-    });
+        function displaySupportChat(supportChat) {
+            // Display case info
+            const caseInfo = document.getElementById('caseInfo');
+            caseInfo.innerHTML = `
+                <div class="flex items-center">
+                    <span class="text-xl font-bold text-pink-600">${supportChat.caseNumber}</span>
+                    <span class="ml-2 text-sm text-gray-500">Created: ${new Date(supportChat.timestamp).toLocaleString()}</span>
+                </div>
+            `;
 
-    // Handle sending new messages
-    messageForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const text = messageInput.value.trim();
-      if (text === "") return;
+            // Display messages
+            const messages = supportChat.messages;
+            const messagesContainer = document.getElementById('supportMessages');
+            messagesContainer.innerHTML = '';
 
-      const chatRef = ref(db, `supportChats/${user.uid}/messages`);
+            for (const [id, message] of Object.entries(messages)) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `flex ${message.sender === 'user' ? 'justify-start' : 'justify-end'}`;
+                messageDiv.innerHTML = `
+                    <div class="max-w-[80%]">
+                        <div class="p-3 rounded-lg ${message.sender === 'user' ? 'bg-gray-100' : 'bg-pink-600 text-white'}">
+                            ${message.text}
+                        </div>
+                        <div class="text-xs text-gray-500 text-right">
+                            ${new Date(message.timestamp).toLocaleTimeString()}
+                        </div>
+                    </div>
+                `;
+                messagesContainer.appendChild(messageDiv);
+            }
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
 
-      // Push user message
-      await push(chatRef, {
-        sender: "user",
-        text,
-        timestamp: Date.now()
-      });
+        function sendSupportMessage() {
+            const input = document.getElementById('supportMessageInput');
+            const text = input.value.trim();
+            if (!text) return;
 
-      messageInput.value = "";
+            const supportRef = db.ref(`supportChats/${auth.currentUser.uid}/messages`);
+            supportRef.push({
+                sender: 'user',
+                text: text,
+                timestamp: Date.now()
+            });
 
-      // If first user message after bot welcome, send forwarding bot message
-      if (!caseCreated) {
-        setTimeout(async () => {
-          await push(chatRef, {
-            sender: "bot",
-            text: "Your issue has been forwarded to the support team. You'll get a reply as soon as possible.",
-            timestamp: Date.now()
-          });
-        }, 500);
-        caseCreated = true;
-      }
-
-      // Notify admin there's a new reply from user
-      await set(ref(db, `supportChats/${user.uid}/hasNewReply`), true);
-    });
-
-    // Logout button handler
-    logoutBtn.addEventListener("click", async () => {
-      await signOut(auth);
-      location.href = "login.html";
-    });
-  </script>
+            input.value = '';
+        }
+    </script>
 </body>
 </html>
