@@ -1,101 +1,395 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>BandhanByPreeti - Trusted Matrimony & Matchmaking Service</title>
-  <meta name="description" content="BandhanByPreeti - Connect with verified matches and find your lifelong partner. Secure, personalized matrimonial service." />
-  <meta name="keywords" content="matrimony, matchmaking, marriage, bride, groom, BandhanByPreeti" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BandhanByPreeti - Find Your Perfect Life Partner</title>
+  <meta name="description" content="BandhanByPreeti - Connect with verified matches and find your lifelong partner. Secure, personalized matrimonial service with a modern approach." />
+  <meta name="keywords" content="matrimony, matchmaking, marriage, shaadi, bride, groom, BandhanByPreeti, wedding, relationship, life partner" />
   <meta name="author" content="BandhanByPreeti" />
-  <link rel="icon" href="favicon.ico" type="image/x-icon" />
+  <link rel="icon" href="/image/favicon.ico" type="image/x-icon" />
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  <style>
+    .hero-section {
+      background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.7)), 
+                  url('https://raw.githubusercontent.com/frcarnage/preetijikawebsite/main/images/wedding2.jpg') no-repeat center center/cover;
+      min-height: 90vh;
+    }
+    @media (max-width: 768px) {
+      .hero-section {
+        min-height: 100vh;
+      }
+    }
+  </style>
 </head>
-<body class="text-gray-800">
+<body class="font-sans text-gray-800 bg-gray-50">
 
   <!-- Header -->
-  <header class="bg-black text-white p-4 flex justify-between items-center" role="banner">
-    <h1 class="text-2xl font-bold">BandhanByPreeti</h1>
-    <nav class="space-x-4" role="navigation" aria-label="Primary Navigation">
-      <a href="login.html" class="hover:underline focus:outline-none focus:ring-2 focus:ring-blue-500">Login</a>
-      <a href="register.html" class="hover:underline focus:outline-none focus:ring-2 focus:ring-blue-500">Register</a>
-    </nav>
+  <header class="fixed w-full bg-black/90 text-white p-4 z-50 shadow-lg">
+    <div class="container mx-auto flex justify-between items-center">
+      <a href="index.html" class="text-2xl font-bold text-pink-500 hover:text-pink-400 transition-colors">
+        <i class="fas fa-heart mr-2"></i>BandhanByPreeti
+      </a>
+      <nav class="hidden md:flex space-x-6" aria-label="Primary Navigation">
+        <a href="#how-it-works" class="hover:text-pink-400 transition-colors">How It Works</a>
+        <a href="#success-stories" class="hover:text-pink-400 transition-colors">Success Stories</a>
+        <a href="#pricing" class="hover:text-pink-400 transition-colors">Membership</a>
+        <a href="login.html" class="bg-pink-600 hover:bg-pink-700 px-4 py-2 rounded-md font-medium transition-colors">
+          Login / Register
+        </a>
+      </nav>
+      <button class="md:hidden text-2xl" id="mobileMenuBtn" aria-label="Toggle menu">
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
+    <!-- Mobile Menu -->
+    <div id="mobileMenu" class="md:hidden hidden bg-black/95 w-full absolute left-0 px-4 py-2">
+      <a href="#how-it-works" class="block py-2 hover:text-pink-400">How It Works</a>
+      <a href="#success-stories" class="block py-2 hover:text-pink-400">Success Stories</a>
+      <a href="#pricing" class="block py-2 hover:text-pink-400">Membership</a>
+      <a href="login.html" class="block py-2 text-pink-400 font-medium">Login / Register</a>
+    </div>
   </header>
 
   <!-- Hero Section -->
-  <section
-    class="relative h-[80vh] bg-cover bg-center flex items-center justify-center text-white"
-    style="background-image: url('https://raw.githubusercontent.com/frcarnage/preetijikawebsite/main/images/wedding2.jpg');"
-    role="region" aria-label="Hero Section"
-  >
-    <div class="bg-black bg-opacity-60 p-8 rounded-lg text-center max-w-4xl w-full mx-4">
-      <h2 class="text-3xl md:text-4xl font-semibold mb-6">Trusted Matrimony & Matchmaking Service</h2>
-      
-      <!-- Search Filter Form -->
-      <form 
-        class="grid grid-cols-2 md:grid-cols-6 gap-3 text-black"
-        method="GET"
-        action="search.html"
-        aria-label="Search Matrimonial Profiles"
-      >
-        <select name="lookingFor" class="p-2 rounded" required aria-label="Looking for">
-          <option value="">I'm looking for a</option>
-          <option value="Woman">Woman</option>
-          <option value="Man">Man</option>
-        </select>
-        <select name="ageFrom" class="p-2 rounded" required aria-label="Age From">
-          <option value="">Age From</option>
-          <option value="22">22</option><option value="23">23</option><option value="24">24</option>
-        </select>
-        <select name="ageTo" class="p-2 rounded" required aria-label="Age To">
-          <option value="">To</option>
-          <option value="27">27</option><option value="28">28</option><option value="29">29</option>
-        </select>
-        <select name="religion" class="p-2 rounded" required aria-label="Religion">
-          <option value="">Religion</option>
-          <option value="Hindu">Hindu</option><option value="Muslim">Muslim</option><option value="Sikh">Sikh</option>
-        </select>
-        <select name="motherTongue" class="p-2 rounded" required aria-label="Mother Tongue">
-          <option value="">Mother Tongue</option>
-          <option value="Hindi">Hindi</option><option value="English">English</option><option value="Bengali">Bengali</option>
-        </select>
-        <button
-          type="submit"
-          class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
-          aria-label="Search Profiles"
-        >
-          Let's Begin
-        </button>
-      </form>
+  <section class="hero-section flex items-center justify-center text-white pt-20" role="region" aria-label="Hero Section">
+    <div class="container mx-auto px-4 py-20">
+      <div class="max-w-5xl mx-auto text-center">
+        <h1 class="text-4xl md:text-6xl font-bold mb-6 leading-tight">
+          Find Your Perfect Life Partner with <span class="text-pink-400">BandhanByPreeti</span>
+        </h1>
+        <p class="text-xl mb-10 max-w-3xl mx-auto">
+          Connecting hearts with trust, respect, and understanding. Begin your journey to find a life partner who truly complements you.
+        </p>
+        
+        <!-- Search Form -->
+        <div class="bg-white/10 backdrop-blur-sm p-6 rounded-xl shadow-2xl max-w-5xl mx-auto">
+          <form class="grid grid-cols-1 md:grid-cols-12 gap-4" method="GET" action="search.html" aria-label="Search Matches">
+            <div class="md:col-span-2">
+              <select name="gender" class="w-full p-3 rounded-lg border-0 focus:ring-2 focus:ring-pink-500" required>
+                <option value="">I'm looking for</option>
+                <option value="Woman">Bride</option>
+                <option value="Man">Groom</option>
+              </select>
+            </div>
+            <div class="md:col-span-2">
+              <select name="ageFrom" class="w-full p-3 rounded-lg border-0 focus:ring-2 focus:ring-pink-500" required>
+                <option value="">Age From</option>
+                <script>
+                  for (let i = 18; i <= 60; i++) {
+                    document.write(`<option value="${i}">${i} Years</option>`);
+                  }
+                </script>
+              </select>
+            </div>
+            <div class="md:col-span-2">
+              <select name="ageTo" class="w-full p-3 rounded-lg border-0 focus:ring-2 focus:ring-pink-500" required>
+                <option value="">To</option>
+                <script>
+                  for (let i = 18; i <= 60; i++) {
+                    document.write(`<option value="${i}">${i} Years</option>`);
+                  }
+                </script>
+              </select>
+            </div>
+            <div class="md:col-span-2">
+              <select name="religion" class="w-full p-3 rounded-lg border-0 focus:ring-2 focus:ring-pink-500">
+                <option value="">Religion</option>
+                <option>Hindu</option>
+                <option>Muslim</option>
+                <option>Christian</option>
+                <option>Sikh</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div class="md:col-span-2">
+              <select name="motherTongue" class="w-full p-3 rounded-lg border-0 focus:ring-2 focus:ring-pink-500">
+                <option value="">Mother Tongue</option>
+                <option>Hindi</option>
+                <option>English</option>
+                <option>Bengali</option>
+                <option>Tamil</option>
+                <option>Telugu</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div class="md:col-span-2">
+              <button type="submit" class="w-full bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105">
+                Find Matches
+              </button>
+            </div>
+          </form>
+          <p class="text-sm mt-4 text-gray-300">
+            Join thousands of happy couples who found their life partners with us
+          </p>
+        </div>
+        
+        <div class="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
+          <div class="text-center">
+            <div class="text-3xl font-bold text-pink-400">10K+</div>
+            <div class="text-gray-300">Happy Couples</div>
+          </div>
+          <div class="text-center">
+            <div class="text-3xl font-bold text-pink-400">50K+</div>
+            <div class="text-gray-300">Active Profiles</div>
+          </div>
+          <div class="text-center">
+            <div class="text-3xl font-bold text-pink-400">100%</div>
+            <div class="text-gray-300">Verified Profiles</div>
+          </div>
+          <div class="text-center">
+            <div class="text-3xl font-bold text-pink-400">24/7</div>
+            <div class="text-gray-300">Support</div>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
-  <!-- About Section -->
-  <section class="bg-white py-16 px-6 text-center" role="region" aria-label="About BandhanByPreeti">
-    <h3 class="text-2xl font-bold mb-4">Why BandhanByPreeti?</h3>
-    <p class="max-w-2xl mx-auto mb-10 text-gray-600">
-BandhanByPreeti is a modern matrimonial web platform built to help individuals find meaningful and verified life partners. Inspired by leading matrimonial services like Shaadi.com, it focuses on trust, personalization, and ease of use. The platform is powered by Firebase for authentication and real-time data handling, ensuring a secure and efficient user experience.    </p>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-      <div class="bg-gray-100 p-6 rounded shadow">✅ Verified Profiles</div>
-      <div class="bg-gray-100 p-6 rounded shadow">🔒 Secure Communication</div>
-      <div class="bg-gray-100 p-6 rounded shadow">💘 Personalized Matches</div>
+  <!-- How It Works Section -->
+  <section id="how-it-works" class="py-20 bg-white" role="region" aria-label="How It Works">
+    <div class="container mx-auto px-4">
+      <div class="text-center mb-16">
+        <h2 class="text-4xl font-bold mb-4">How It Works</h2>
+        <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+          Find your perfect match in just a few simple steps with BandhanByPreeti
+        </p>
+      </div>
+      
+      <div class="grid md:grid-cols-3 gap-10 max-w-5xl mx-auto">
+        <!-- Step 1 -->
+        <div class="text-center p-6 rounded-xl bg-pink-50 transform transition-all duration-300 hover:shadow-xl hover:-translate-y-2">
+          <div class="w-20 h-20 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <i class="fas fa-user-plus text-3xl text-pink-500"></i>
+          </div>
+          <h3 class="text-xl font-semibold mb-3">Create Your Profile</h3>
+          <p class="text-gray-600">
+            Sign up and create a detailed profile with your preferences, interests, and partner expectations.
+          </p>
+          <div class="mt-4 text-pink-500 font-medium">Step 1</div>
+        </div>
+        
+        <!-- Step 2 -->
+        <div class="text-center p-6 rounded-xl bg-blue-50 transform transition-all duration-300 hover:shadow-xl hover:-translate-y-2">
+          <div class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <i class="fas fa-search text-3xl text-blue-500"></i>
+          </div>
+          <h3 class="text-xl font-semibold mb-3">Find Matches</h3>
+          <p class="text-gray-600">
+            Use our advanced search filters to find profiles that match your preferences and interests.
+          </p>
+          <div class="mt-4 text-blue-500 font-medium">Step 2</div>
+        </div>
+        
+        <!-- Step 3 -->
+        <div class="text-center p-6 rounded-xl bg-purple-50 transform transition-all duration-300 hover:shadow-xl hover:-translate-y-2">
+          <div class="w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <i class="fas fa-heart text-3xl text-purple-500"></i>
+          </div>
+          <h3 class="text-xl font-semibold mb-3">Connect & Build</h3>
+          <p class="text-gray-600">
+            Connect with your matches, start meaningful conversations, and build a lasting relationship.
+          </p>
+          <div class="mt-4 text-purple-500 font-medium">Step 3</div>
+        </div>
+      </div>
+      
+      <div class="text-center mt-16">
+        <a href="register.html" class="bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 px-8 rounded-full inline-flex items-center transition-all duration-300 transform hover:scale-105">
+          Get Started Now
+          <i class="fas fa-arrow-right ml-2"></i>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Success Stories -->
+  <section id="success-stories" class="py-20 bg-gray-50" role="region" aria-label="Success Stories">
+    <div class="container mx-auto px-4">
+      <div class="text-center mb-16">
+        <h2 class="text-4xl font-bold mb-4">Success Stories</h2>
+        <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+          Real stories from couples who found love through BandhanByPreeti
+        </p>
+      </div>
+      
+      <div class="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+        <!-- Testimonial 1 -->
+        <div class="bg-white p-8 rounded-xl shadow-lg">
+          <div class="flex items-center mb-6">
+            <img src="https://randomuser.me/api/portraits/women/32.jpg" alt="Priya & Raj" class="w-16 h-16 rounded-full object-cover">
+            <div class="ml-4">
+              <h4 class="font-semibold">Priya & Raj</h4>
+              <p class="text-sm text-gray-500">Married: 2022</p>
+            </div>
+          </div>
+          <p class="text-gray-600 italic">
+            "BandhanByPreeti helped us find each other when we had almost given up hope. The compatibility matching was spot on!"
+          </p>
+          <div class="mt-4 text-yellow-400">
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+          </div>
+        </div>
+        
+        <!-- Testimonial 2 -->
+        <div class="bg-white p-8 rounded-xl shadow-lg">
+          <div class="flex items-center mb-6">
+            <img src="https://randomuser.me/api/portraits/men/45.jpg" alt="Amit & Neha" class="w-16 h-16 rounded-full object-cover">
+            <div class="ml-4">
+              <h4 class="font-semibold">Amit & Neha</h4>
+              <p class="text-sm text-gray-500">Married: 2021</p>
+            </div>
+          </div>
+          <p class="text-gray-600 italic">
+            "The detailed profiles and verification process made us feel safe and confident in our search. Thank you for bringing us together!"
+          </p>
+          <div class="mt-4 text-yellow-400">
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+          </div>
+        </div>
+        
+        <!-- Testimonial 3 -->
+        <div class="bg-white p-8 rounded-xl shadow-lg">
+          <div class="flex items-center mb-6">
+            <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="Ananya & Rohan" class="w-16 h-16 rounded-full object-cover">
+            <div class="ml-4">
+              <h4 class="font-semibold">Ananya & Rohan</h4>
+              <p class="text-sm text-gray-500">Married: 2023</p>
+            </div>
+          </div>
+          <p class="text-gray-600 italic">
+            "We were skeptical about online matchmaking, but BandhanByPreeti proved us wrong. The team was incredibly supportive throughout our journey."
+          </p>
+          <div class="mt-4 text-yellow-400">
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star-half-alt"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="py-20 bg-pink-600 text-white">
+    <div class="container mx-auto px-4 text-center">
+      <h2 class="text-4xl font-bold mb-6">Ready to Find Your Perfect Match?</h2>
+      <p class="text-xl mb-8 max-w-2xl mx-auto">
+        Join thousands of happy couples who found their life partners with BandhanByPreeti
+      </p>
+      <div class="space-x-4">
+        <a href="register.html" class="bg-white text-pink-600 hover:bg-gray-100 font-bold py-3 px-8 rounded-full inline-block transition-all duration-300 transform hover:scale-105">
+          Create Free Profile
+        </a>
+        <a href="#how-it-works" class="border-2 border-white hover:bg-white/10 font-bold py-3 px-8 rounded-full inline-block transition-all duration-300">
+          Learn More
+        </a>
+      </div>
     </div>
   </section>
 
   <!-- Footer -->
-  <footer class="bg-black text-white text-center py-4" role="contentinfo">
-    <p class="text-sm">© 2025 BandhanByPreeti. All rights reserved.</p>
-    <div class="mt-2 space-x-4 text-sm">
-      <footer class="bg-black text-white text-center py-4" role="contentinfo">
-  <p class="text-sm">© 2025 BandhanByPreeti. All rights reserved.</p>
-  <div class="mt-2 space-x-4 text-sm">
-    <a href="privacy.html" class="hover:underline focus:outline-none focus:ring-2 focus:ring-white">Privacy Policy</a>
-    <a href="tos.html" class="hover:underline focus:outline-none focus:ring-2 focus:ring-white">Terms</a>
-    <a href="#" class="hover:underline focus:outline-none focus:ring-2 focus:ring-white">Contact</a>
-  </div>
-</footer>
-
-    </div>
+  <footer class="bg-gray-900 text-white pt-16 pb-8">
+    <div class="container mx-auto px-4">
+      <div class="grid md:grid-cols-4 gap-8 mb-12">
+        <div>
+          <h3 class="text-xl font-bold mb-4">BandhanByPreeti</h3>
+          <p class="text-gray-400">
+            Connecting hearts with trust and understanding since 2010. Your journey to find the perfect life partner starts here.
+          </p>
+        </div>
+        <div>
+          <h4 class="text-lg font-semibold mb-4">Quick Links</h4>
+          <ul class="space-y-2">
+            <li><a href="#" class="text-gray-400 hover:text-white">Home</a></li>
+            <li><a href="#how-it-works" class="text-gray-400 hover:text-white">How It Works</a></li>
+            <li><a href="#success-stories" class="text-gray-400 hover:text-white">Success Stories</a></li>
+            <li><a href="#pricing" class="text-gray-400 hover:text-white">Membership</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="text-lg font-semibold mb-4">Legal</h4>
+          <ul class="space-y-2">
+            <li><a href="privacy.html" class="text-gray-400 hover:text-white">Privacy Policy</a></li>
+            <li><a href="tos.html" class="text-gray-400 hover:text-white">Terms & Conditions</a></li>
+            
+          </ul>
+        </div>
+        <div>
+          <h4 class="text-lg font-semibold mb-4">Contact Us</h4>
+          <ul class="space-y-2 text-gray-400">
+            <li class="flex items-start">
+              <i class="fas fa-map-marker-alt mt-1 mr-2"></i>
+              <span>123 Matrimony Lane, Mumbai, India</span>
+            </li>
+            <li class="flex items-center">
+              <i class="fas fa-phone-alt mr-2"></i>
+              <span></span>
+            </li>
+            <li class="flex items-center">
+              <i class="fas fa-envelope mr-2"></i>
+              <span>info@bandhanbypreeti.com</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center">
+        <p class="text-gray-400">&copy; 2023 BandhanByPreeti. All rights reserved.</p>
+        <div class="flex space-x-4 mt-4 md:mt-0">
+          <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-facebook-f"></i></a>
+          <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-twitter"></i></a>
   </footer>
 
+  <!-- Back to Top Button -->
+  <button id="backToTop" class="fixed bottom-8 right-8 bg-pink-600 text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg hover:bg-pink-700 transition-all duration-300 hidden">
+    <i class="fas fa-arrow-up"></i>
+  </button>
+
+
+  <!-- Scripts -->
+  <script>
+    // Mobile menu toggle
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const mobileMenu = document.getElementById('mobileMenu');
+    
+    if (mobileMenuBtn && mobileMenu) {
+      mobileMenuBtn.addEventListener('click', () => {
+        mobileMenu.classList.toggle('hidden');
+        mobileMenuBtn.innerHTML = mobileMenu.classList.contains('hidden') ? 
+          '<i class="fas fa-bars"></i>' : 
+          '<i class="fas fa-times"></i>';
+      });
+    }
+
+    // Back to top button
+    const backToTopBtn = document.getElementById('backToTop');
+    if (backToTopBtn) {
+      window.addEventListener('scroll', () => {
+        if (window.pageYOffset > 300) {
+          backToTopBtn.classList.remove('hidden');
+        } else {
+          backToTopBtn.classList.add('hidden');
+        }
+      });
+      
+      backToTopBtn.addEventListener('click', () => {
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth'
+        });
+      });
+    }
+  </script>
 </body>
 </html>
