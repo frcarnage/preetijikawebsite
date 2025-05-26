@@ -1,14 +1,95 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Register - BandhanByPreeti</title>
-  <meta name="description" content="Create your free BandhanByPreeti account and find your perfect life partner.">
-  <meta name="keywords" content="register, matrimony, BandhanByPreeti, marriage, matchmaking">
-  <meta name="author" content="BandhanByPreeti">
-  <link rel="icon" href="favicon.ico" type="image/x-icon" />
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Register for BandhanByPreeti - India's trusted matchmaking platform." />
+    <meta name="keywords" content="BandhanByPreeti, Matrimony, Matchmaking, Shaadi, Marriage, Register" />
+    <meta name="author" content="BandhanByPreeti Team" />
+    <title>Register | BandhanByPreeti</title>
+    <link rel="icon" href="/image/favicon.ico" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="./firebaseConfig.js"></script>
+    <script src="./auth.js"></script>
+    <script src="./utils.js"></script>
+    <script>
+        // Custom validation messages
+        const validationMessages = {
+            email: 'Please enter a valid email address',
+            password: 'Password must be at least 6 characters long',
+            confirmPassword: 'Passwords do not match',
+            terms: 'You must agree to the terms and conditions'
+        };
+
+        // Form validation
+        function validateForm() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const terms = document.getElementById('terms').checked;
+
+            // Clear previous errors
+            const errorDiv = document.getElementById('errorDiv');
+            if (errorDiv) errorDiv.remove();
+
+            // Validate email
+            if (!validateEmail(email)) {
+                showError(validationMessages.email);
+                return false;
+            }
+
+            // Validate password
+            if (!validatePassword(password)) {
+                showError(validationMessages.password);
+                return false;
+            }
+
+            // Validate password match
+            if (password !== confirmPassword) {
+                showError(validationMessages.confirmPassword);
+                return false;
+            }
+
+            // Validate terms acceptance
+            if (!terms) {
+                showError(validationMessages.terms);
+                return false;
+            }
+
+            return true;
+        }
+
+        // Handle registration
+        async function handleRegister(event) {
+            event.preventDefault();
+            
+            if (!validateForm()) return;
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                addLoadingSpinner(document.getElementById('registerForm'));
+                const user = await signUp(email, password);
+                
+                // Send email verification
+                await sendEmailVerification(user);
+                
+                // Save user data to localStorage
+                setLocalStorage('user', { email: user.email, uid: user.uid });
+                
+                // Redirect to create profile page
+                window.location.href = 'create-profile.html';
+            } catch (error) {
+                document.getElementById('registerForm').innerHTML = showError(error.message);
+            }
+        }
+    </script>
 </head>
 <body class="bg-gray-100 text-gray-800 flex items-center justify-center min-h-screen px-4">
 
